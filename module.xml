@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<module name="json">
+  <typeloaders>
+    <typeloader class="com.jpcamara.gosu.json.JsonTypeLoader"/>
+  </typeloaders>
+</module>
