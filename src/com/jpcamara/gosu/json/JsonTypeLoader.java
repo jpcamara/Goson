@@ -39,10 +39,6 @@ public class JsonTypeLoader extends TypeLoaderBase {
 				String name = fileName.substring(lastIndex + 1);
 				String path = "json." + fileName.substring(0, lastIndex);
 
-				System.out.println(fileName);
-				System.out.println(lastIndex);
-				System.out.println(name);
-				System.out.println(path);
 				try {
 					String jsonString = "";
 					Scanner s = new Scanner(f);
@@ -64,7 +60,6 @@ public class JsonTypeLoader extends TypeLoaderBase {
 			}
 
 		}
-//		System.out.println(types);
 		if (fullyQualifiedName == null || types.get(fullyQualifiedName) == null) {
 			return null;
 		}
