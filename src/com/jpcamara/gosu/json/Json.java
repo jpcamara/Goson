@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -22,7 +23,7 @@ public class Json {
 		}
 	}
 	
-	private Json(JSONObject json) {
+	public Json(JSONObject json) {
 		this.json = json;
 	}
 	
@@ -32,6 +33,16 @@ public class Json {
 			if (get(key) instanceof JSONObject) {
 				types.add(key);
 				types.addAll(getJson(key).getAllTypeNames());
+			} else if (get(key) instanceof JSONArray) {
+				JSONArray arr = (JSONArray)get(key);
+				try {
+					if (arr.get(0) instanceof JSONObject) {
+						types.add(key);
+						types.addAll(new Json((JSONObject)arr.get(0)).getAllTypeNames());
+					}
+				} catch (JSONException e) {
+					throw new JSONParserException(e);
+				}
 			}
 		}
 		return types;

@@ -78,7 +78,13 @@ public class JsonTypeLoader extends TypeLoaderBase {
 				searchAndAddTypes(key, path, object.getJson(key));
 				addType(namify(key), path, object.getJson(key));
 			} else if (obj instanceof JSONArray) {
-				System.out.println(key);
+				JSONArray arr = (JSONArray)obj;
+				if (arr.get(0) instanceof JSONObject) {
+					Json typeInArray = new Json((JSONObject)arr.get(0));
+					searchAndAddTypes(key, path, typeInArray);
+					addType(namify(key), path, typeInArray);
+					System.out.println(key);
+				}
 			}
 		}
 	}

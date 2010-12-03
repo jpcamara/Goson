@@ -1,4 +1,8 @@
 playing around with Gosu typeloading - creating a JSON typeloader that loads based off of a 
-sample JSON file. right now it's loading from hard-coded files, and still working on changing names
-to be more gosu-like for properties, and changing type names to the proper casing. also need to handle
-json arrays and types besides strings. 
+sample JSON file. 
+
+Right now it's loading from hard-coded files, and still working on changing names
+to be more gosu-like for properties, and changing type names to the proper casing.
+
+Creates types for all levels of the JSON. Currently does not fully handle json arrays. Can only
+handle JSON arrays that are all of ones type. Seems to be pretty standard, even in the RFC.

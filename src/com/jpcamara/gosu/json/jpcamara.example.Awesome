@@ -2,6 +2,10 @@
   "some_object": {
     "first_field": 1,
     "second_field": "2",
+    "nuller": null,
+    "inty": 1,
+    "booly": true,
+    "doubly": 1.0,
     "some_deeper_object": {
       "third_field": "4",
       "even_deeper": [{
