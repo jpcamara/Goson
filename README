@@ -5,4 +5,6 @@ Right now it's loading from hard-coded files, and still working on changing name
 to be more gosu-like for properties, and changing type names to the proper casing.
 
 Creates types for all levels of the JSON. Currently does not fully handle json arrays. Can only
-handle JSON arrays that are all of ones type. Seems to be pretty standard, even in the RFC.
+handle JSON arrays that are all of one type. Not sure if that is the correct way to handle it,
+but the RFC examples seem to only use one type - otherwise there'd need to be some kind of tuple
+to keep it statically typed.
