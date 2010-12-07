@@ -27,6 +27,10 @@ public class Json {
 		this.json = json;
 	}
 	
+	public String serialize() {
+		return null;
+	}
+	
 	public Set<String> getAllTypeNames() {
 		Set<String> types = new HashSet<String>();
 		for (String key : keys()) {

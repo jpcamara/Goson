@@ -1,5 +1,6 @@
 package com.jpcamara.gosu.json;
 
+import gw.lang.reflect.DefaultArrayType;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.ITypeInfo;
 import gw.lang.reflect.ITypeLoader;
@@ -17,7 +18,7 @@ public class JsonType extends TypeBase {
 	private ITypeLoader loader;
 	private String name;
 	private String path;
-
+	private DefaultArrayType arrayType;
 	private LazyVar<JsonTypeInfo> typeInfo;
 
 	public JsonType(String name, String path, ITypeLoader typeloader,
@@ -25,7 +26,8 @@ public class JsonType extends TypeBase {
 		this.name = name;
 		this.path = path;
 		this.loader = typeloader;
-		typeInfo = new LazyVar<JsonTypeInfo>() {
+		this.arrayType = new DefaultArrayType(this, Json.class, loader);
+		this.typeInfo = new LazyVar<JsonTypeInfo>() {
 			@Override
 			protected JsonTypeInfo init() {
 				return new JsonTypeInfo(JsonType.this, object);
@@ -71,6 +73,16 @@ public class JsonType extends TypeBase {
 	public IType getSupertype() {
 		//IJavaType.ARRAYLIST;
 		return IJavaType.OBJECT;
+	}
+	
+	@Override
+	public IType getArrayType() {
+		return arrayType;
+	}
+	
+	@Override
+	public Object makeArrayInstance(int length) {
+		return new Json[length];
 	}
 	
 	public String toString() {

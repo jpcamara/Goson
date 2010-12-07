@@ -27,7 +27,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
 			new File(PATH + "eventful.search.Response"),
 			new File(PATH + "jpcamara.example.Awesome") });
 
-	private Map<String, JsonType> types = new HashMap<String, JsonType>();
+	private Map<String, IType> types = new HashMap<String, IType>();
 
 	@Override
 	public IType getType(String fullyQualifiedName) {
@@ -83,7 +83,6 @@ public class JsonTypeLoader extends TypeLoaderBase {
 					Json typeInArray = new Json((JSONObject)arr.get(0));
 					searchAndAddTypes(key, path, typeInArray);
 					addType(namify(key), path, typeInArray);
-					System.out.println(key);
 				}
 			}
 		}

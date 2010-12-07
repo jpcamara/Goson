@@ -15,6 +15,7 @@ import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.IRelativeTypeInfo.Accessibility;
 import gw.lang.reflect.gs.IGenericTypeVariable;
 import gw.lang.reflect.java.IJavaType;
+import gw.lang.reflect.IDefaultArrayType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,31 +44,7 @@ public class JsonTypeInfo extends TypeInfoBase {
 					public void setValue(Object ctx, Object value) {
 						Json json = (Json) ctx;
 						try {
-							json.put(name, (String) value);
-						} catch (Exception e) {
-							throw new RuntimeException(e);
-						}
-					}
-
-					@Override
-					public Object getValue(Object ctx) {
-						try {
-							return ((Json) ctx).get(name);
-						} catch (Exception e) {
-							throw new RuntimeException(e);
-						}
-					}
-				}).build(this);
-	}
-
-	private IPropertyInfo createArrayWithType(final String name, IType type) {
-		return new PropertyInfoBuilder().withName(name).withWritable(true)
-				.withType(type).withAccessor(new IPropertyAccessor() {
-					@Override
-					public void setValue(Object ctx, Object value) {
-						Json json = (Json) ctx;
-						try {
-							json.put(name, (String) value);
+							json.put(name, value);
 						} catch (Exception e) {
 							throw new RuntimeException(e);
 						}
@@ -91,8 +68,8 @@ public class JsonTypeInfo extends TypeInfoBase {
 				properties.add(createWithType(key, IJavaType.STRING));
 			} else if (json.get(key) instanceof JSONObject) {
 				JsonType type = getOwnersType();
-				JsonType propertyType = (JsonType) type.getTypeLoader()
-						.getType(type.getNamespace() + "." + key);
+				IType propertyType = type.getTypeLoader()
+					.getType(type.getNamespace() + "." + key);
 				properties.add(createWithType(key, propertyType));
 			} else if (json.get(key) instanceof Integer) {
 				properties.add(createWithType(key, IJavaType.INTEGER));
@@ -102,34 +79,11 @@ public class JsonTypeInfo extends TypeInfoBase {
 				properties.add(createWithType(key, IJavaType.BOOLEAN));
 
 			} else if (json.get(key) instanceof JSONArray) {
-
-				
-//				IJavaType type = new ArrayListType() {
-//					@Override
-//					public IGenericTypeVariable[] getGenericTypeVariables() {
-//						return new IGenericTypeVariable[] { new ArrayListBound() {
-//							public IJavaType getBoundingType() {
-//								return IJavaType.INTEGER;
-//							}
-//						}
-//						};
-//					}
-//				};
-//				TypeSystem t;
-//				System.out.println(type.getGenericTypeVariables()[0]);
-//				properties.add(createWithType(key, (IJavaType)TypeSystem.get(String[].class)));
-//				IJavaType.LIST.getGenericTypeVariables();
 				JsonType type = getOwnersType();
-				JsonType propertyType = (JsonType) type.getTypeLoader()
-						.getType(type.getNamespace() + "." + key);
-				
+				IType propertyType = type.getTypeLoader()
+						.getType(type.getNamespace() + "." + key).getArrayType();
 				properties.add(createWithType(key, propertyType));
-				
-				
-				System.out.println("array: " + key + " type: " + type.getName());
-
 			} else if (json.get(key) == org.json.JSONObject.NULL) {
-//				throw new RuntimeException("can't handle nulls");
 				System.out.println("can't handle nulls");
 			}
 		}
