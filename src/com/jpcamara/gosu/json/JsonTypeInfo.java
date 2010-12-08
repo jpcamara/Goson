@@ -1,6 +1,5 @@
 package com.jpcamara.gosu.json;
 
-import gw.lang.parser.expressions.ITypeVariableDefinition;
 import gw.lang.reflect.ConstructorInfoBuilder;
 import gw.lang.reflect.IAnnotationInfo;
 import gw.lang.reflect.IConstructorHandler;
@@ -11,19 +10,13 @@ import gw.lang.reflect.IPropertyInfo;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.PropertyInfoBuilder;
 import gw.lang.reflect.TypeInfoBase;
-import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.IRelativeTypeInfo.Accessibility;
-import gw.lang.reflect.gs.IGenericTypeVariable;
 import gw.lang.reflect.java.IJavaType;
-import gw.lang.reflect.IDefaultArrayType;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 public class JsonTypeInfo extends TypeInfoBase {
 
@@ -66,7 +59,7 @@ public class JsonTypeInfo extends TypeInfoBase {
 		for (String key : json.keys()) {
 			if (json.get(key) instanceof String) {
 				properties.add(createWithType(key, IJavaType.STRING));
-			} else if (json.get(key) instanceof JSONObject) {
+			} else if (Json.isJSONObject(json.get(key))) {
 				JsonType type = getOwnersType();
 				IType propertyType = type.getTypeLoader()
 					.getType(type.getNamespace() + "." + key);
@@ -78,12 +71,12 @@ public class JsonTypeInfo extends TypeInfoBase {
 			} else if (json.get(key) instanceof Boolean) {
 				properties.add(createWithType(key, IJavaType.BOOLEAN));
 
-			} else if (json.get(key) instanceof JSONArray) {
+			} else if (Json.isJSONArray(json.get(key))) {
 				JsonType type = getOwnersType();
 				IType propertyType = type.getTypeLoader()
 						.getType(type.getNamespace() + "." + key).getArrayType();
 				properties.add(createWithType(key, propertyType));
-			} else if (json.get(key) == org.json.JSONObject.NULL) {
+			} else if (Json.isJSONNull(json.get(key))) {
 				System.out.println("can't handle nulls");
 			}
 		}

@@ -15,7 +15,6 @@ import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 //Anonymous Array
 //Anonymous Object
@@ -74,13 +73,13 @@ public class JsonTypeLoader extends TypeLoaderBase {
 			throws JSONException {
 		for (String key : object.keys()) {
 			Object obj = object.get(key);
-			if (obj instanceof JSONObject) {
+			if (Json.isJSONObject(obj)) {
 				searchAndAddTypes(key, path, object.getJson(key));
 				addType(namify(key), path, object.getJson(key));
-			} else if (obj instanceof JSONArray) {
+			} else if (Json.isJSONArray(obj)) {
 				JSONArray arr = (JSONArray)obj;
-				if (arr.get(0) instanceof JSONObject) {
-					Json typeInArray = new Json((JSONObject)arr.get(0));
+				if (Json.isJSONObject(arr.get(0))) {
+					Json typeInArray = new Json(arr.get(0));
 					searchAndAddTypes(key, path, typeInArray);
 					addType(namify(key), path, typeInArray);
 				}

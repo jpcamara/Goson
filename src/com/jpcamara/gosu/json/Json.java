@@ -23,8 +23,11 @@ public class Json {
 		}
 	}
 	
-	public Json(JSONObject json) {
-		this.json = json;
+	public Json(Object json) {
+		if ((json instanceof JSONObject) == false) {
+			throw new JSONParserException("Must be a JSONObject");
+		}
+		this.json = (JSONObject)json;
 	}
 	
 	public String serialize() {
@@ -85,6 +88,18 @@ public class Json {
 		return str;
 	}
 	
+	public static boolean isJSONArray(Object o) {
+		return o instanceof JSONArray;
+	}
+	
+	public static boolean isJSONObject(Object o) { 
+		return o instanceof JSONObject;
+	}
+	
+	public static boolean isJSONNull(Object o) {
+		return JSONObject.NULL.getClass().isInstance(o);
+	}
+	
 	public Iterable<String> keys() {
 		return new IterableJson();
 	}
@@ -102,6 +117,10 @@ public class Json {
 
 		public JSONParserException(JSONException e) {
 			super(e);
+		}
+		
+		public JSONParserException(String message) {
+			super(message);
 		}
 	}
 }
