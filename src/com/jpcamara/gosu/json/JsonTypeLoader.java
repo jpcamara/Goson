@@ -5,6 +5,7 @@ import gw.lang.reflect.TypeLoaderBase;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,18 +14,17 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 
-//Anonymous Array
-//Anonymous Object
-//If base is an array - extend ArrayList
 public class JsonTypeLoader extends TypeLoaderBase {
 	private static final String PATH = "./src/com/jpcamara/gosu/json/";
-	private static final List<File> FILES = Arrays.asList(new File[] {
-			new File(PATH + "twitter.status.Response"),
-			new File(PATH + "eventful.search.Response"),
-			new File(PATH + "jpcamara.example.Awesome") });
+	private static final List<File> FILES = Arrays.asList(new File(PATH).listFiles(
+			new FilenameFilter() {
+				@Override
+				public boolean accept(File file, String name) {
+					return name.endsWith(".java") == false;
+				}
+			}));
 
 	private Map<String, IType> types = new HashMap<String, IType>();
 
@@ -77,9 +77,9 @@ public class JsonTypeLoader extends TypeLoaderBase {
 				searchAndAddTypes(key, path, object.getJson(key));
 				addType(namify(key), path, object.getJson(key));
 			} else if (Json.isJSONArray(obj)) {
-				JSONArray arr = (JSONArray)obj;
-				if (Json.isJSONObject(arr.get(0))) {
-					Json typeInArray = new Json(arr.get(0));
+				Object arrEntry = object.getWithIndex(key, 0);
+				if (Json.isJSONObject(arrEntry)) {
+					Json typeInArray = new Json(arrEntry);
 					searchAndAddTypes(key, path, typeInArray);
 					addType(namify(key), path, typeInArray);
 				}

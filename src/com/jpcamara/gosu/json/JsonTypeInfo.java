@@ -72,10 +72,25 @@ public class JsonTypeInfo extends TypeInfoBase {
 				properties.add(createWithType(key, IJavaType.BOOLEAN));
 
 			} else if (Json.isJSONArray(json.get(key))) {
-				JsonType type = getOwnersType();
-				IType propertyType = type.getTypeLoader()
-						.getType(type.getNamespace() + "." + key).getArrayType();
-				properties.add(createWithType(key, propertyType));
+				Object firstEntry = json.getWithIndex(key, 0);
+				
+				if (firstEntry instanceof String) {
+					properties.add(createWithType(key, IJavaType.STRING.getArrayType()));
+				} else if (firstEntry instanceof Integer) {
+					properties.add(createWithType(key, IJavaType.INTEGER.getArrayType()));
+				} else if (firstEntry instanceof Double) {
+					properties.add(createWithType(key, IJavaType.DOUBLE.getArrayType()));
+				} else if (firstEntry instanceof Boolean) {
+					properties.add(createWithType(key, IJavaType.BOOLEAN.getArrayType()));
+				} else {
+					JsonType type = getOwnersType();
+					IType propertyType = type.getTypeLoader()
+							.getType(type.getNamespace() + "." + key);
+					if (propertyType == null) {
+						throw new RuntimeException("No type found");
+					}
+					properties.add(createWithType(key, propertyType.getArrayType()));
+				}
 			} else if (Json.isJSONNull(json.get(key))) {
 				System.out.println("can't handle nulls");
 			}

@@ -71,7 +71,6 @@ public class JsonType extends TypeBase {
 
 	@Override
 	public IType getSupertype() {
-		//IJavaType.ARRAYLIST;
 		return IJavaType.OBJECT;
 	}
 	

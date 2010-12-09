@@ -1,5 +1,6 @@
 package com.jpcamara.gosu.json;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -11,6 +12,8 @@ import java.util.Set;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.jpcamara.gosu.json.Json.JSONParserException;
 
 public class TestJson {
 
@@ -94,5 +97,63 @@ public class TestJson {
 		String expected = "here it is";
 		json.put("some_value", expected);
 		assertEquals(expected, json.get("some_value"));
+	}
+	
+	@Test
+	public void typeChecks() throws Exception {
+		assertTrue(Json.isJSONObject(json.get("events")));
+		assertTrue(Json.isJSONArray(json.getJson("events").get("event")));
+		assertTrue(Json.isJSONNull(json.get("total_items")));
+		
+		assertFalse(Json.isJSONObject(json.getJson("events").get("event")));
+		assertFalse(Json.isJSONArray(json.get("events")));
+		assertFalse(Json.isJSONNull(json.get("last_item")));
+	}
+	
+	@Test
+	public void getItemByIndex() throws Exception {
+		assertTrue(json.getJson("events").getWithIndex("event", 0) instanceof JSONObject);
+	}
+	
+	@Test
+	public void returnsNullWhenNoKeyIsAvailable() throws Exception {
+		assertEquals(null, json.get("doesnt_exist"));
+	}
+	
+	@Test
+	public void toStringReturnsContents() throws Exception {
+		assertEquals(
+		"[page_size,total_items,events,page_items,first_item," +
+		"page_number,search_time,last_item,page_count,]", json.toString());
+	}
+	
+	@Test
+	public void serializesToJsonString() throws Exception {
+		assertEquals("{}", json.serialize());
+	}
+	
+	@Test(expected = JSONParserException.class)
+	public void failsConstructionOnBogusJson() throws Exception {
+		new Json("dun dun dunnnnn");
+	}
+	
+	@Test(expected = JSONParserException.class)
+	public void failsConstructionOnNonJSONObject() throws Exception {
+		new Json(new Json());
+	}
+	
+	@Test(expected = JSONParserException.class)
+	public void failsWhenAccessedByIndexOnNonArray() throws Exception {
+		json.getWithIndex("events", 0);
+	}
+	
+	@Test(expected = JSONParserException.class)
+	public void failsWhenGettingJsonForNonJsonObject() throws Exception {
+		json.getJson("last_item");
+	}
+	
+	@Test(expected = JSONParserException.class)
+	public void failsOnPutWithABadKey() throws Exception {
+		json.put(null,"uh-oh");
 	}
 }

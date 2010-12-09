@@ -57,9 +57,27 @@ public class Json {
 	
 	public Object get(String key) {
 		try {
+			if (json.has(key) == false) {
+				return null;
+			}
 			return json.get(key);
 		} catch (JSONException e) {
 			throw new JSONParserException(e);		
+		}
+	}
+	
+	public Object getWithIndex(String key, int index) {
+		try {
+			if (json.has(key) == false) {
+				return null;
+			}
+			Object o = json.get(key);
+			if (Json.isJSONArray(o) == false) {
+				throw new JSONParserException(key + " is not an array");
+			}
+			return ((JSONArray)o).get(index);
+		} catch (JSONException e) {
+			throw new JSONParserException(e);
 		}
 	}
 	
