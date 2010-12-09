@@ -8,6 +8,3 @@ Creates types for all levels of the JSON. Currently does not fully handle json a
 handle JSON arrays that are all of one type. Not sure if that is the correct way to handle it,
 but the RFC examples seem to only use one type - otherwise there'd need to be some kind of tuple
 to keep it statically typed.
-
-Currently throws an exception when something has not been set (ie, is null) because of the way
-the org.json classes work.
