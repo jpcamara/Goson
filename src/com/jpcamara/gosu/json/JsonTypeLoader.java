@@ -1,11 +1,13 @@
-package com.jpcamara.gosu.json;
+	package com.jpcamara.gosu.json;
 
 import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeLoaderBase;
+import gw.lang.reflect.module.IFile;
+import gw.lang.reflect.module.IModule;
+import gw.util.Pair;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,30 +19,30 @@ import java.util.Set;
 import org.json.JSONException;
 
 public class JsonTypeLoader extends TypeLoaderBase {
-	private static final String PATH = "./src/com/jpcamara/gosu/json/";
-	private static final List<File> FILES = Arrays.asList(new File(PATH).listFiles(
-			new FilenameFilter() {
-				@Override
-				public boolean accept(File file, String name) {
-					return name.endsWith(".java") == false;
-				}
-			}));
-
 	private Map<String, IType> types = new HashMap<String, IType>();
+	private IModule module;
+	
+	public JsonTypeLoader(IModule module) {
+		this.module = module;
+	}
 
 	@Override
 	public IType getType(String fullyQualifiedName) {
 		if (types.isEmpty()) {
-			for (File f : FILES) {
+			List<Pair<String, IFile>> files = 
+				module.getResourceAccess().findAllFilesByExtension("json");
+			
+			for (Pair<String, IFile> pair : files) {
 				Json o = null;
-				String fileName = f.getName();
+				String fileName = pair.getSecond().getName().replaceAll("\\.json", "");
 				int lastIndex = fileName.lastIndexOf(".");
+				
 				String name = fileName.substring(lastIndex + 1);
 				String path = "json." + fileName.substring(0, lastIndex);
 
 				try {
 					String jsonString = "";
-					Scanner s = new Scanner(f);
+					Scanner s = new Scanner(pair.getSecond().toJavaFile());
 					while (s.hasNextLine()) {
 						jsonString += s.nextLine();
 					}
@@ -57,7 +59,6 @@ public class JsonTypeLoader extends TypeLoaderBase {
 					throw new RuntimeException(e);
 				}
 			}
-
 		}
 		if (fullyQualifiedName == null || types.get(fullyQualifiedName) == null) {
 			return null;
@@ -95,10 +96,15 @@ public class JsonTypeLoader extends TypeLoaderBase {
 	public Set<String> getAllTypeNames() {
 		Set<String> typeNames = new HashSet<String>();
 
-		for (File f : FILES) {
+		List<Pair<String, IFile>> files = 
+			module.getResourceAccess().findAllFilesByExtension("json");
+		
+		for (Pair<String, IFile> pair : files) {
 			Set<String> types = new HashSet<String>();
+			File jsonFile = pair.getSecond().toJavaFile();
+			
 			try {
-				Scanner s = new Scanner(f).useDelimiter("\\Z");
+				Scanner s = new Scanner(jsonFile).useDelimiter("\\Z");
 				String content = s.next();
 				Json j = new Json(content);
 				s.close();
@@ -107,7 +113,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
 				throw new RuntimeException(e);
 			}
 
-			String fileName = f.getName();
+			String fileName = jsonFile.getName().replaceAll("\\.json", "");
 			String[] parts = fileName.split("\\.");
 			String[] namespace = new String[parts.length - 1];
 			java.lang.System
@@ -131,8 +137,11 @@ public class JsonTypeLoader extends TypeLoaderBase {
 		Set<String> allNamespaces = new HashSet<String>();
 		allNamespaces.add("json");
 
-		for (File f : FILES) {
-			String fileName = f.getName();
+		List<Pair<String, IFile>> files = 
+			module.getResourceAccess().findAllFilesByExtension("json");
+		
+		for (Pair<String, IFile> pair : files) {
+			String fileName = pair.getSecond().toJavaFile().getName().replaceAll("\\.java", "");
 			String[] parts = fileName.split("\\.");
 			String[] namespace = new String[parts.length - 1];
 			java.lang.System
