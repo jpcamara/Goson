@@ -6,7 +6,7 @@ var libDir = file(".")
 function compile() {
   Ant.mkdir(:dir = classesDir)
   Ant.javac(:srcdir = path(srcDir),
-            :classpath = classpath(libDir.fileset()),
+            :classpath = classpath(libDir.fileset(:includes = "**/*.jar")),
             :destdir = classesDir,
             :includeantruntime = false)
   classesDir.file("META-INF").mkdir()
