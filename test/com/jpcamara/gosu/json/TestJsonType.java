@@ -15,19 +15,19 @@ import org.junit.Test;
 public class TestJsonType {
 	
 	private JsonType type;
-//	private JsonTypeLoader loader = new JsonTypeLoader();
+	private JsonTypeLoader loader = new JsonTypeLoader();
 	
-//	@Before
-//	public void setup() throws Exception {
-//		type = new JsonType("SomeName", 
-//				"jpcamara.test", loader, new Json());
-//	}
+	@Before
+	public void setup() throws Exception {
+		type = new JsonType(new JsonName("some_name"), 
+				"jpcamara.test", loader, new Json());
+	}
 
-//	@Test
-//	public void constructor() throws Exception {
-//		type = new JsonType("some_namer", 
-//				"jpcamara.sweet", new JsonTypeLoader(), new Json());
-//	}
+	@Test
+	public void constructor() throws Exception {
+		type = new JsonType(new JsonName("some_namer"), 
+				"jpcamara.sweet", new JsonTypeLoader(), new Json());
+	}
 	
 	@Test
 	public void name() throws Exception {
@@ -54,10 +54,10 @@ public class TestJsonType {
 		assertTrue(type.getTypeInfo() instanceof JsonTypeInfo);
 	}
 	
-//	@Test
-//	public void typeloader() throws Exception {
-//		assertEquals(loader, type.getTypeLoader());
-//	}
+	@Test
+	public void typeloader() throws Exception {
+		assertEquals(loader, type.getTypeLoader());
+	}
 	
 	@Test
 	public void interfaces() throws Exception {

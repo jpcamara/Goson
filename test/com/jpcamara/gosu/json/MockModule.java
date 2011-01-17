@@ -29,12 +29,13 @@ public class MockModule implements IModule {
 	@Override
 	public IResourceAccess getResourceAccess() {
 		// TODO Auto-generated method stub
-		return null;
+		return new Access();
 	}
 	
 	private static class Access implements IResourceAccess {
 
-		private static final String PATH = "./src/com/jpcamara/gosu/json/";
+		private static final String PATH = 
+			"/Users/johnpcamara/Projects/Playground/Gosu/GosuJsonType/src/com/jpcamara/gosu/json/";
 		private static final List<File> FILES = Arrays.asList(new File(PATH).listFiles(
 				new FilenameFilter() {
 					@Override
@@ -47,7 +48,7 @@ public class MockModule implements IModule {
 		public List<Pair<String, IFile>> findAllFilesByExtension(
 				String extension) {
 			List<Pair<String, IFile>> pairs = new ArrayList<Pair<String, IFile>>();
-			for (File f : FILES) {
+			for (final File f : FILES) {
 				Pair<String, IFile> pair = new Pair<String, IFile>(
 						f.getPath(),
 						new IFile() {
@@ -106,7 +107,7 @@ public class MockModule implements IModule {
 							@Override
 							public String getName() {
 								// TODO Auto-generated method stub
-								return null;
+								return f.getName();
 							}
 
 							@Override
@@ -142,7 +143,7 @@ public class MockModule implements IModule {
 							@Override
 							public File toJavaFile() {
 								// TODO Auto-generated method stub
-								return null;
+								return f;
 							}
 
 							@Override
@@ -152,9 +153,10 @@ public class MockModule implements IModule {
 							}
 							
 						});
+				pairs.add(pair);
 			}
 			// TODO Auto-generated method stub
-			return null;
+			return pairs;
 		}
 		
 		@Override

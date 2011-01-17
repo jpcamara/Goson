@@ -16,12 +16,12 @@ public class JsonType extends TypeBase {
 	private static final long serialVersionUID = -8034222055932240161L;
 
 	private ITypeLoader loader;
-	private String name;
+	private JsonName name;
 	private String path;
 	private DefaultArrayType arrayType;
 	private LazyVar<JsonTypeInfo> typeInfo;
 
-	public JsonType(String name, String path, ITypeLoader typeloader,
+	public JsonType(JsonName name, String path, ITypeLoader typeloader,
 			final Json object) {
 		this.name = name;
 		this.path = path;
@@ -37,7 +37,7 @@ public class JsonType extends TypeBase {
 
 	@Override
 	public String getName() {
-		return path + "." + name;
+		return path + "." + name.getName();
 	}
 
 	@Override
@@ -47,11 +47,11 @@ public class JsonType extends TypeBase {
 
 	@Override
 	public String getRelativeName() {
-		return name;
+		return name.getName();
 	}
 	
 	public String getJsonRelativeName() {
-		return name;
+		return name.getJsonName();
 	}
 
 	@Override

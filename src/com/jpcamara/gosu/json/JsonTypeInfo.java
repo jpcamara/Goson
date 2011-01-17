@@ -31,7 +31,8 @@ public class JsonTypeInfo extends TypeInfoBase {
 	}
 
 	private IPropertyInfo createWithType(final String name, IType type) {
-		return new PropertyInfoBuilder().withName(name).withWritable(true)
+		return new PropertyInfoBuilder()
+				.withName(new JsonName(name).getName()).withWritable(true)
 				.withType(type).withAccessor(new IPropertyAccessor() {
 					@Override
 					public void setValue(Object ctx, Object value) {
@@ -62,7 +63,7 @@ public class JsonTypeInfo extends TypeInfoBase {
 			} else if (Json.isJSONObject(json.get(key))) {
 				JsonType type = getOwnersType();
 				IType propertyType = type.getTypeLoader()
-					.getType(type.getNamespace() + "." + key);
+					.getType(type.getNamespace() + "." + new JsonName(key).getName());
 				properties.add(createWithType(key, propertyType));
 			} else if (json.get(key) instanceof Integer) {
 				properties.add(createWithType(key, IJavaType.INTEGER));
@@ -85,7 +86,7 @@ public class JsonTypeInfo extends TypeInfoBase {
 				} else {
 					JsonType type = getOwnersType();
 					IType propertyType = type.getTypeLoader()
-							.getType(type.getNamespace() + "." + key);
+							.getType(type.getNamespace() + "." + new JsonName(key).getName());
 					if (propertyType == null) {
 						throw new RuntimeException("No type found");
 					}
@@ -135,7 +136,6 @@ public class JsonTypeInfo extends TypeInfoBase {
 
 	@Override
 	public CharSequence getRealPropertyName(CharSequence propName) {
-		// TODO Auto-generated method stub
 		for (IPropertyInfo prop : properties) {
 			if (propName.equals(prop.getName())) {
 				return prop.getName();
@@ -151,7 +151,6 @@ public class JsonTypeInfo extends TypeInfoBase {
 
 	@Override
 	public boolean hasAnnotation(IType type) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
