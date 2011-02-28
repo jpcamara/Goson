@@ -74,15 +74,15 @@ public class JsonType extends TypeBase {
 		return IJavaType.OBJECT;
 	}
 	
-	@Override
-	public IType getArrayType() {
-		return arrayType;
-	}
-	
-	@Override
-	public Object makeArrayInstance(int length) {
-		return new Json[length];
-	}
+//	@Override
+//	public IType getArrayType() {
+//		return arrayType;
+//	}
+//	
+//	@Override
+//	public Object makeArrayInstance(int length) {
+//		return new Json[length];
+//	}
 	
 	public String toString() {
 		return getName() + " " + typeInfo.get();

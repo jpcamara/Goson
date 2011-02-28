@@ -2,6 +2,7 @@ package com.jpcamara.gosu.json;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.json.JSONArray;
@@ -31,7 +32,42 @@ public class Json {
 	}
 	
 	public String serialize() {
-		return null;
+//		try {
+		JSONObject output = serializeAsJSONObject();
+		return output.toString();
+	}
+	
+	private JSONObject serializeAsJSONObject() {
+		JSONObject output = new JSONObject();
+
+		try {
+			for (String key : keys()) {
+				JsonName name = new JsonName(key);
+				if (get(key) instanceof List) {
+					List list = (List)get(key);
+					JSONArray array = new JSONArray();
+					output.put(name.getJsonName(), array);
+					if (list.size() > 0 && list.get(0) instanceof Json) {
+						List<Json> jsons = (List<Json>)list;
+						for (Json j : jsons) {
+							array.put(j.serializeAsJSONObject());
+						}
+					} else {
+						for (Object o : list) {
+							array.put(o);
+						}
+					}
+				} else if (get(key) instanceof Json) {
+					Json current = (Json)get(name.getJsonName());
+					output.put(name.getJsonName(), current.serializeAsJSONObject());
+				} else {
+					output.put(name.getJsonName(), get(key));
+				}
+			}
+		} catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
+		return output;
 	}
 	
 	public Set<String> getAllTypeNames() {

@@ -2,15 +2,15 @@ package com.jpcamara.gosu.json;
 
 import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeLoaderBase;
-import gw.lang.reflect.module.IFile;
+import gw.fs.IFile;
 import gw.lang.reflect.module.IModule;
+import gw.lang.reflect.module.IResourceAccess;
 import gw.util.Pair;
-import gw.util.StreamUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.Writer;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,21 +23,19 @@ import org.json.JSONException;
 
 public class JsonTypeLoader extends TypeLoaderBase {
 	private Map<String, IType> types = new HashMap<String, IType>();
+	private static final String EXT = "json";
 	
-	public JsonTypeLoader(IModule env) {
+	public JsonTypeLoader(IModule env, IResourceAccess access) {
 		super(env);
 	}
 	
-	public JsonTypeLoader() {
-		super();
-	}
+	public JsonTypeLoader() {}
 
 	@Override
 	public IType getType(String fullyQualifiedName) {
 		if (types.isEmpty()) {
 			List<Pair<String, IFile>> files = 
-				getModule().getResourceAccess().findAllFilesByExtension("json");
-			writeIt("getType1: " + fullyQualifiedName);
+				getModule().getResourceAccess().findAllFilesByExtension(EXT);
 			for (Pair<String, IFile> pair : files) {
 				Json o = null;
 				String fileName = pair.getSecond().getName().replaceAll("\\.json", "");
@@ -66,35 +64,16 @@ public class JsonTypeLoader extends TypeLoaderBase {
 				}
 			}
 		}
-		writeIt("getTyp2e: " + fullyQualifiedName);
 		if (fullyQualifiedName == null || types.get(fullyQualifiedName) == null) {
 			return null;
 		}
-		writeIt("getType3: " + fullyQualifiedName);
 		return types.get(fullyQualifiedName);
 	}
 
 	private void addType(String name, String path, Json o) {
 		JsonName typeName = new JsonName(name);
 		JsonType type = new JsonType(typeName, path, this, o);
-		writeIt("original name: " + typeName.getJsonName());
 		types.put(path + "." + typeName.getName(), type);
-	}
-	
-	private static int i = 0;
-	public void writeIt(String content) {
-		try {
-			File newFile = new File("/Users/johnpcamara/Desktop/output" + i + ".txt");
-//			newFile.delete();
-//			newFile.createNewFile();
-			Writer out = StreamUtil.getOutputStreamWriter(new FileOutputStream(newFile));
-			out.append(content);
-			out.flush();
-			out.close();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	private void searchAndAddTypes(String name, String path, Json object)
@@ -117,11 +96,10 @@ public class JsonTypeLoader extends TypeLoaderBase {
 
 	@Override
 	public Set<String> getAllTypeNames() {
-		writeIt("typeNames");
 		Set<String> typeNames = new HashSet<String>();
 
 		List<Pair<String, IFile>> files = 
-			getModule().getResourceAccess().findAllFilesByExtension("json");
+			getModule().getResourceAccess().findAllFilesByExtension(EXT);
 		
 		for (Pair<String, IFile> pair : files) {
 			Set<String> types = new HashSet<String>();
@@ -152,7 +130,6 @@ public class JsonTypeLoader extends TypeLoaderBase {
 			for (String type : types) {
 				typeNames.add(ns + "." + new JsonName(type).getName());
 			}
-			writeIt(typeNames.toString());
 		}
 		
 		return typeNames;
@@ -161,10 +138,10 @@ public class JsonTypeLoader extends TypeLoaderBase {
 	@Override
 	public Set<String> getAllNamespaces() {
 		Set<String> allNamespaces = new HashSet<String>();
-		allNamespaces.add("json");
+		allNamespaces.add(EXT);
 
 		List<Pair<String, IFile>> files = 
-			getModule().getResourceAccess().findAllFilesByExtension("json");
+			getModule().getResourceAccess().findAllFilesByExtension(EXT);
 		
 		for (Pair<String, IFile> pair : files) {
 			String fileName = pair.getSecond().toJavaFile().getName().replaceAll("\\.json", "");
@@ -173,7 +150,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
 			java.lang.System
 					.arraycopy(parts, 0, namespace, 0, parts.length - 1);
 
-			String ns = "json";
+			String ns = EXT;
 			for (String piece : namespace) {
 				ns += "." + piece;
 				allNamespaces.add(ns);
