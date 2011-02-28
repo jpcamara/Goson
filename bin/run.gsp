@@ -2,7 +2,16 @@ classpath "../src,../lib"
 typeloader com.jpcamara.gosu.json.JsonTypeLoader
 
 uses json.google.geocode.*
+uses json.twitter.status.User
 uses java.lang.*
+
+var twitter = new json.twitter.status.Response()
+twitter.User = new User() {
+	:Name = "Someone"
+}
+twitter.Source = "Web"
+twitter.CreatedAt = "Thu Jul 15 23:26:44 +0000 2010"
+print(twitter.write())
 
 var resp = new Response()
 resp.Status = "Success"
