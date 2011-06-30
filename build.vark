@@ -29,7 +29,7 @@ function jar() {
   Ant.jar(:destfile = distDir.file("goson.jar"),
           :basedir = classesDir)
   Ant.copy(:file = distDir.file("goson.jar"),
-					 :todir = gosuDir)
+           :todir = gosuDir)
 }
 
 function clean() {
