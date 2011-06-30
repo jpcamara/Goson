@@ -28,8 +28,8 @@ function jar() {
   Ant.mkdir(:dir = distDir)
   Ant.jar(:destfile = distDir.file("goson.jar"),
           :basedir = classesDir)
-  Ant.jar(:destfile = gosuDir.file("goson.jar"),
-        	:basedir = classesDir)
+  Ant.copy(:file = distDir.file("goson.jar"),
+					 :todir = gosuDir)
 }
 
 function clean() {
