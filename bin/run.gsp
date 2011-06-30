@@ -1,17 +1,39 @@
-classpath "../src,../lib"
+classpath "../src,../lib/json-20080701.jar,../test"
 typeloader com.jpcamara.gosu.json.JsonTypeLoader
 
-uses json.google.geocode.*
-uses json.twitter.status.User
 uses java.lang.*
+uses json.eventful.search.SearchResponse
+uses json.jpcamara.example.Awesome
+uses json.google.geocode.GeocodeResponse
+uses json.twitter.status.StatusResponse
+uses json.twitter.status.User
 
-var twitter = new json.twitter.status.Response()
+var geocode = new GeocodeResponse() {
+	:Status = "Rickaroo"
+}
+var status = new StatusResponse() {
+	:User = new User()
+}
+var awesome = new Awesome()
+var search = new SearchResponse()
+
+print(geocode.write())
+print(status.write())
+print(awesome.write())
+print(search.write())
+
+/*var twitter = new json.twitter.status.Response()
 twitter.User = new User() {
 	:Name = "Someone"
 }
 twitter.Source = "Web"
-twitter.CreatedAt = "Thu Jul 15 23:26:44 +0000 2010"
-print(twitter.write())
+twitter.CreatedAt = "Thu Jul 15 23:26:44 +0000 2010"*/
+/*print(twitter.write())*/
+
+/*var getType : Response = 
+	Response.parse("{'status':'ok', results:[{'formatted_address':'some addr'}]}")*/
+/*print(getType.Results.Count)*/
+/*
 
 var resp = new Response()
 resp.Status = "Success"
@@ -45,5 +67,6 @@ resp.Results = {
 		}
 	}
 }
+print(typeof resp)
 
-print(resp.write())
+/*print(resp.write())*/

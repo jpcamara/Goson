@@ -24,6 +24,48 @@ public class Json {
 		}
 	}
 	
+	/**
+	* Creates Json object, validating structure of the json 
+	* string against the JsonTypeInfo provided.
+	*/
+	public Json(String json, JsonTypeInfo structure) {
+		try {
+/*			this.json = new JSONObject(json);*/
+			this.json = createJson(new JSONObject(json));
+		} catch (JSONException e) {
+			throw new JSONParserException(e);
+		}
+	}
+	
+	private JSONObject createJson(JSONObject it)
+	 	throws JSONException {
+		Iterator<String> k = (Iterator<String>)it.keys();
+		List<String> keys = new java.util.ArrayList<String>();
+		while (k.hasNext()) {
+			keys.add(k.next());
+		}
+		for (String key : keys) {
+			Object o = it.get(key);
+			if (o instanceof JSONArray && o != null) {
+				JSONArray arr = (JSONArray)o;
+				java.util.ArrayList rawList = new java.util.ArrayList();
+				for (int i = 0; i < arr.length(); i++) {
+					if (arr.get(i) instanceof JSONObject) {
+						rawList.add(new Json(createJson((JSONObject)arr.get(i))));
+					} else {
+						rawList.add(arr.get(i));						
+					}
+				}
+				it.remove(key);
+				it.put(key, rawList);
+			} else if (o instanceof JSONObject && o != null) {
+				it.remove(key);
+				it.put(key, new Json(createJson((JSONObject)o)));
+			}
+		}
+		return it;
+	}
+	
 	public Json(Object json) {
 		if ((json instanceof JSONObject) == false) {
 			throw new JSONParserException("Must be a JSONObject");
@@ -32,7 +74,6 @@ public class Json {
 	}
 	
 	public String serialize() {
-//		try {
 		JSONObject output = serializeAsJSONObject();
 		return output.toString();
 	}
@@ -120,6 +161,7 @@ public class Json {
 	public void put(String key, Object value) {
 		try {
 			json.put(key, value);
+			System.out.println(json.get(key).getClass());
 		} catch (JSONException e) {
 			throw new JSONParserException(e);
 		}

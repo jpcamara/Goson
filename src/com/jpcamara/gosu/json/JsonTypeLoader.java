@@ -6,6 +6,8 @@ import gw.fs.IFile;
 import gw.lang.reflect.module.IModule;
 import gw.lang.reflect.module.IResourceAccess;
 import gw.util.Pair;
+import gw.lang.reflect.TypeSystem;
+import gw.util.concurrent.LazyVar;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,31 +36,11 @@ public class JsonTypeLoader extends TypeLoaderBase {
 	@Override
 	public IType getType(String fullyQualifiedName) {
 		if (types.isEmpty()) {
-			List<Pair<String, IFile>> files = 
-				getModule().getResourceAccess().findAllFilesByExtension(EXT);
-			for (Pair<String, IFile> pair : files) {
-				Json o = null;
-				String fileName = pair.getSecond().getName().replaceAll("\\.json", "");
-				int lastIndex = fileName.lastIndexOf(".");
-				
-				String name = fileName.substring(lastIndex + 1);
-				String path = "json." + fileName.substring(0, lastIndex);
-
+			List<JsonFile> files = jsonFiles.get();
+			for (JsonFile file : files) {
 				try {
-					String jsonString = "";
-					Scanner s = new Scanner(pair.getSecond().toJavaFile());
-					while (s.hasNextLine()) {
-						jsonString += s.nextLine();
-					}
-					s.close();
-					o = new Json(jsonString);
-				} catch (FileNotFoundException e) {
-					throw new RuntimeException(e);
-				}
-
-				try {
-					searchAndAddTypes(name, path, o);
-					addType(name, path, o);
+					searchAndAddTypes(file.name, file.path, file.content);
+					addType(file.name, file.path, file.content);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
@@ -73,7 +55,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
 	private void addType(String name, String path, Json o) {
 		JsonName typeName = new JsonName(name);
 		JsonType type = new JsonType(typeName, path, this, o);
-		types.put(path + "." + typeName.getName(), type);
+		types.put(path + "." + typeName.getName(), TypeSystem.getOrCreateTypeReference(type));
 	}
 
 	private void searchAndAddTypes(String name, String path, Json object)
@@ -98,37 +80,21 @@ public class JsonTypeLoader extends TypeLoaderBase {
 	public Set<String> getAllTypeNames() {
 		Set<String> typeNames = new HashSet<String>();
 
-		List<Pair<String, IFile>> files = 
-			getModule().getResourceAccess().findAllFilesByExtension(EXT);
-		
-		for (Pair<String, IFile> pair : files) {
+		List<JsonFile> files = jsonFiles.get();
+		for (JsonFile file : files) {
 			Set<String> types = new HashSet<String>();
-			File jsonFile = pair.getSecond().toJavaFile();
+			types.addAll(file.content.getAllTypeNames());
 			
-			try {
-				Scanner s = new Scanner(jsonFile).useDelimiter("\\Z");
-				String content = s.next();
-				Json j = new Json(content);
-				s.close();
-				types.addAll(j.getAllTypeNames());
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-
-			String fileName = jsonFile.getName().replaceAll("\\.json", "");
-			String[] parts = fileName.split("\\.");
-			String[] namespace = new String[parts.length - 1];
-			java.lang.System
-					.arraycopy(parts, 0, namespace, 0, parts.length - 1);
-
-			String ns = "json";
+			String[] namespace = file.path.split("\\.");
+			
+			java.lang.StringBuilder ns = new java.lang.StringBuilder("json");
 			for (String piece : namespace) {
-				ns += "." + piece;
+				ns.append("." + piece);
 			}
 
-			typeNames.add(ns + "." + new JsonName(parts[parts.length - 1]).getName());
+			typeNames.add(ns.toString() + "." + new JsonName(file.name).getName());
 			for (String type : types) {
-				typeNames.add(ns + "." + new JsonName(type).getName());
+				typeNames.add(ns.toString() + "." + new JsonName(type).getName());
 			}
 		}
 		
@@ -139,23 +105,17 @@ public class JsonTypeLoader extends TypeLoaderBase {
 	public Set<String> getAllNamespaces() {
 		Set<String> allNamespaces = new HashSet<String>();
 		allNamespaces.add(EXT);
-
-		List<Pair<String, IFile>> files = 
-			getModule().getResourceAccess().findAllFilesByExtension(EXT);
 		
-		for (Pair<String, IFile> pair : files) {
-			String fileName = pair.getSecond().toJavaFile().getName().replaceAll("\\.json", "");
-			String[] parts = fileName.split("\\.");
-			String[] namespace = new String[parts.length - 1];
-			java.lang.System
-					.arraycopy(parts, 0, namespace, 0, parts.length - 1);
-
+		List<JsonFile> files = jsonFiles.get();
+		for (JsonFile file : files) {
+			String[] namespace = file.path.split("\\.");
 			String ns = EXT;
 			for (String piece : namespace) {
 				ns += "." + piece;
 				allNamespaces.add(ns);
 			}
 		}
+		
 		return allNamespaces;
 	}
 
@@ -163,5 +123,54 @@ public class JsonTypeLoader extends TypeLoaderBase {
 	public List<String> getHandledPrefixes() {
 		List<String> prefixes = Arrays.asList(getAllNamespaces().toArray(new String[] {}));
 		return prefixes;
+	}
+	
+	/*
+	* Default implementation to handle Gosu 0.9 reqs
+	*/
+	@Override
+	public boolean handlesNonPrefixLoads() {
+		return true;
+	}
+	
+	private LazyVar<List<JsonFile>> jsonFiles = new LazyVar<List<JsonFile>>() {
+		@Override
+		protected List<JsonFile> init() {
+			List<JsonFile> init = new java.util.ArrayList<JsonFile>();
+			
+			List<Pair<String, IFile>> files = 
+				JsonTypeLoader.this.getModule().getResourceAccess().findAllFilesByExtension(EXT);
+			for (Pair<String, IFile> pair : files) {
+				JsonFile current = new JsonFile();
+				
+				String fileName = pair.getSecond().getName().replaceAll("\\.json", "");
+				int lastIndex = fileName.lastIndexOf(".");
+				
+				current.name = fileName.substring(lastIndex + 1);
+				current.path = "json." + fileName.substring(0, lastIndex);
+
+				Scanner s = null;
+				try {
+					java.lang.StringBuilder jsonString = new java.lang.StringBuilder();
+					s = new Scanner(pair.getSecond().toJavaFile());
+					while (s.hasNextLine()) {
+						jsonString.append(s.nextLine());
+					}
+					current.content = new Json(jsonString.toString());
+				} catch (FileNotFoundException e) {
+					throw new RuntimeException(e);
+				} finally {
+					if (s != null) { s.close(); }
+				}
+				init.add(current);
+			}
+			return init;
+		}
+	};
+	
+	private static class JsonFile {
+		private Json content;
+		private String path;
+		private String name;
 	}
 }

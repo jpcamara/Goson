@@ -23,12 +23,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
 public class JsonTypeInfo extends TypeInfoBase {
 
-	private JsonType owner;
-	private Json json;
-	private List<IPropertyInfo> properties;
-	private LazyVar<List<IMethodInfo>> methods = new LazyVar<List<IMethodInfo>>() {
+		private JsonType owner;
+		private Json json;
+		private List<IPropertyInfo> properties;
+		private LazyVar<List<IMethodInfo>> methods = new LazyVar<List<IMethodInfo>>() {
 		private List<IMethodInfo> typeMethods = new ArrayList<IMethodInfo>();
 		
 		@Override
@@ -49,16 +52,17 @@ public class JsonTypeInfo extends TypeInfoBase {
 				.withName("parse")
 				.withReturnType(getOwnersType())
 				.withStatic(true)
-//				.withParameters(new ParameterInfoBuilder()
-//					.like(new IParameterInfo() {
-//						
-//					}))
-////					.withDescription("target"))
+				.withParameters(new ParameterInfoBuilder()
+					.withType(IJavaType.STRING))
 				.withCallHandler(new IMethodCallHandler() {
 					@Override
 					public Object handleCall(Object ctx, Object... args) {
-						// TODO Auto-generated method stub
-						return null;
+						String content = (String)args[0];
+						try {
+							return new Json(content, JsonTypeInfo.this);
+						} catch (Exception e) {
+							throw new RuntimeException(e);
+						}
 					}
 				})
 				.build(JsonTypeInfo.this));
@@ -105,7 +109,6 @@ public class JsonTypeInfo extends TypeInfoBase {
 					public void setValue(Object ctx, Object value) {
 						Json json = (Json) ctx;
 						try {
-//							List values = (List)value;
 							json.put(name, value);
 						} catch (Exception e) {
 							throw new RuntimeException(e);
@@ -134,9 +137,9 @@ public class JsonTypeInfo extends TypeInfoBase {
 					.getType(type.getNamespace() + "." + new JsonName(key).getName());
 				properties.add(createWithType(key, propertyType));
 			} else if (json.get(key) instanceof Integer) {
-				properties.add(createWithType(key, IJavaType.INTEGER));
+				properties.add(createWithType(key, IJavaType.INTEGER)); //BIGINTEGER
 			} else if (json.get(key) instanceof Double) {
-				properties.add(createWithType(key, IJavaType.DOUBLE));
+				properties.add(createWithType(key, IJavaType.DOUBLE)); //BIGDECIMAL
 			} else if (json.get(key) instanceof Boolean) {
 				properties.add(createWithType(key, IJavaType.BOOLEAN));
 
@@ -146,9 +149,9 @@ public class JsonTypeInfo extends TypeInfoBase {
 				if (firstEntry instanceof String) {
 					properties.add(createWithListType(key, IJavaType.STRING));
 				} else if (firstEntry instanceof Integer) {
-					properties.add(createWithListType(key, IJavaType.INTEGER));
+					properties.add(createWithListType(key, IJavaType.INTEGER)); //BIGINTEGER
 				} else if (firstEntry instanceof Double) {
-					properties.add(createWithListType(key, IJavaType.DOUBLE));
+					properties.add(createWithListType(key, IJavaType.DOUBLE)); //BIGDECIMAL
 				} else if (firstEntry instanceof Boolean) {
 					properties.add(createWithListType(key, IJavaType.BOOLEAN));
 				} else {
@@ -161,7 +164,7 @@ public class JsonTypeInfo extends TypeInfoBase {
 					properties.add(createWithListType(key, propertyType));
 				}
 			} else if (Json.isJSONNull(json.get(key))) {
-				System.out.println("can't handle nulls");
+				Logger.getLogger(getClass().getName()).log(Level.FINE, "Cannot handle NULL values");
 			}
 		}
 	}
