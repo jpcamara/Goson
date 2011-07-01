@@ -1,5 +1,4 @@
-classpath "../src,../lib/json-20080701.jar,../test"
-typeloader com.jpcamara.gosu.json.JsonTypeLoader
+classpath "../src,../lib,../build/dist,../test"
 
 uses java.lang.*
 uses json.eventful.search.SearchResponse

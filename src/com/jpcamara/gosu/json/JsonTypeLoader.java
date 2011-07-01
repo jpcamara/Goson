@@ -27,7 +27,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
 	private Map<String, IType> types = new HashMap<String, IType>();
 	private static final String EXT = "json";
 	
-	public JsonTypeLoader(IModule env, IResourceAccess access) {
+	public JsonTypeLoader(IModule env) {
 		super(env);
 	}
 	
