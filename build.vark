@@ -12,13 +12,13 @@ if (gosuHome == null) {
 } 
 var gosuDir = file("${gosuHome}/jars")
 
-print(typeof gosuDir)
-
 @Depends("clean")
 function compile() {
   Ant.mkdir(:dir = classesDir)
   Ant.javac(:srcdir = path(srcDir),
-            :classpath = classpath().withFileset(libDir.fileset()).withFileset(gosuDir.fileset()),
+            :classpath = classpath()
+              .withFileset(libDir.fileset())
+              .withFileset(gosuDir.fileset()),
             :destdir = classesDir,
             :includeantruntime = false)
   classesDir.file("META-INF").mkdir()
