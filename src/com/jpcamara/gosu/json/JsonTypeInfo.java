@@ -16,6 +16,7 @@ import gw.lang.reflect.PropertyInfoBuilder;
 import gw.lang.reflect.TypeInfoBase;
 import gw.lang.reflect.IRelativeTypeInfo.Accessibility;
 import gw.lang.reflect.java.IJavaType;
+import gw.lang.reflect.gs.IGosuObject;
 import gw.util.concurrent.LazyVar;
 
 import java.util.ArrayList;
@@ -28,152 +29,156 @@ import java.util.logging.Level;
 
 public class JsonTypeInfo extends TypeInfoBase {
 
-		private JsonType owner;
-		private Json json;
-		private List<IPropertyInfo> properties;
-		private LazyVar<List<IMethodInfo>> methods = new LazyVar<List<IMethodInfo>>() {
-		private List<IMethodInfo> typeMethods = new ArrayList<IMethodInfo>();
-		
-		@Override
-		protected List<IMethodInfo> init() {
-			typeMethods.add(new MethodInfoBuilder()
-				.withName("write")
-				.withReturnType(IJavaType.STRING)
-				.withStatic(true)
-				.withCallHandler(new IMethodCallHandler() {
-					@Override
-					public Object handleCall(Object ctx, Object... args) {
-						Json me = (Json)ctx;
-						return me.serialize();
-					}
-				})
-				.build(JsonTypeInfo.this));
-			typeMethods.add(new MethodInfoBuilder()
-				.withName("parse")
-				.withReturnType(getOwnersType())
-				.withStatic(true)
-				.withParameters(new ParameterInfoBuilder()
-					.withType(IJavaType.STRING))
-				.withCallHandler(new IMethodCallHandler() {
-					@Override
-					public Object handleCall(Object ctx, Object... args) {
-						String content = (String)args[0];
-						try {
-							return new Json(content, JsonTypeInfo.this);
-						} catch (Exception e) {
-							throw new RuntimeException(e);
-						}
-					}
-				})
-				.build(JsonTypeInfo.this));
-			return typeMethods;
-		}
-	};
-
-	public JsonTypeInfo(JsonType owner, Json object) {
-		this.owner = owner;
-		this.json = object;
-		createProperties();
-	}
+  private JsonType owner;
+  private JsonParser json;
+  private List<IPropertyInfo> properties;
+  private LazyVar<List<IMethodInfo>> methods = new LazyVar<List<IMethodInfo>>() {
+  private List<IMethodInfo> typeMethods = new ArrayList<IMethodInfo>();		
+    @Override
+    protected List<IMethodInfo> init() {
+    	typeMethods.add(new MethodInfoBuilder()
+    		.withName("write")
+    		.withReturnType(IJavaType.STRING)
+    		.withStatic(true)
+    		.withCallHandler(new IMethodCallHandler() {
+    			@Override
+    			public Object handleCall(Object ctx, Object... args) {
+    				Json me = (Json)ctx;
+    				return me.serialize();
+    			}
+    		})
+    		.build(JsonTypeInfo.this));
+    	typeMethods.add(new MethodInfoBuilder()
+    		.withName("parse")
+    		.withReturnType(getOwnersType())
+    		.withStatic(true)
+    		.withParameters(new ParameterInfoBuilder()
+    			.withType(IJavaType.STRING))
+    		.withCallHandler(new IMethodCallHandler() {
+    			@Override
+    			public Object handleCall(Object ctx, Object... args) {
+    				String content = (String)args[0];
+    				try {
+    					return new Json(content, JsonTypeInfo.this);
+    				} catch (Exception e) {
+    					throw new RuntimeException(e);
+    				}
+    			}
+    		})
+    		.build(JsonTypeInfo.this));
+    	return typeMethods;
+    }
+  };
+    
+  public JsonTypeInfo(JsonType owner, JsonParser object) {
+    this.owner = owner;
+    this.json = object;
+    createProperties();
+  }
 
 	private IPropertyInfo createWithType(final String name, IType type) {
 		return new PropertyInfoBuilder()
-				.withName(new JsonName(name).getName()).withWritable(true)
-				.withType(type).withAccessor(new IPropertyAccessor() {
-					@Override
-					public void setValue(Object ctx, Object value) {
-						Json json = (Json) ctx;
-						try {
-							json.put(name, value);
-						} catch (Exception e) {
-							throw new RuntimeException(e);
-						}
-					}
+      .withName(new JsonName(name).getName()).withWritable(true)
+      .withType(type).withAccessor(new IPropertyAccessor() {
+      	@Override
+      	public void setValue(Object ctx, Object value) {
+      		Json json = (Json) ctx;
+      		try {
+      			json.put(name, value);
+      		} catch (Exception e) {
+      			throw new RuntimeException(e);
+      		}
+      	}
 
-					@Override
-					public Object getValue(Object ctx) {
-						try {
-							return ((Json) ctx).get(name);
-						} catch (Exception e) {
-							throw new RuntimeException(e);
-						}
-					}
-				}).build(this);
+      	@Override
+      	public Object getValue(Object ctx) {
+      		try {
+      			return ((Json) ctx).get(name);
+      		} catch (Exception e) {
+      			throw new RuntimeException(e);
+      		}
+      	}
+      }).build(this);
 	}
 
 	private IPropertyInfo createWithListType(final String name, IType type) {
+	  System.out.println(IJavaType.LIST.getParameterizedType(type).getClass());
 		return new PropertyInfoBuilder()
-				.withName(new JsonName(name).getName()).withWritable(true)
-				.withType(IJavaType.LIST.getParameterizedType(type)).withAccessor(new IPropertyAccessor() {
-					@Override
-					public void setValue(Object ctx, Object value) {
-						Json json = (Json) ctx;
-						try {
-							json.put(name, value);
-						} catch (Exception e) {
-							throw new RuntimeException(e);
-						}
-					}
+      .withName(new JsonName(name).getName()).withWritable(true)
+      .withType(IJavaType.LIST.getParameterizedType(type))
+      .withAccessor(new IPropertyAccessor() {
+      	@Override
+      	public void setValue(Object ctx, Object value) {
+      		Json json = (Json) ctx;
+      		try {
+      			json.put(name, value);
+      		} catch (Exception e) {
+      			throw new RuntimeException(e);
+      		}
+      	}
 
-					@Override
-					public Object getValue(Object ctx) {
-						try {
-							return ((Json) ctx).get(name);
-						} catch (Exception e) {
-							throw new RuntimeException(e);
-						}
-					}
-				}).build(this);
+      	@Override
+      	public Object getValue(Object ctx) {
+      		try {
+      			return ((Json) ctx).get(name);
+      		} catch (Exception e) {
+      			throw new RuntimeException(e);
+      		}
+      	}
+      }).build(this);
 	}
 	
 	private void createProperties() {
-		properties = new ArrayList<IPropertyInfo>();
-		for (String key : json.keys()) {
-			if (json.get(key) instanceof String) {
-				properties.add(createWithType(key, IJavaType.STRING));
-			} else if (Json.isJSONObject(json.get(key))) {
-				JsonType type = getOwnersType();
-				IType propertyType = type.getTypeLoader()
-					.getType(type.getNamespace() + "." + new JsonName(key).getName());
-				properties.add(createWithType(key, propertyType));
-			} else if (json.get(key) instanceof Integer) {
-				properties.add(createWithType(key, IJavaType.INTEGER)); //BIGINTEGER
-			} else if (json.get(key) instanceof Double) {
-				properties.add(createWithType(key, IJavaType.DOUBLE)); //BIGDECIMAL
-			} else if (json.get(key) instanceof Boolean) {
-				properties.add(createWithType(key, IJavaType.BOOLEAN));
+    properties = new ArrayList<IPropertyInfo>();
+    for (String key : json.keys()) {
+    	if (json.get(key) instanceof String) {
+    		properties.add(createWithType(key, IJavaType.STRING));
+    	} else if (JsonParser.isJSONObject(json.get(key))) {
+    		JsonType type = getOwnersType();
+    		IType propertyType = type.getTypeLoader()
+    			.getType(type.getNamespace() + "." + new JsonName(key).getName());
+    		properties.add(createWithType(key, propertyType));
+    	} else if (json.get(key) instanceof Integer) {
+    		properties.add(createWithType(key, IJavaType.INTEGER)); //BIGINTEGER
+    	} else if (json.get(key) instanceof Double) {
+    		properties.add(createWithType(key, IJavaType.DOUBLE)); //BIGDECIMAL
+    	} else if (json.get(key) instanceof Boolean) {
+    		properties.add(createWithType(key, IJavaType.BOOLEAN));
 
-			} else if (Json.isJSONArray(json.get(key))) {
-				Object firstEntry = json.getWithIndex(key, 0);
-				
-				if (firstEntry instanceof String) {
-					properties.add(createWithListType(key, IJavaType.STRING));
-				} else if (firstEntry instanceof Integer) {
-					properties.add(createWithListType(key, IJavaType.INTEGER)); //BIGINTEGER
-				} else if (firstEntry instanceof Double) {
-					properties.add(createWithListType(key, IJavaType.DOUBLE)); //BIGDECIMAL
-				} else if (firstEntry instanceof Boolean) {
-					properties.add(createWithListType(key, IJavaType.BOOLEAN));
-				} else {
-					JsonType type = getOwnersType();
-					IType propertyType = type.getTypeLoader()
-							.getType(type.getNamespace() + "." + new JsonName(key).getName());
-					if (propertyType == null) {
-						throw new RuntimeException("No type found");
-					}
-					properties.add(createWithListType(key, propertyType));
-				}
-			} else if (Json.isJSONNull(json.get(key))) {
-				Logger.getLogger(getClass().getName()).log(Level.FINE, "Cannot handle NULL values");
-			}
-		}
+    	} else if (JsonParser.isJSONArray(json.get(key))) {
+    		Object firstEntry = json.getWithIndex(key, 0);
+		
+    		if (firstEntry instanceof String) {
+    			properties.add(createWithListType(key, IJavaType.STRING));
+    		} else if (firstEntry instanceof Integer) {
+    			properties.add(createWithListType(key, IJavaType.INTEGER)); //BIGINTEGER
+    		} else if (firstEntry instanceof Double) {
+    			properties.add(createWithListType(key, IJavaType.DOUBLE)); //BIGDECIMAL
+    		} else if (firstEntry instanceof Boolean) {
+    			properties.add(createWithListType(key, IJavaType.BOOLEAN));
+    		} else {
+    			JsonType type = getOwnersType();
+    			IType propertyType = type.getTypeLoader()
+    					.getType(type.getNamespace() + "." + new JsonName(key).getName());
+    			if (propertyType == null) {
+    				throw new RuntimeException("No type found");
+    			}
+    			System.out.println(key);
+    			System.out.println(new JsonName(key).getName());
+    			System.out.println(propertyType);
+    			properties.add(createWithListType(key, propertyType));
+    		}
+    	} else if (JsonParser.isJSONNull(json.get(key))) {
+    		Logger.getLogger(getClass().getName()).log(Level.FINE, "Cannot handle NULL values");
+    	}
+    }
 	}
 
 	private IConstructorInfo defaultConstructor = new ConstructorInfoBuilder()
 			.withConstructorHandler(new IConstructorHandler() {
 				@Override
 				public Object newInstance(Object... args) {
-					Json j = new Json();
+					Json j = new Json(JsonTypeInfo.this.getOwnersType());
 					return j;
 				}
 			}).withAccessibility(Accessibility.PUBLIC).build(this);

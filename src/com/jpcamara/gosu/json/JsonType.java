@@ -20,7 +20,7 @@ public class JsonType extends TypeBase {
 	private LazyVar<JsonTypeInfo> typeInfo;
 
 	public JsonType(JsonName name, String path, ITypeLoader typeloader,
-			final Json object) {
+			final JsonParser object) {
 		this.name = name;
 		this.path = path;
 		this.loader = typeloader;

@@ -41,7 +41,7 @@ public class TestJson {
 
 	@Test
 	public void defaultConstructor() throws Exception {
-		json = new Json();
+		json = new Json(null);
 	}
 
 	@Test
@@ -101,13 +101,13 @@ public class TestJson {
 	
 	@Test
 	public void typeChecks() throws Exception {
-		assertTrue(Json.isJSONObject(json.get("events")));
-		assertTrue(Json.isJSONArray(json.getJson("events").get("event")));
-		assertTrue(Json.isJSONNull(json.get("total_items")));
+		assertTrue(JsonParser.isJSONObject(json.get("events")));
+		assertTrue(JsonParser.isJSONArray(json.getJson("events").get("event")));
+		assertTrue(JsonParser.isJSONNull(json.get("total_items")));
 		
-		assertFalse(Json.isJSONObject(json.getJson("events").get("event")));
-		assertFalse(Json.isJSONArray(json.get("events")));
-		assertFalse(Json.isJSONNull(json.get("last_item")));
+		assertFalse(JsonParser.isJSONObject(json.getJson("events").get("event")));
+		assertFalse(JsonParser.isJSONArray(json.get("events")));
+		assertFalse(JsonParser.isJSONNull(json.get("last_item")));
 	}
 	
 	@Test

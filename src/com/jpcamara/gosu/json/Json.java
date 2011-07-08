@@ -2,6 +2,7 @@ package com.jpcamara.gosu.json;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -9,19 +10,24 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Json {
+import gw.lang.reflect.IType;
+import gw.lang.reflect.gs.IGosuObject;
+
+public class Json implements IGosuObject {
 	private JSONObject json;
+	private IType type;
 	
-	public Json() {
+	public Json(IType type) {
+	  this.type = type;
 		this.json = new JSONObject();
 	}
 	
-	public Json(String json) {
-		try {
-			this.json = new JSONObject(json);
-		} catch (JSONException e) {
-			throw new JSONParserException(e);
+	public Json(Object json, IType type) {
+		if ((json instanceof JSONObject) == false) {
+			throw new JSONParserException("Must be a JSONObject");
 		}
+	  this.type = type;
+		this.json = (JSONObject)json;
 	}
 	
 	/**
@@ -30,37 +36,43 @@ public class Json {
 	*/
 	public Json(String json, JsonTypeInfo structure) {
 		try {
+		  this.type = structure.getOwnersType();
 /*			this.json = new JSONObject(json);*/
-			this.json = createJson(new JSONObject(json));
+			this.json = createJson(new JSONObject(json), structure);
 		} catch (JSONException e) {
 			throw new JSONParserException(e);
 		}
 	}
 	
-	private JSONObject createJson(JSONObject it)
-	 	throws JSONException {
-		Iterator<String> k = (Iterator<String>)it.keys();
-		List<String> keys = new java.util.ArrayList<String>();
+  private JSONObject createJson(JSONObject it, JsonTypeInfo structure) 
+    throws JSONException {
+
+    Iterator<String> k = (Iterator<String>)it.keys();
+		List<String> keys = new ArrayList<String>();
 		while (k.hasNext()) {
 			keys.add(k.next());
 		}
 		for (String key : keys) {
+			IType currentType = type.getTypeLoader()
+					.getType(type.getNamespace() + "." + new JsonName(key).getName());
+			
 			Object o = it.get(key);
 			if (o instanceof JSONArray && o != null) {
 				JSONArray arr = (JSONArray)o;
-				java.util.ArrayList rawList = new java.util.ArrayList();
+				ArrayList rawList = new ArrayList();
 				for (int i = 0; i < arr.length(); i++) {
 					if (arr.get(i) instanceof JSONObject) {
-						rawList.add(new Json(createJson((JSONObject)arr.get(i))));
+						rawList.add(new Json(createJson((JSONObject)arr.get(i), structure), currentType));
 					} else {
-						rawList.add(arr.get(i));						
+						rawList.add(arr.get(i));					
 					}
 				}
-				it.remove(key);
-				it.put(key, rawList);
+/*        System.out.println(it.remove(key).getClass());*/
+				it.put(key, (Object)rawList); //cast it so it doesn't get transformed to a JSONArray
+/*        System.out.println(it.get(key).getClass());*/
 			} else if (o instanceof JSONObject && o != null) {
 				it.remove(key);
-				it.put(key, new Json(createJson((JSONObject)o)));
+				it.put(key, new Json(createJson((JSONObject)o, structure), currentType));
 			}
 		}
 		return it;
@@ -95,13 +107,24 @@ public class Json {
 						}
 					} else {
 						for (Object o : list) {
+/*              System.out.println("list of Objects: " + o.getClass());*/
 							array.put(o);
 						}
 					}
 				} else if (get(key) instanceof Json) {
 					Json current = (Json)get(name.getJsonName());
 					output.put(name.getJsonName(), current.serializeAsJSONObject());
+				} else if (get(key) instanceof JSONArray) {
+				  JSONArray arr = (JSONArray)get(key);
+				  for (int i = 0; i < arr.length(); i++) {
+				    Object o = arr.get(i);
+				    if (o instanceof Json) {
+				      arr.put(i, ((Json)o).serializeAsJSONObject());
+				    }
+				  }
 				} else {
+/*          System.out.println("one Object: " + key + " : " + get(key).getClass());
+          System.out.println(get(key).toString());*/
 					output.put(name.getJsonName(), get(key));
 				}
 			}
@@ -109,27 +132,6 @@ public class Json {
 			throw new RuntimeException(e);
 		}
 		return output;
-	}
-	
-	public Set<String> getAllTypeNames() {
-		Set<String> types = new HashSet<String>();
-		for (String key : keys()) {
-			if (get(key) instanceof JSONObject) {
-				types.add(key);
-				types.addAll(getJson(key).getAllTypeNames());
-			} else if (get(key) instanceof JSONArray) {
-				JSONArray arr = (JSONArray)get(key);
-				try {
-					if (arr.get(0) instanceof JSONObject) {
-						types.add(key);
-						types.addAll(new Json((JSONObject)arr.get(0)).getAllTypeNames());
-					}
-				} catch (JSONException e) {
-					throw new JSONParserException(e);
-				}
-			}
-		}
-		return types;
 	}
 	
 	public Object get(String key) {
@@ -149,7 +151,7 @@ public class Json {
 				return null;
 			}
 			Object o = json.get(key);
-			if (Json.isJSONArray(o) == false) {
+			if (JsonParser.isJSONArray(o) == false) {
 				throw new JSONParserException(key + " is not an array");
 			}
 			return ((JSONArray)o).get(index);
@@ -161,7 +163,7 @@ public class Json {
 	public void put(String key, Object value) {
 		try {
 			json.put(key, value);
-			System.out.println(json.get(key).getClass());
+/*      System.out.println(json.get(key).getClass());*/
 		} catch (JSONException e) {
 			throw new JSONParserException(e);
 		}
@@ -169,7 +171,7 @@ public class Json {
 	
 	public Json getJson(String key) {
 		try {
-			return new Json(json.getJSONObject(key));
+			return new Json(json.getJSONObject(key), type);
 		} catch (JSONException e) {
 			throw new JSONParserException(e);
 		}
@@ -184,20 +186,13 @@ public class Json {
 		return str;
 	}
 	
-	public static boolean isJSONArray(Object o) {
-		return o instanceof JSONArray;
-	}
-	
-	public static boolean isJSONObject(Object o) { 
-		return o instanceof JSONObject;
-	}
-	
-	public static boolean isJSONNull(Object o) {
-		return JSONObject.NULL.getClass().isInstance(o);
-	}
-	
 	public Iterable<String> keys() {
 		return new IterableJson();
+	}
+	
+	@Override
+	public IType getIntrinsicType() {
+	  return type;
 	}
 	
 	private class IterableJson implements Iterable<String> {
@@ -205,18 +200,6 @@ public class Json {
 		@Override
 		public Iterator<String> iterator() {
 			return (Iterator<String>)json.keys();
-		}
-	}
-	
-	public static class JSONParserException extends RuntimeException {
-		private static final long serialVersionUID = 5407463188711170624L;
-
-		public JSONParserException(JSONException e) {
-			super(e);
-		}
-		
-		public JSONParserException(String message) {
-			super(message);
 		}
 	}
 }

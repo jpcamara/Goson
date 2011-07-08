@@ -21,13 +21,11 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
-import org.json.JSONException;
-
 public class JsonTypeLoader extends TypeLoaderBase {
 	private Map<String, IType> types = new HashMap<String, IType>();
 	private static final String EXT = "json";
 	
-	public JsonTypeLoader(IModule env) {
+	public JsonTypeLoader(IModule env, IResourceAccess access) {
 		super(env);
 	}
 	
@@ -52,23 +50,23 @@ public class JsonTypeLoader extends TypeLoaderBase {
 		return types.get(fullyQualifiedName);
 	}
 
-	private void addType(String name, String path, Json o) {
+	private void addType(String name, String path, JsonParser o) {
 		JsonName typeName = new JsonName(name);
 		JsonType type = new JsonType(typeName, path, this, o);
 		types.put(path + "." + typeName.getName(), TypeSystem.getOrCreateTypeReference(type));
 	}
 
-	private void searchAndAddTypes(String name, String path, Json object)
-			throws JSONException {
+	private void searchAndAddTypes(String name, String path, JsonParser object)
+			throws Exception {
 		for (String key : object.keys()) {
 			Object obj = object.get(key);
-			if (Json.isJSONObject(obj)) {
-				searchAndAddTypes(key, path, object.getJson(key));
-				addType(key, path, object.getJson(key));
-			} else if (Json.isJSONArray(obj)) {
+			if (JsonParser.isJSONObject(obj)) {
+				searchAndAddTypes(key, path, object.getJsonParser(key));
+				addType(key, path, object.getJsonParser(key));
+			} else if (JsonParser.isJSONArray(obj)) {
 				Object arrEntry = object.getWithIndex(key, 0);
-				if (Json.isJSONObject(arrEntry)) {
-					Json typeInArray = new Json(arrEntry);
+				if (JsonParser.isJSONObject(arrEntry)) {
+					JsonParser typeInArray = new JsonParser(arrEntry);
 					searchAndAddTypes(key, path, typeInArray);
 					addType(key, path, typeInArray);
 				}
@@ -128,10 +126,10 @@ public class JsonTypeLoader extends TypeLoaderBase {
 	/*
 	* Default implementation to handle Gosu 0.9 reqs
 	*/
-	@Override
-	public boolean handlesNonPrefixLoads() {
-		return true;
-	}
+/*  @Override
+  public boolean handlesNonPrefixLoads() {
+    return true;
+  }*/
 	
 	private LazyVar<List<JsonFile>> jsonFiles = new LazyVar<List<JsonFile>>() {
 		@Override
@@ -156,7 +154,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
 					while (s.hasNextLine()) {
 						jsonString.append(s.nextLine());
 					}
-					current.content = new Json(jsonString.toString());
+					current.content = new JsonParser(jsonString.toString());
 				} catch (FileNotFoundException e) {
 					throw new RuntimeException(e);
 				} finally {
@@ -169,7 +167,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
 	};
 	
 	private static class JsonFile {
-		private Json content;
+		private JsonParser content;
 		private String path;
 		private String name;
 	}
