@@ -31,6 +31,10 @@ awe.SomeObject.SomeDeeperObject.EvenDeeper.add(new EvenDeeper() {
   :Now = new java.util.Date()
 })
 
+print("type " + (typeof awe.SomeObject).TypeInfo.Properties[3].FeatureType)
+print("first write: " + awe.write())
+print("second write after parse: " + Awesome.parse(awe.write()).write())
+
 /**
 *  "first_field": "integer",
   "second_field": "string",

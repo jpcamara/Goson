@@ -1,12 +1,7 @@
-Goson uses the Gosu Open Type System to create first-class Gosu types from a JSON file. Just place a sample
-JSON file in your project, and Goson will creates types from it. The package is currently derived from
+Goson uses the Gosu Open Type System to create first-class Gosu types from a JSON schema. Just place a sample
+JSON schema in your project, and Goson will creates types from it. The package is currently derived from
 the name of the file. 
 For instance,
 twitter.status.Response.json will create a package of json.twitter.status. "Response" will be used as
-the name of the top level object in the JSON file. The type of each property in the JSON is determined
-by how it is presented - "ok" will be a String, 0.0 will be a double, 1 will be an int, and a nested object
-will create a new type based off of the name of the property. All property names are Gosu-ized, so some_name
-becomes SomeName.
-
-TODO
-parsed json has raw ArrayList instead of genericized
+the name of the top level object in the JSON file. The type of each property works off of the rules of
+Simple JSON Schema [more to follow]
