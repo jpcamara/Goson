@@ -8,6 +8,5 @@ by how it is presented - "ok" will be a String, 0.0 will be a double, 1 will be 
 will create a new type based off of the name of the property. All property names are Gosu-ized, so some_name
 becomes SomeName.
 
-Goson is in a _very_ early stage and does not yet support necessities such as creating objects by reading
-in JSON files or writing out the objects. The only functionality available yet is to parse the JSON files
-into to types, and use them as regular objects.
+TODO
+parsed json has raw ArrayList instead of genericized

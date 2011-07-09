@@ -1,60 +1,51 @@
 classpath "../src,../lib,../build/dist,../test"
-typeloader com.jpcamara.gosu.json.JsonTypeLoader
+typeloader com.jpcamara.goson.JsonTypeLoader
 
 uses java.lang.*
-uses json.eventful.search.SearchResponse
-uses json.jpcamara.example.Awesome
-uses json.google.geocode.GeocodeResponse
-uses json.google.geocode.Results
-uses json.twitter.status.StatusResponse
-uses json.twitter.status.User
 uses java.util.ArrayList
 uses java.util.List
-uses gw.lang.reflect.java.IJavaType
+uses json.jpcamara.example.Awesome
+uses json.jpcamara.example.SomeObject
+uses json.jpcamara.example.SomeDeeperObject
+uses json.jpcamara.example.EvenDeeper
 
-var geocode = new GeocodeResponse() {
-	:Status = "Rickaroo"
+var awe = new Awesome()
+awe.SomeObject = new SomeObject() {
+  :FirstField = 1,
+  :SecondField = "nice",
+  :Booly = true,
+  :Doubly = 10.12081989872,
+  :SomeDeeperObject = new SomeDeeperObject() {
+    :ThirdField = "Ok",
+    :Other = { 1 },
+    :MostOtherest = { "nice" },
+    :EvenDeeper = new ArrayList<EvenDeeper>() as List<EvenDeeper>
+  }
 }
-geocode.Results = new ArrayList<Results>() as List<Results> //have to cast for the in-memory types
-geocode.Results.add(new Results() {
-  :FormattedAddress = "3984 Jibba Jabba Drive, Sandy CO 93840",
-	:Types = { "street_address" } //no casting for existing types...?
+awe.SomeObject.SomeDeeperObject.EvenDeeper.add(new EvenDeeper() {
+  :Nice = "Rock",
+  :Now = new java.util.Date()
 })
-geocode.Results.add(new Results() {
-  :FormattedAddress = "3984 Jibba Jabba Drive, Sandy CO 93840",
-	:Types = { "street_address" } //no casting for existing types...?
+awe.SomeObject.SomeDeeperObject.EvenDeeper.add(new EvenDeeper() {
+  :Nice = "Roll",
+  :Now = new java.util.Date()
 })
-geocode.Results.each(\ result -> print(typeof result))
 
-var status = new StatusResponse() {
-	:User = new User() {
-	  :Name = "JP"
-	},
-	:Coordinates = 1,
-  :Favorited = false,
-  :CreatedAt = "Thu Jul 15 23:26:44 +0000 2010",
-  :Truncated = false,
-  :Text = "qu por qu kieres saver como poner pablito",
-  :Contributors = "nullee",
-  /*:Id = 1863948500*/
-  :Geo = "12.232 -23.343",
-  :InReplyToUserId = 12345
+/**
+*  "first_field": "integer",
+  "second_field": "string",
+  "booly": "boolean",
+  "doubly": "decimal",
+  "some_deeper_object": {
+    "third_field": "string",
+    "even_deeper": [{
+      "nice": "string",
+      "now": "date"
+    }],
+    "a_map": { "map_of" : "integer" }, <-- looks like a JSON Object, but it's a map
+    "types": { "enum" : ["json", "txt", "xml", "jsd", "wtf"] }, <-- looks like a json object, but it's an enum
+    "other": ["integer"],
+    "most_otherest": ["string"]
+  }
 }
-
-/*print(geocode.write())
-print(awesome.write())
-print(search.write())*/
-
-print(GeocodeResponse.parse(geocode.write()).write())
-print(typeof GeocodeResponse.parse(geocode.write()).Results)
-gw.internal.gosu.parser.JavaType_Proxy
-/*print(typeof gw.lang.reflect.IType.TypeInfo)*/
-/*print(IJavaType.LIST.getParameterizedType(IJavaType.INTEGER))//.TypeInfo.getConstructor(null).Constructor.newInstance(null))*/
-/*print(typeof geocode)
-print(typeof status)
-print(typeof awesome)
-print(typeof search)
-
-print(StatusResponse.parse(status.write()).write())
-
-print(GeocodeResponse.parse(geocode.write()).write())*/
+*/
