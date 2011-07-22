@@ -3,7 +3,9 @@
     "first_field": "biginteger",
     "second_field": "string",
     "booly": "boolean",
-    "doubly": "bigdecimal",
+    "decimal": "bigdecimal",
+    "inty": "integer",
+    "doubly": "decimal",
     "yo": [{
       "word": "string"
     }],

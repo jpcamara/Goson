@@ -25,8 +25,9 @@ public class JsonTypeLoader extends TypeLoaderBase {
 	private Map<String, IType> types = new HashMap<String, IType>();
 	private static final String EXT = "json";
 	
-	public JsonTypeLoader(IModule env, IResourceAccess access) {
+	public JsonTypeLoader(IModule env) {
 		super(env);
+		System.out.println("constructing11");
 	}
 	
 /*  public JsonTypeLoader() {}*/
@@ -47,13 +48,15 @@ public class JsonTypeLoader extends TypeLoaderBase {
 		if (fullyQualifiedName == null || types.get(fullyQualifiedName) == null) {
 			return null;
 		}
-		return types.get(fullyQualifiedName);
+		IType iType = types.get( fullyQualifiedName );
+    return TypeSystem.getOrCreateTypeReference( iType );
+/*    return types.get(fullyQualifiedName);*/
 	}
 
 	private void addType(String name, String path, JsonParser o) {
 		JsonName typeName = new JsonName(name);
 		JsonType type = new JsonType(typeName, path, this, o);
-		types.put(path + "." + typeName.getName(), TypeSystem.getOrCreateTypeReference(type));
+		types.put(path + "." + typeName.getName(), type);
 	}
 
 	private void searchAndAddTypes(String name, String path, JsonParser object)
@@ -126,7 +129,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
 	/*
 	* Default implementation to handle Gosu 0.9 reqs
 	*/
-/*  @Override*/
+  @Override
   public boolean handlesNonPrefixLoads() {
     return true;
   }

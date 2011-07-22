@@ -1,4 +1,4 @@
-classpath "../src,../build/dist"
+classpath "../build/dist,../src"
 typeloader com.jpcamara.goson.JsonTypeLoader
 
 uses java.lang.*
@@ -59,7 +59,9 @@ awe.SomeObject = new SomeObject() {
   :FirstField = 1,
   :SecondField = "nice",
   :Booly = true,
-  :Doubly = 10.12081989872,
+  :Decimal = 10.12081989872,
+  :Inty = 2,
+  :Doubly = 2.1,
   :Yo = {
     new Yo() {
       :Word = "nice"
@@ -73,7 +75,31 @@ awe.SomeObject = new SomeObject() {
   }
 }
 print(Awesome.parse(awe.write()).write())
-
+awe.SomeObject.SomeDeeperObject.EvenDeeper.each(\ ed -> print(ed.Nice))
+/*'{"some_object": {' +
+'  "inty": 2,' +
+'  "booly": true,' +
+'  "second_field": "nice",' +
+'  "first_field": 1,' +
+'  "some_deeper_object": {' +
+'    "other": [1],' +
+'    "third_field": "Ok",' +
+'    "most_otherest": ["nice"],' +
+'    "even_deeper": [' +
+'      {' +
+'        "now": "Thu Jul 21 23:14:13 EDT 2011",' +
+'        "nice": "Rock"' +
+'      },' +
+'      {' +
+'        "now": "Thu Jul 21 23:14:13 EDT 2011",' +
+'        "nice": "Roll"' +
+'      }' +
+'    ]' +
+'  },' +
+'  "yo": [{"word": "nice"}],' +
+'  "doubly": 2.1,' +
+'  "decimal": 10.12081989872' +
+'}}'*/
 /*print(typeof even)*/
 /*print("Feature Type: " + java.util.Arrays.toString((typeof awe.SomeObject.SomeDeeperObject).TypeInfo.Properties.where(\ p -> p.Name == "EvenDeeper").FeatureType))*/
 //Feature Type: [java.util.ArrayList<json.jpcamara.example.EvenDeeper>]

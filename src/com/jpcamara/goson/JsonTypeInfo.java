@@ -117,7 +117,6 @@ public class JsonTypeInfo extends TypeInfoBase {
       	public Object getValue(Object ctx) {
       		try {
       		  Object o = ((Json) ctx).get(name);
-/*            System.out.println(o.getClass());*/
       		  if (o instanceof List) {
 /*              System.out.println(((List)o).get(0).getClass());*/
       		  }
@@ -135,7 +134,6 @@ public class JsonTypeInfo extends TypeInfoBase {
 	}
 
 	private IPropertyInfo createWithListType(final String name, IType type) {
-	  System.out.println("Creating List Type: " + type.getName());	  
 	  PropertyInfoBuilder property = create(name);
 	  return property.withType(IJavaType.ARRAYLIST.getParameterizedType(new IType[] { type })).build(this);
 	}
@@ -146,19 +144,12 @@ public class JsonTypeInfo extends TypeInfoBase {
 	}
 	
 	private IJavaType findJavaType(String typeName) {
-	  IType t = TYPES.get(typeName);
-	  if (t == IJavaType.BIGDECIMAL) {
-	    return IJavaType.BIGDECIMAL; 
-	  } else if (t == IJavaType.BIGINTEGER) {
-	    return IJavaType.BIGINTEGER;
-	  } else if (t == IJavaType.STRING) {
-	    return IJavaType.STRING;
-	  } else if (t == IJavaType.DATE) {
-	    return IJavaType.DATE;
-	  } else if (t == IJavaType.BOOLEAN) {
-	    return IJavaType.BOOLEAN;
+	  IJavaType t = TYPES.get(typeName);
+	  if (t == null) {
+	    return null;
 	  }
-    return null; //TODO throw exception
+	  return t;
+/*    return null; //TODO throw exception*/
 /*    throw new RuntimeException("bad type: " + typeName);*/
 	}
 	
@@ -168,7 +159,6 @@ public class JsonTypeInfo extends TypeInfoBase {
       Object value = json.get(key);
       if (JsonParser.isJSONObject(value)) {
         if (((JSONObject)value).has("map_of")) {
-          System.out.println("mappy");
           //WOW SO UGLY
           try {
             JSONObject o = ((JSONObject)value).getJSONObject("map_of");
@@ -177,13 +167,8 @@ public class JsonTypeInfo extends TypeInfoBase {
             }
             IJavaType keyType = findJavaType((String)o.get("key"));
             IJavaType valueType = findJavaType((String)o.get("value"));
-            System.out.println(keyType);
-            System.out.println(valueType);
             //TODO if you're not a reg java type - kablooey
             properties.add(createWithMapType(key, keyType, valueType));
-            for (IPropertyInfo info : properties) {
-              System.out.println(info.getName());
-            }
             continue;
           } catch (Exception e) {
             e.printStackTrace();
@@ -226,9 +211,7 @@ public class JsonTypeInfo extends TypeInfoBase {
       }
       if (javaType == IJavaType.ENUM) {
         
-      } else if (javaType == IJavaType.MAP) {
-        
-    	} else if (JsonParser.isJSONNull(json.get(key))) {
+      } else if (JsonParser.isJSONNull(json.get(key))) {
     		Logger.getLogger(getClass().getName()).log(Level.FINE, 
     		  "Cannot handle NULL values. No type created.");
     	}

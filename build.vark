@@ -29,8 +29,8 @@ function jar() {
   Ant.jar(:destfile = distDir.file("goson.jar"),
           :manifest = classesDir.file("META-INF/MANIFEST.MF"),
           :basedir = classesDir)
-  Ant.copy(:file = distDir.file("goson.jar"),
-           :todir = gosuDir)
+/*  Ant.copy(:file = distDir.file("goson.jar"),
+           :todir = gosuDir)*/
 }
 
 function clean() {
