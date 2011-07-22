@@ -30,25 +30,30 @@ public class JsonTypeLoader extends TypeLoaderBase {
 
 	@Override
 	public IType getType(String fullyQualifiedName) {
-		if (types.isEmpty()) {
-			List<JsonFile> files = jsonFiles.get();
-			for (JsonFile file : files) {
-				try {
-					searchAndAddTypes(file.name, file.path, file.content);
-					addType(file.name, file.path, file.content);
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
-		if (fullyQualifiedName == null || types.get(fullyQualifiedName) == null) {
+    maybeInitTypes();
+    if (fullyQualifiedName == null || types.get(fullyQualifiedName) == null) {
 			return null;
 		}
     IType iType = types.get( fullyQualifiedName );
     return TypeSystem.getOrCreateTypeReference( iType );
 	}
 
-	private void addType(String name, String path, JsonParser o) {
+  private void maybeInitTypes()
+  {
+    if (types.isEmpty()) {
+      List<JsonFile> files = jsonFiles.get();
+      for (JsonFile file : files) {
+        try {
+          searchAndAddTypes(file.name, file.path, file.content);
+          addType(file.name, file.path, file.content);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+      }
+    }
+  }
+
+  private void addType(String name, String path, JsonParser o) {
 		JsonName typeName = new JsonName(name);
 		JsonType type = new JsonType(typeName, path, this, o);
 		types.put(path + "." + typeName.getName(), type);
@@ -74,45 +79,8 @@ public class JsonTypeLoader extends TypeLoaderBase {
 
 	@Override
 	public Set<String> getAllTypeNames() {
-		Set<String> typeNames = new HashSet<String>();
-
-		List<JsonFile> files = jsonFiles.get();
-		for (JsonFile file : files) {
-			Set<String> types = new HashSet<String>();
-			types.addAll(file.content.getAllTypeNames());
-			
-			String[] namespace = file.path.split("\\.");
-			
-			java.lang.StringBuilder ns = new java.lang.StringBuilder("json");
-			for (String piece : namespace) {
-				ns.append("." + piece);
-			}
-
-			typeNames.add(ns.toString() + "." + new JsonName(file.name).getName());
-			for (String type : types) {
-				typeNames.add(ns.toString() + "." + new JsonName(type).getName());
-			}
-		}
-		
-		return typeNames;
-	}
-
-	@Override
-	public Set<String> getAllNamespaces() {
-		Set<String> allNamespaces = new HashSet<String>();
-		allNamespaces.add(EXT);
-		
-		List<JsonFile> files = jsonFiles.get();
-		for (JsonFile file : files) {
-			String[] namespace = file.path.split("\\.");
-			String ns = EXT;
-			for (String piece : namespace) {
-				ns += "." + piece;
-				allNamespaces.add(ns);
-			}
-		}
-		
-		return allNamespaces;
+    maybeInitTypes();
+    return new HashSet<String>( types.keySet() );
 	}
 
 	@Override
