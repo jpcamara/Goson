@@ -15,6 +15,7 @@ var gosuDir = file("${gosuHome}/jars")
 function compile() {
   Ant.mkdir(:dir = classesDir)
   Ant.javac(:srcdir = path(srcDir),
+            :debug = true,
             :classpath = classpath()
               .withFileset(gosuDir.fileset()),
             :destdir = classesDir,

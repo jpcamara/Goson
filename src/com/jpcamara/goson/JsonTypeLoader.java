@@ -1,18 +1,15 @@
 package com.jpcamara.goson;
 
+import gw.fs.IFile;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeLoaderBase;
-import gw.fs.IFile;
+import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.module.IModule;
 import gw.lang.reflect.module.IResourceAccess;
 import gw.util.Pair;
-import gw.lang.reflect.TypeSystem;
 import gw.util.concurrent.LazyVar;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,13 +44,14 @@ public class JsonTypeLoader extends TypeLoaderBase {
 		if (fullyQualifiedName == null || types.get(fullyQualifiedName) == null) {
 			return null;
 		}
-		return types.get(fullyQualifiedName);
+    IType iType = types.get( fullyQualifiedName );
+    return TypeSystem.getOrCreateTypeReference( iType );
 	}
 
 	private void addType(String name, String path, JsonParser o) {
 		JsonName typeName = new JsonName(name);
 		JsonType type = new JsonType(typeName, path, this, o);
-		types.put(path + "." + typeName.getName(), TypeSystem.getOrCreateTypeReference(type));
+		types.put(path + "." + typeName.getName(), type);
 	}
 
 	private void searchAndAddTypes(String name, String path, JsonParser object)
