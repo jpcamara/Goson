@@ -9,6 +9,12 @@
     "yo": [{
       "word": "string"
     }],
+    "mappy": { 
+      "map_of" : { 
+        "key" : "biginteger", 
+        "value" : "string" 
+      } 
+    },
     "some_deeper_object": {
       "third_field": "string",
       "even_deeper": [{

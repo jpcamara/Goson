@@ -72,10 +72,12 @@ awe.SomeObject = new SomeObject() {
     :Other = { 1 },
     :MostOtherest = { "nice" },
     :EvenDeeper = even
-  }
+  },
+  :Mappy = { 1 -> "nice" }
 }
+print((typeof awe.SomeObject).TypeInfo.Properties.where(\ p -> p.Name == "Mappy").FeatureType)
 print(Awesome.parse(awe.write()).write())
-awe.SomeObject.SomeDeeperObject.EvenDeeper.each(\ ed -> print(ed.Nice))
+/*awe.SomeObject.SomeDeeperObject.EvenDeeper.each(\ ed -> print(ed.Nice))*/
 /*'{"some_object": {' +
 '  "inty": 2,' +
 '  "booly": true,' +

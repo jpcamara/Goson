@@ -71,13 +71,17 @@ public class Json implements IGosuObject {
       } else if (!(featureType instanceof IJavaType) && !(featureType instanceof gw.internal.gosu.parser.IJavaTypeInternal)) {
         it.put(jsonName, new Json(createJson((JSONObject)o, (JsonTypeInfo)featureType.getTypeInfo()), featureType));
       } else if (featureType instanceof gw.internal.gosu.parser.IJavaTypeInternal) { //hack to determine list
-        JSONArray arr = (JSONArray)o;
-        if (arr.length() == 0) {
-          continue;
+        if (JsonParser.isJSONArray(o)) {
+          JSONArray arr = (JSONArray)o;
+          if (arr.length() == 0) {
+            continue;
+          }
+          IType parameterizedType = featureType.getTypeParameters()[0];
+          ArrayList rawList = createList(arr, parameterizedType);
+          it.put(jsonName, (Object)rawList); //cast it so it doesn't get transformed into a jsonarray
+        } else if (JsonParser.isJSONObject(o)) {
+          System.out.println("ok map");
         }
-        IType parameterizedType = featureType.getTypeParameters()[0];
-        ArrayList rawList = createList(arr, parameterizedType);
-        it.put(jsonName, (Object)rawList); //cast it so it doesn't get transformed into a jsonarray
       }
     }
 		return it;
