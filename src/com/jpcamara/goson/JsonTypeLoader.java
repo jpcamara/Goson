@@ -29,7 +29,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
 		super(env);
 	}
 	
-	public JsonTypeLoader() {}
+/*  public JsonTypeLoader() {}*/
 
 	@Override
 	public IType getType(String fullyQualifiedName) {
@@ -126,10 +126,10 @@ public class JsonTypeLoader extends TypeLoaderBase {
 	/*
 	* Default implementation to handle Gosu 0.9 reqs
 	*/
-/*  @Override
+/*  @Override*/
   public boolean handlesNonPrefixLoads() {
     return true;
-  }*/
+  }
 	
 	private LazyVar<List<JsonFile>> jsonFiles = new LazyVar<List<JsonFile>>() {
 		@Override

@@ -26,19 +26,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
+import org.json.JSONObject;
+
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
 public class JsonTypeInfo extends TypeInfoBase {
   private static final Map<String, IJavaType> TYPES = new HashMap<String, IJavaType>();
   static {
-    TYPES.put("decimal", IJavaType.BIGDECIMAL);
-    TYPES.put("integer", IJavaType.BIGINTEGER);
+    TYPES.put("bigdecimal", IJavaType.BIGDECIMAL);
+    TYPES.put("biginteger", IJavaType.BIGINTEGER);
+    TYPES.put("decimal", IJavaType.DOUBLE);
+    TYPES.put("integer", IJavaType.INTEGER);
     TYPES.put("string", IJavaType.STRING);
-    TYPES.put("map_of", IJavaType.MAP);
     TYPES.put("date", IJavaType.DATE);
     TYPES.put("boolean", IJavaType.BOOLEAN);
     TYPES.put("enum", IJavaType.ENUM);
+    TYPES.put("map_of", IJavaType.MAP);
+    //TYPES.put("decimal", IJavaType.DOUBLE);
+    //TYPES.put("integer", IJavaType.INTEGER);
+    //TYPES.put("bigdecimal", IJavaType.BIGDECIMAL);
+    //TYPES.put("biginteger", IJavaType.BIGINTEGER);
   }
 
   private JsonType owner;
@@ -89,7 +97,7 @@ public class JsonTypeInfo extends TypeInfoBase {
     createProperties();
   }
   
-  private PropertyInfoBuilder create(final String name, IType type) {
+  private PropertyInfoBuilder create(final String name) {
     JsonName propertyName = new JsonName(name);
 	  propertyNames.put(propertyName.getName(), name);
     return new PropertyInfoBuilder()
@@ -108,6 +116,11 @@ public class JsonTypeInfo extends TypeInfoBase {
       	@Override
       	public Object getValue(Object ctx) {
       		try {
+      		  Object o = ((Json) ctx).get(name);
+/*            System.out.println(o.getClass());*/
+      		  if (o instanceof List) {
+/*              System.out.println(((List)o).get(0).getClass());*/
+      		  }
       			return ((Json) ctx).get(name);
       		} catch (Exception e) {
       			throw new RuntimeException(e);
@@ -117,13 +130,36 @@ public class JsonTypeInfo extends TypeInfoBase {
   }
 
 	private IPropertyInfo createWithType(final String name, IType type) {
-	  PropertyInfoBuilder property = create(name, type);
+	  PropertyInfoBuilder property = create(name);
 	  return property.withType(type).build(this);
 	}
 
 	private IPropertyInfo createWithListType(final String name, IType type) {
-	  PropertyInfoBuilder property = create(name, type);
-	  return property.withType(IJavaType.LIST.getParameterizedType(type)).build(this);
+	  System.out.println("Creating List Type: " + type.getName());	  
+	  PropertyInfoBuilder property = create(name);
+	  return property.withType(IJavaType.ARRAYLIST.getParameterizedType(new IType[] { type })).build(this);
+	}
+	
+	private IPropertyInfo createWithMapType(final String name, IType key, IType value) {
+	  PropertyInfoBuilder property = create(name);
+	  return property.withType(IJavaType.MAP.getParameterizedType(key, value)).build(this);
+	}
+	
+	private IJavaType findJavaType(String typeName) {
+	  IType t = TYPES.get(typeName);
+	  if (t == IJavaType.BIGDECIMAL) {
+	    return IJavaType.BIGDECIMAL; 
+	  } else if (t == IJavaType.BIGINTEGER) {
+	    return IJavaType.BIGINTEGER;
+	  } else if (t == IJavaType.STRING) {
+	    return IJavaType.STRING;
+	  } else if (t == IJavaType.DATE) {
+	    return IJavaType.DATE;
+	  } else if (t == IJavaType.BOOLEAN) {
+	    return IJavaType.BOOLEAN;
+	  }
+    return null; //TODO throw exception
+/*    throw new RuntimeException("bad type: " + typeName);*/
 	}
 	
 	private void createProperties() {
@@ -131,6 +167,29 @@ public class JsonTypeInfo extends TypeInfoBase {
     for (String key : json.keys()) {
       Object value = json.get(key);
       if (JsonParser.isJSONObject(value)) {
+        if (((JSONObject)value).has("map_of")) {
+          System.out.println("mappy");
+          //WOW SO UGLY
+          try {
+            JSONObject o = ((JSONObject)value).getJSONObject("map_of");
+            if (!o.has("key") || !o.has("value")) {
+              throw new RuntimeException("You must specify a key and value type");
+            }
+            IJavaType keyType = findJavaType((String)o.get("key"));
+            IJavaType valueType = findJavaType((String)o.get("value"));
+            System.out.println(keyType);
+            System.out.println(valueType);
+            //TODO if you're not a reg java type - kablooey
+            properties.add(createWithMapType(key, keyType, valueType));
+            for (IPropertyInfo info : properties) {
+              System.out.println(info.getName());
+            }
+            continue;
+          } catch (Exception e) {
+            e.printStackTrace();
+            continue;
+          }
+        }
         JsonType type = getOwnersType();
         IType propertyType = type.getTypeLoader()
           .getType(type.getNamespace() + "." + new JsonName(key).getName());
@@ -142,23 +201,15 @@ public class JsonTypeInfo extends TypeInfoBase {
     		  JsonType type = getOwnersType();
     			IType propertyType = type.getTypeLoader()
     					.getType(type.getNamespace() + "." + new JsonName(key).getName());
+    			System.out.println(type.getNamespace() + "." + new JsonName(key).getName());
+    			System.out.println(propertyType);
+    			System.out.println(propertyType.getName());
     			if (propertyType == null) {
     				throw new RuntimeException("No type found");
     			}
-/*          System.out.println(key);*/
-/*          System.out.println(new JsonName(key).getName());*/
-/*          System.out.println(propertyType);*/
     			properties.add(createWithListType(key, propertyType));
-    		} else if (TYPES.get((String)firstEntry) == IJavaType.BIGDECIMAL) {
-    		  properties.add(createWithListType(key, IJavaType.BIGDECIMAL));
-    		} else if (TYPES.get((String)firstEntry) == IJavaType.BIGINTEGER) {
-    		  properties.add(createWithListType(key, IJavaType.BIGINTEGER));
-  		  } else if (TYPES.get((String)firstEntry) == IJavaType.STRING) {
-  		    properties.add(createWithListType(key, IJavaType.STRING));
-		    } else if (TYPES.get((String)firstEntry) == IJavaType.DATE) {
-		      properties.add(createWithListType(key, IJavaType.DATE));
-	      } else if (TYPES.get((String)firstEntry) == IJavaType.BOOLEAN) {
-	        properties.add(createWithListType(key, IJavaType.BOOLEAN));
+        } else {
+          properties.add(createWithListType(key, findJavaType((String)firstEntry)));
         }
     	  continue;
     	}
@@ -168,18 +219,12 @@ public class JsonTypeInfo extends TypeInfoBase {
           " a string name of the desired type");
       }
       
-      IJavaType javaType = TYPES.get((String)value);
-      if (javaType == IJavaType.BIGDECIMAL) {
-        properties.add(createWithType(key, IJavaType.BIGDECIMAL));        
-      } else if (javaType == IJavaType.BIGINTEGER) {
-        properties.add(createWithType(key, IJavaType.BIGINTEGER));
-      } else if (javaType == IJavaType.STRING) {
-        properties.add(createWithType(key, IJavaType.STRING));
-      } else if (javaType == IJavaType.DATE) {
-        properties.add(createWithType(key, IJavaType.DATE));
-      } else if (javaType == IJavaType.BOOLEAN) {
-        properties.add(createWithType(key, IJavaType.BOOLEAN));
-      } else if (javaType == IJavaType.ENUM) {
+/*      IJavaType javaType = TYPES.get((String)value);*/
+      IJavaType javaType = findJavaType((String)value);
+      if (javaType != null) {
+        properties.add(createWithType(key, javaType));
+      }
+      if (javaType == IJavaType.ENUM) {
         
       } else if (javaType == IJavaType.MAP) {
         

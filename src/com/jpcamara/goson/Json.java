@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 import java.math.*;
 
 import java.util.Date;
@@ -17,25 +19,26 @@ import org.json.JSONObject;
 
 import gw.lang.reflect.IType;
 import gw.lang.reflect.IPropertyInfo;
+import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.gs.IGosuObject;
 import gw.lang.reflect.java.IJavaType;
 
 public class Json implements IGosuObject {
-	private JSONObject json;
-	private IType type;
+  private JSONObject json;
+  private IType type;
 	
-	public Json(IType type) {
-	  this.type = type;
-		this.json = new JSONObject();
-	}
+  public Json(IType type) {
+    this.type = type;
+    this.json = new JSONObject();
+  }
 	
-	public Json(Object json, IType type) {
-		if ((json instanceof JSONObject) == false) {
-			throw new JSONParserException("Must be a JSONObject");
-		}
-	  this.type = type;
-		this.json = (JSONObject)json;
-	}
+  public Json(Object json, IType type) {
+    if ((json instanceof JSONObject) == false) {
+      throw new JSONParserException("Must be a JSONObject");
+    }
+    this.type = type;
+    this.json = (JSONObject)json;
+  }
 	
 	/**
 	* Creates Json object, validating structure of the json 
@@ -74,16 +77,59 @@ public class Json implements IGosuObject {
       } else if (featureType == IJavaType.DATE) {
         it.put(jsonName, new Date((String)o)); //TODO obviously bad
       } else if (featureType instanceof gw.internal.gosu.parser.IJavaTypeInternal) { //hack to determine list
-        System.out.println("parse: " + jsonName);
+/*        System.out.println("parse: " + jsonName);*/
         JSONArray arr = (JSONArray)o;
         if (arr.length() == 0) {
           continue;
         }
-				ArrayList rawList = new ArrayList();
+/*        ArrayList rawList = new ArrayList();*/
+				IType parameterizedType = featureType.getTypeParameters()[0];
+				if (parameterizedType == IJavaType.BOOLEAN) {
+				  ArrayList<Boolean> rawList = new ArrayList<Boolean>();
+				  for (int i = 0; i < arr.length(); i++) {
+				    rawList.add(arr.getBoolean(i));
+			    }
+			    it.put(jsonName, (Object)rawList);
+        } else if (parameterizedType == IJavaType.STRING) {
+          ArrayList<String> rawList = new ArrayList<String>();
+				  for (int i = 0; i < arr.length(); i++) {
+				    rawList.add(arr.getString(i));
+			    }
+			    it.put(jsonName, (Object)rawList);
+        } else if (parameterizedType == IJavaType.BIGDECIMAL) {
+          ArrayList<BigDecimal> rawList = new ArrayList<BigDecimal>();
+  				for (int i = 0; i < arr.length(); i++) {
+  				  rawList.add(new BigDecimal(o instanceof Long ? Long.valueOf(arr.get(i).toString()) :
+              Double.valueOf(arr.get(i).toString())));
+  			  }
+  			  it.put(jsonName, (Object)rawList);
+        } else if (parameterizedType == IJavaType.BIGINTEGER) {
+          ArrayList<BigInteger> rawList = new ArrayList<BigInteger>();
+  				for (int i = 0; i < arr.length(); i++) {
+  				  rawList.add(BigInteger.valueOf(Long.valueOf(arr.get(i).toString())));
+  			  }
+  			  it.put(jsonName, (Object)rawList);
+        } else if (parameterizedType == IJavaType.DATE) {          
+          ArrayList<Date> rawList = new ArrayList<Date>();
+  				for (int i = 0; i < arr.length(); i++) {
+  				  rawList.add(new Date((String)arr.get(i)));
+  			  }
+  			  it.put(jsonName, (Object)rawList);
+        } else if (parameterizedType instanceof IType) {
+          ArrayList<Json> rawList = new ArrayList<Json>();
+  				for (int i = 0; i < arr.length(); i++) {
+  				  rawList.add(new Json(createJson((JSONObject)arr.get(i), 
+              (JsonTypeInfo)parameterizedType.getTypeInfo()), parameterizedType));
+  			  }
+  			  it.put(jsonName, (Object)rawList);
+/*          
+          rawList.add(new Json(createJson((JSONObject)arr.get(i), 
+            (JsonTypeInfo)parameterizedType.getTypeInfo()), parameterizedType));*/
+			  }
 				
-				for (int i = 0; i < arr.length(); i++) {
-				  IType parameterizedType = featureType.getTypeParameters()[0];
-				  if (parameterizedType == IJavaType.BOOLEAN) {
+/*        for (int i = 0; i < arr.length(); i++) {
+          IType parameterizedType = featureType.getTypeParameters()[0];
+          if (parameterizedType == IJavaType.BOOLEAN) {
             rawList.add(arr.get(i));
           } else if (parameterizedType == IJavaType.STRING) {
             System.out.println("in ijavatype string: " + arr.get(i));
@@ -98,11 +144,10 @@ public class Json implements IGosuObject {
           } else if (parameterizedType instanceof IType) {
             rawList.add(new Json(createJson((JSONObject)arr.get(i), 
               (JsonTypeInfo)parameterizedType.getTypeInfo()), parameterizedType));
-				  }
-				}
-				it.put(jsonName, (Object)rawList); //cast it so it doesn't get transformed to a JSONArray
+          }
+        }*/
+/*        it.put(jsonName, (Object)rawList); //cast it so it doesn't get transformed to a JSONArray*/
       } else if (featureType instanceof IType) { //hack to determine jsontype
-/*        System.out.println("in create jsontype: " + featureType);*/
         it.put(jsonName, new Json(createJson((JSONObject)o, (JsonTypeInfo)featureType.getTypeInfo()), featureType));
       }
     }
@@ -131,7 +176,6 @@ public class Json implements IGosuObject {
 				
 				if (value instanceof List) {
 				  
-				  
 					List list = (List)value;
 					JSONArray array = new JSONArray();
 					if (output.has(name.getJsonName())) {
@@ -144,14 +188,11 @@ public class Json implements IGosuObject {
 /*            System.out.println("list of: " + list.get(0).getClass() + " - length: " + list.size());*/
 					}
 					if (list.size() > 0 && list.get(0) instanceof Json) {
-/*            System.out.println("writing json");*/
 						List<Json> jsons = (List<Json>)list;
 						for (Json j : jsons) {
 							array.put(j.serializeAsJSONObject());
-/*              System.out.println("output right now:     " + output.toString());*/
 						}
 					} else {
-/*            System.out.println("writing a list of objects");*/
 						for (Object o : list) {
 						  if (o instanceof Boolean || o instanceof String) {
 						    array.put(o);
@@ -164,7 +205,6 @@ public class Json implements IGosuObject {
 						  }
 						}
 					}
-					
 					
 				} else if (value instanceof Json) {
 				  
@@ -193,15 +233,11 @@ public class Json implements IGosuObject {
 				  }
 				  
 				  
-				} else if (value instanceof Boolean || value instanceof String) {
-			    output.put(name.getJsonName(), value);
-			  } else if (value instanceof java.math.BigDecimal) {
-			    output.put(name.getJsonName(), ((BigDecimal)value).doubleValue());
-			  } else if (value instanceof java.math.BigInteger) {
-			    output.put(name.getJsonName(), ((BigInteger)value).longValue());
-			  } else if (value instanceof java.util.Date) {
-			    output.put(name.getJsonName(), value.toString());
-			  }
+				} else if (value instanceof java.util.Map) {
+          handleJavaMapType(output, name.getJsonName(), (Map)value);
+        } else {
+          handleJavaSimpleType(output, name.getJsonName(), value);
+        } 
 			}
 		} catch (JSONException e) {
 			throw new RuntimeException(e);
@@ -209,6 +245,26 @@ public class Json implements IGosuObject {
 		
 /*    System.out.println("End of writing: " + output.toString());*/
 		return output;
+	}
+	
+	private void handleJavaMapType(JSONObject output, String key, Map value) throws JSONException {
+	  JSONObject j = new JSONObject();
+    for (Object mapKey : ((Map)value).keySet()) {
+      handleJavaSimpleType(j, mapKey.toString(), ((Map)value).get(mapKey));
+    }
+    output.put(key, j);
+	}
+	
+	private void handleJavaSimpleType(JSONObject output, String key, Object value) throws JSONException {
+	  if (value instanceof Boolean || value instanceof String) {
+	    output.put(key, value);
+	  } else if (value instanceof java.math.BigDecimal) {
+	    output.put(key, ((BigDecimal)value).doubleValue());
+	  } else if (value instanceof java.math.BigInteger) {
+	    output.put(key, ((BigInteger)value).longValue());
+	  } else if (value instanceof java.util.Date) {
+	    output.put(key, value.toString());
+	  }
 	}
 	
 	public Object get(String key) {
@@ -269,7 +325,8 @@ public class Json implements IGosuObject {
 	
 	@Override
 	public IType getIntrinsicType() {
-	  return type;
+/*    return TypeSystem.get(getClass());*/
+    return type;
 	}
 	
 	private class IterableJson implements Iterable<String> {

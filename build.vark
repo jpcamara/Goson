@@ -5,7 +5,6 @@ BaseDir = file(".")
 var srcDir = file("src")
 var classesDir = file("build/classes")
 var distDir = file("build/dist")
-var libDir = file("lib")
 var gosuHome = java.lang.System.getenv().get("GOSU_HOME")
 if (gosuHome == null) {
 	throw "Please set GOSU_HOME environment variable!" 
@@ -17,7 +16,6 @@ function compile() {
   Ant.mkdir(:dir = classesDir)
   Ant.javac(:srcdir = path(srcDir),
             :classpath = classpath()
-              .withFileset(libDir.fileset())
               .withFileset(gosuDir.fileset()),
             :destdir = classesDir,
             :includeantruntime = false)
