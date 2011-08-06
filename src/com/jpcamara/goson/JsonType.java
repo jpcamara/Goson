@@ -18,130 +18,132 @@ import gw.lang.reflect.gs.IGosuObject;
 
 public class JsonType extends TypeBase {
 
-	private static final long serialVersionUID = -8034222055932240161L;
+  private static final long serialVersionUID = -8034222055932240161L;
 
-	private ITypeLoader loader;
-	private JsonName name;
-	private String path;
-	private LazyVar<JsonTypeInfo> typeInfo;
-	Logger logger = Logger.getLogger(getClass().getName());
+  private ITypeLoader loader;
+  private JsonName name;
+  private String path;
+  private LazyVar<JsonTypeInfo> typeInfo;
+  Logger logger = Logger.getLogger(getClass().getName());
 
-	public JsonType(JsonName name, String path, ITypeLoader typeloader,
-			final JsonParser object) {
-		this.name = name;
-		this.path = path;
-		this.loader = typeloader;
-		this.typeInfo = new LazyVar<JsonTypeInfo>() {
-			@Override
-			protected JsonTypeInfo init() {
-				return new JsonTypeInfo(JsonType.this, object);
-			}
-		};
-	}
+  public JsonType(JsonName name, String path, ITypeLoader typeloader,
+    final JsonParser object) {
+    this.name = name;
+    this.path = path;
+    this.loader = typeloader;
+    this.typeInfo = new LazyVar<JsonTypeInfo>() {
+      @Override
+      protected JsonTypeInfo init() {
+        return new JsonTypeInfo(JsonType.this, object);
+      }
+    };
+  }
 
-	@Override
-	public String getName() {
-		return path + "." + name.getName();
-	}
+  @Override
+  public String getName() {
+    return path + "." + name.getName();
+  }
 
-	@Override
-	public String getNamespace() {
-		return path;
-	}
+  @Override
+  public String getNamespace() {
+    return path;
+  }
 
-	@Override
-	public String getRelativeName() {
-		return name.getName();
-	}
-	
-	public String getJsonRelativeName() {
-		return name.getJsonName();
-	}
+  @Override
+  public String getRelativeName() {
+    return name.getName();
+  }
 
-	@Override
-	public ITypeInfo getTypeInfo() {
-		return typeInfo.get();
-	}
+  public String getJsonRelativeName() {
+    return name.getJsonName();
+  }
 
-	@Override
-	public ITypeLoader getTypeLoader() {
-		return loader;
-	}
+  @Override
+  public ITypeInfo getTypeInfo() {
+    return typeInfo.get();
+  }
 
-	@Override
-	public List<? extends IType> getInterfaces() {
-		return Collections.emptyList();
-	}
+  @Override
+  public ITypeLoader getTypeLoader() {
+    return loader;
+  }
 
-	@Override
-	public IType getSupertype() {
+  @Override
+  public List<? extends IType> getInterfaces() {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public IType getSupertype() {
     return IJavaType.OBJECT;
-	}
-	
-	@Override
-	public boolean isParameterizedType() {
-		return false;
-	}
-	
-	public String toString() {
-		return getName();// + " " + typeInfo.get();
-	}
-	
-	public class JsonEnum extends TypeBase implements IEnumType {	  
-	  public List<IEnumValue> getEnumValues() {
-	    return null;
-	  }
+  }
 
+  @Override
+  public boolean isParameterizedType() {
+    return false;
+  }
+
+  public String toString() {
+    return getName();
+  }
+
+  public class JsonEnum extends TypeBase implements IEnumType {
+    @Override
+    public List<IEnumValue> getEnumValues() {
+      return null;
+    }
+
+    @Override
     public IEnumValue getEnumValue( String strName ) {
       return null;
     }
-    
+
     @Override
-  	public String getName() {
+    public String getName() {
       return JsonType.this.getName();
-  	}
+    }
 
-  	@Override
-  	public String getNamespace() {
-  		return JsonType.this.getNamespace();
-  	}
+    @Override
+    public String getNamespace() {
+      return JsonType.this.getNamespace();
+    }
 
-  	@Override
-  	public String getRelativeName() {
-  		return JsonType.this.getRelativeName();
-  	}
+    @Override
+    public String getRelativeName() {
+      return JsonType.this.getRelativeName();
+    }
 
-  	public String getJsonRelativeName() {
-  		return JsonType.this.getJsonRelativeName();
-  	}
+    public String getJsonRelativeName() {
+      return JsonType.this.getJsonRelativeName();
+    }
 
-  	@Override
-  	public ITypeInfo getTypeInfo() {
-  		return JsonType.this.getTypeInfo();
-  	}
+    @Override
+    public ITypeInfo getTypeInfo() {
+      return JsonType.this.getTypeInfo();
+    }
 
-  	@Override
-  	public ITypeLoader getTypeLoader() {
-  		return JsonType.this.getTypeLoader();
-  	}
+    @Override
+    public ITypeLoader getTypeLoader() {
+      return JsonType.this.getTypeLoader();
+    }
 
-  	@Override
-  	public List<? extends IType> getInterfaces() {
-  		return JsonType.this.getInterfaces(); //should this be enum?
-  	}
+    @Override
+    public List<? extends IType> getInterfaces() {
+      return JsonType.this.getInterfaces(); //should this be enum?
+    }
 
-  	@Override
-  	public IType getSupertype() {
-  		return JsonType.this.getSupertype(); // should this be enum?
-  	}
+    @Override
+    public IType getSupertype() {
+      return JsonType.this.getSupertype(); // should this be enum?
+    }
 
-  	@Override
-  	public boolean isParameterizedType() {
-  		return JsonType.this.isParameterizedType();
-  	}
+    @Override
+    public boolean isParameterizedType() {
+      return JsonType.this.isParameterizedType();
+    }
 
-  	public String toString() {
-  		return JsonType.this.toString();
-  	}
-	}
+    public String toString() {
+      return JsonType.this.toString();
+    }
+  }
 }

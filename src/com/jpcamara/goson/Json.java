@@ -95,7 +95,6 @@ public class Json implements IGosuObject {
             jsonMap.put(keyParser.parse(itKey), valueParser.parse(jsonObj.get(itKey)));
           }
           it.put(jsonName, (Object)jsonMap);
-          System.out.println("ok map");
         }
       }
     }
