@@ -77,18 +77,6 @@ public class JsonType extends TypeBase {
 	public IType getSupertype() {
     return IJavaType.OBJECT;
 	}
-	//public IType getEnclosingType();
-	//public IType getGenericType();
-	//public boolean isParameterizedType();
-	//public boolean isGenericType();
-	//public IGenericTypeVariable[] getGenericTypeVariables();
-	
-/*  @Override
-  public Set<? extends IType> getAllTypesInHierarchy() {
-    Set set = super.getAllTypesInHierarchy();
-    set.add(TypeSystem.get(IGosuObject.class));
-    return (Set<? extends IType>)set;
-  }*/
 	
 	@Override
 	public boolean isParameterizedType() {

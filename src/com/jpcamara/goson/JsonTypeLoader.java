@@ -24,10 +24,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
 	
 	public JsonTypeLoader(IModule env) {
 		super(env);
-		System.out.println("constructing11");
 	}
-	
-/*  public JsonTypeLoader() {}*/
 
 	@Override
 	public IType getType(String fullyQualifiedName) {

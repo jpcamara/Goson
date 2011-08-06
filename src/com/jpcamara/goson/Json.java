@@ -68,6 +68,7 @@ public class Json implements IGosuObject {
       Parse parse = PARSE.get(featureType);
       if (parse != null) {
         it.put(jsonName, parse.parse(o));
+      //Hackadoodledoo to determine if it's a custom json type
       } else if (!(featureType instanceof IJavaType) && !(featureType instanceof gw.internal.gosu.parser.IJavaTypeInternal)) {
         it.put(jsonName, new Json(createJson((JSONObject)o, (JsonTypeInfo)featureType.getTypeInfo()), featureType));
       } else if (featureType instanceof gw.internal.gosu.parser.IJavaTypeInternal) { //hack to determine list
@@ -80,6 +81,20 @@ public class Json implements IGosuObject {
           ArrayList rawList = createList(arr, parameterizedType);
           it.put(jsonName, (Object)rawList); //cast it so it doesn't get transformed into a jsonarray
         } else if (JsonParser.isJSONObject(o)) {
+          JSONObject jsonObj = (JSONObject)o;
+          Parse keyParser = PARSE.get(featureType.getTypeParameters()[0]);
+          Parse valueParser = PARSE.get(featureType.getTypeParameters()[1]);
+          if (keyParser == null || valueParser == null) {
+            throw new RuntimeException("Map key and value currently only support simple types that conform to simple JSON");
+          }
+          
+          Map jsonMap = new HashMap();
+          Iterator iterate = jsonObj.keys();
+          while (iterate.hasNext()) {
+            String itKey = (String)iterate.next();
+            jsonMap.put(keyParser.parse(itKey), valueParser.parse(jsonObj.get(itKey)));
+          }
+          it.put(jsonName, (Object)jsonMap);
           System.out.println("ok map");
         }
       }
@@ -291,7 +306,6 @@ public class Json implements IGosuObject {
 	public void put(String key, Object value) {
 		try {
 			json.put(key, value);
-/*      System.out.println(json.get(key).getClass());*/
 		} catch (JSONException e) {
 			throw new JSONParserException(e);
 		}
@@ -320,7 +334,6 @@ public class Json implements IGosuObject {
 	
 	@Override
 	public IType getIntrinsicType() {
-/*    return TypeSystem.get(getClass());*/
     return type;
 	}
 	

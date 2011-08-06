@@ -2,3 +2,4 @@ build
 *.zip
 .DS_Store
 src/.DS_Store
+.idea

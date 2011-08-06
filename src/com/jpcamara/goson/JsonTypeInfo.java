@@ -118,7 +118,6 @@ public class JsonTypeInfo extends TypeInfoBase {
       		try {
       		  Object o = ((Json) ctx).get(name);
       		  if (o instanceof List) {
-/*              System.out.println(((List)o).get(0).getClass());*/
       		  }
       			return ((Json) ctx).get(name);
       		} catch (Exception e) {
