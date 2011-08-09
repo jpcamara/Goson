@@ -19,6 +19,7 @@ import gw.lang.reflect.IRelativeTypeInfo.Accessibility;
 import gw.lang.reflect.java.IJavaType;
 import gw.lang.reflect.gs.IGosuObject;
 import gw.util.concurrent.LazyVar;
+import gw.lang.reflect.IEnumValue;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,11 +28,15 @@ import java.util.Map;
 import java.util.HashMap;
 
 import org.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
 public class JsonTypeInfo extends TypeInfoBase {
+  private static final String ENUM_KEY = "enum";
+  
   private static final Map<String, IJavaType> TYPES = new HashMap<String, IJavaType>();
   static {
     TYPES.put("bigdecimal", IJavaType.BIGDECIMAL);
@@ -43,10 +48,6 @@ public class JsonTypeInfo extends TypeInfoBase {
     TYPES.put("boolean", IJavaType.BOOLEAN);
     TYPES.put("enum", IJavaType.ENUM);
     TYPES.put("map_of", IJavaType.MAP);
-    //TYPES.put("decimal", IJavaType.DOUBLE);
-    //TYPES.put("integer", IJavaType.INTEGER);
-    //TYPES.put("bigdecimal", IJavaType.BIGDECIMAL);
-    //TYPES.put("biginteger", IJavaType.BIGINTEGER);
   }
 
   private JsonType owner;
@@ -152,10 +153,49 @@ public class JsonTypeInfo extends TypeInfoBase {
 /*    throw new RuntimeException("bad type: " + typeName);*/
 	}
 	
+	private void createEnumProperties(final String key, JSONArray enumCodes) {
+	  JsonEnumType type = (JsonEnumType)getOwnersType();
+    try {
+      for (int i = 0; i < enumCodes.length(); i++) {
+        final String code = enumCodes.getString(i);
+        final String enumified = JsonEnumType.enumify(code);
+        final IEnumValue value = type.getEnumValue(enumified);
+        
+    	  propertyNames.put(enumified, code);
+        PropertyInfoBuilder property = new PropertyInfoBuilder()
+          .withName(enumified).withWritable(false)
+          .withAccessor(new IPropertyAccessor() {
+          	@Override
+          	public Object getValue(Object ctx) {
+          		try {
+          			return value;//((JsonEnumType) ctx).get(code);
+          		} catch (Exception e) {
+          			throw new RuntimeException(e);
+          		}
+          	}
+          	
+          	@Override
+          	public void setValue(Object ctx, Object value) {
+          		throw new UnsupportedOperationException("Cannot set an enum");
+          	}
+          });
+        
+        properties.add(property.withStatic(true)
+                .withType(type).build(this));
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+	}
+	
 	private void createProperties() {
     properties = new ArrayList<IPropertyInfo>();
     for (String key : json.keys()) {
       Object value = json.get(key);
+      if (key.equals(ENUM_KEY)) {
+        createEnumProperties(key, (JSONArray)value);
+        continue;
+      }
       if (JsonParser.isJSONObject(value)) {
         if (((JSONObject)value).has("map_of")) {
           //WOW SO UGLY
@@ -185,9 +225,6 @@ public class JsonTypeInfo extends TypeInfoBase {
     		  JsonType type = getOwnersType();
     			IType propertyType = type.getTypeLoader()
     					.getType(type.getNamespace() + "." + new JsonName(key).getName());
-    			System.out.println(type.getNamespace() + "." + new JsonName(key).getName());
-    			System.out.println(propertyType);
-    			System.out.println(propertyType.getName());
     			if (propertyType == null) {
     				throw new RuntimeException("No type found");
     			}
@@ -203,13 +240,12 @@ public class JsonTypeInfo extends TypeInfoBase {
           " a string name of the desired type");
       }
       
-/*      IJavaType javaType = TYPES.get((String)value);*/
       IJavaType javaType = findJavaType((String)value);
       if (javaType != null) {
         properties.add(createWithType(key, javaType));
       }
       if (javaType == IJavaType.ENUM) {
-        
+        continue; //no properties for the enum, they're at the type level?
       } else if (JsonParser.isJSONNull(json.get(key))) {
     		Logger.getLogger(getClass().getName()).log(Level.FINE, 
     		  "Cannot handle NULL values. No type created.");

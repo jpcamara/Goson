@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import org.json.JSONObject;
 
 public class JsonTypeLoader extends TypeLoaderBase {
 	private Map<String, IType> types = new HashMap<String, IType>();
@@ -56,14 +57,29 @@ public class JsonTypeLoader extends TypeLoaderBase {
 		JsonType type = new JsonType(typeName, path, this, o);
 		types.put(path + "." + typeName.getName(), type);
 	}
+	
+	private void addEnumType(String name, String path, JsonParser o) {
+		JsonName typeName = new JsonName(name);
+		JsonEnumType type = new JsonEnumType(typeName, path, this, o);
+		types.put(path + "." + typeName.getName(), type);
+	}
 
 	private void searchAndAddTypes(String name, String path, JsonParser object)
 			throws Exception {
 		for (String key : object.keys()) {
 			Object obj = object.get(key);
 			if (JsonParser.isJSONObject(obj)) {
-				searchAndAddTypes(key, path, object.getJsonParser(key));
-				addType(key, path, object.getJsonParser(key));
+			  try {
+			    if (((JSONObject)obj).has("enum")) {
+			      addEnumType(key, path, object.getJsonParser(key));
+			    } else {
+			      searchAndAddTypes(key, path, object.getJsonParser(key));
+    				addType(key, path, object.getJsonParser(key));
+			    }
+			  } catch (Exception e) {
+			    e.printStackTrace();
+			    //This shouldn't throw an exception anyway, oy
+			  }
 			} else if (JsonParser.isJSONArray(obj)) {
 				Object arrEntry = object.getWithIndex(key, 0);
 				if (JsonParser.isJSONObject(arrEntry)) {

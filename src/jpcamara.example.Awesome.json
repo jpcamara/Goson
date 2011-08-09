@@ -15,6 +15,7 @@
         "value" : "string" 
       } 
     },
+    "types": { "enum" : ["json", "txt", "xml", "jsd", "wtf"] },
     "some_deeper_object": {
       "third_field": "string",
       "even_deeper": [{

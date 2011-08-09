@@ -47,7 +47,6 @@ public class Json implements IGosuObject {
 	public Json(String json, JsonTypeInfo structure) {
 		try {
 		  this.type = structure.getOwnersType();
-/*			this.json = new JSONObject(json);*/
 			this.json = createJson(new JSONObject(json), structure);
 		} catch (JSONException e) {
 			throw new JSONParserException(e);
@@ -70,7 +69,11 @@ public class Json implements IGosuObject {
         it.put(jsonName, parse.parse(o));
       //Hackadoodledoo to determine if it's a custom json type
       } else if (!(featureType instanceof IJavaType) && !(featureType instanceof gw.internal.gosu.parser.IJavaTypeInternal)) {
-        it.put(jsonName, new Json(createJson((JSONObject)o, (JsonTypeInfo)featureType.getTypeInfo()), featureType));
+        if (o instanceof String) { //JsonEnumType
+          it.put(jsonName, o);
+        } else {
+          it.put(jsonName, new Json(createJson((JSONObject)o, (JsonTypeInfo)featureType.getTypeInfo()), featureType));
+        }
       } else if (featureType instanceof gw.internal.gosu.parser.IJavaTypeInternal) { //hack to determine list
         if (JsonParser.isJSONArray(o)) {
           JSONArray arr = (JSONArray)o;
@@ -183,7 +186,12 @@ public class Json implements IGosuObject {
 				JsonName name = new JsonName(key);
 				Object value = get(key);
 				
-				if (value instanceof List) {
+				//enum
+				if (value instanceof JsonEnumType.JsonEnumValue) {
+				  JsonEnumType.JsonEnumValue enumVal = (JsonEnumType.JsonEnumValue)value;
+				  output.put(name.getJsonName(), enumVal.getJsonCode());
+				//list
+				} else if (value instanceof List) {
 				  
 					List list = (List)value;
 					JSONArray array = new JSONArray();
@@ -214,14 +222,14 @@ public class Json implements IGosuObject {
 						  }
 						}
 					}
-					
+				//json
 				} else if (value instanceof Json) {
 				  
 				  
 					Json current = (Json)value;//get(name.getJsonName());
 					output.put(name.getJsonName(), current.serializeAsJSONObject());
 					
-					
+				//jsonarray	
 				} else if (value instanceof JSONArray) {
 				  
 				  
@@ -241,9 +249,10 @@ public class Json implements IGosuObject {
 					  }
 				  }
 				  
-				  
+				//map
 				} else if (value instanceof java.util.Map) {
           handleJavaMapType(output, name.getJsonName(), (Map)value);
+        //java types
         } else {
           handleJavaSimpleType(output, name.getJsonName(), value);
         } 

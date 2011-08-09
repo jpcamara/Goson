@@ -10,6 +10,11 @@ uses json.jpcamara.example.SomeObject
 uses json.jpcamara.example.SomeDeeperObject
 uses json.jpcamara.example.EvenDeeper
 uses json.jpcamara.example.Yo
+uses json.jpcamara.example.Types
+
+print(Types.TypeInfo.Methods)
+print((Types as Object).Class.Interfaces)
+print(Types.JSON)
 
 var awe = new Awesome()
 var even = new ArrayList<EvenDeeper>()
@@ -39,10 +44,12 @@ awe.SomeObject = new SomeObject() {
     :MostOtherest = { "nice" },
     :EvenDeeper = even
   },
-  :Mappy = { 1 -> "nice", 12412 -> "AWESOME" }
+  :Mappy = { 1 -> "nice", 12412 -> "AWESOME" },
+  :Types = Types.JSON
 }
 print((typeof awe.SomeObject).TypeInfo.Properties.where(\ p -> p.Name == "Mappy").FeatureType)
 print(Awesome.parse(awe.write()).write())
+print(awe.write())
 /*print(awe.write())*/
 awe.SomeObject.SomeDeeperObject.EvenDeeper.each(\ ed -> print(ed.Nice))
 /*'{"some_object": {' +
