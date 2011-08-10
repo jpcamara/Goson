@@ -1,0 +1,29 @@
+{
+  "status": "string",
+  "results": [ {
+    "types": [{ "enum" : [ "street_address" ] }],
+    "formatted_address": "string",
+    "address_components": [{
+      "long_name": "string",
+      "short_name": "string",
+      "types": [{ "enum" : [ "street_number" ] }]
+    }],
+    "geometry": {
+      "location": {
+        "lat": "bigdecimal",
+        "lng": "bigdecimal"
+      },
+      "location_type": "string",
+      "viewport": {
+        "southwest": {
+          "lat": "bigdecimal",
+          "lng": "bigdecimal"
+        },
+        "northeast": {
+          "lat": "bigdecimal",
+          "lng": "bigdecimal"
+        }
+      }
+    }
+  } ]
+}

@@ -5,74 +5,91 @@ uses java.lang.*
 uses java.util.ArrayList
 uses java.util.List
 uses java.util.Arrays
-uses json.jpcamara.example.Awesome
-uses json.jpcamara.example.SomeObject
-uses json.jpcamara.example.SomeDeeperObject
-uses json.jpcamara.example.EvenDeeper
-uses json.jpcamara.example.Yo
-uses json.jpcamara.example.Types
+uses json.jpcamara.example.Example
+uses json.jpcamara.example.SomeType
+uses json.jpcamara.example.TypeInArray
+uses json.jpcamara.example.EnumEx
+uses json.jpcamara.example.NestedType
+uses json.jpcamara.example.NestedTypeInArray
+uses com.EnumExample
 
-print(Types.TypeInfo.Methods)
-print((Types as Object).Class.Interfaces)
-print(Types.JSON)
+uses json.twitter.status.StatusResponse
+uses json.google.geocode.GeocodeResponse
 
-var awe = new Awesome()
-var even = new ArrayList<EvenDeeper>()
-even.add(new EvenDeeper() {
-  :Nice = "Rock",
-  :Now = new java.util.Date()
-})
-even.add(new EvenDeeper() {
-  :Nice = "Roll",
-  :Now = new java.util.Date()
-})
-awe.SomeObject = new SomeObject() {
-  :FirstField = 1,
-  :SecondField = "nice",
-  :Booly = true,
-  :Decimal = 10.12081989872,
-  :Inty = 2,
-  :Doubly = 2.1,
-  :Yo = {
-    new Yo() {
-      :Word = "nice"
+var example = new Example() {
+  :SomeType = new SomeType() {
+    :BigIntEx = 12314235134,
+    :StringEx = "Example",
+    :BooleanEx = true,
+    :BigDecimalEx = 20.1231,
+    :IntEx = 1,
+    :DecimalEx = 1.2123,
+    :TypeInArray = {
+      new TypeInArray() {
+        :Content = "Example Content"
+      }
+    },
+    :MapEx = { 1232 -> "OneTwoThreeTwo", 111 -> "OneOneOne" },
+    :EnumEx = EnumEx.JSON,
+    :NestedType = new NestedType() {
+      :NestedStringEx = "Nested Example",
+      :NestedTypeInArray = {
+        new NestedTypeInArray() {
+          :Value = "Super Nested",
+          :ADate = new java.util.Date()
+        }
+      },
+      :BigIntArrayEx = { 123112311 },
+      :StringArrayEx = { "Oh Nice", "This", "Is", "An", "Array" },
+      :NestedBigIntEx = 2312314,
+      :NestedBigDecimalEx = 123.1239141
     }
-  },
-  :SomeDeeperObject = new SomeDeeperObject() {
-    :ThirdField = "Ok",
-    :Other = { 1 },
-    :MostOtherest = { "nice" },
-    :EvenDeeper = even
-  },
-  :Mappy = { 1 -> "nice", 12412 -> "AWESOME" },
-  :Types = Types.JSON
+  }
 }
-print((typeof awe.SomeObject).TypeInfo.Properties.where(\ p -> p.Name == "Mappy").FeatureType)
-print(Awesome.parse(awe.write()).write())
-print(awe.write())
-/*print(awe.write())*/
-awe.SomeObject.SomeDeeperObject.EvenDeeper.each(\ ed -> print(ed.Nice))
-/*'{"some_object": {' +
-'  "inty": 2,' +
-'  "booly": true,' +
-'  "second_field": "nice",' +
-'  "first_field": 1,' +
-'  "some_deeper_object": {' +
-'    "other": [1],' +
-'    "third_field": "Ok",' +
-'    "most_otherest": ["nice"],' +
-'    "even_deeper": [' +
-'      {' +
-'        "now": "Thu Jul 21 23:14:13 EDT 2011",' +
-'        "nice": "Rock"' +
-'      },' +
-'      {' +
-'        "now": "Thu Jul 21 23:14:13 EDT 2011",' +
-'        "nice": "Roll"' +
-'      }' +
-'    ]' +
-'  },' +
-'  "yo": [{"word": "nice"}],' +
-'  "doubly": 2.1,' +
-'  "decimal": 10.12081989872' +
-'}}'*/
+
+print(example.SomeType.NestedType.StringArrayEx.join(" "))
+print(Example.parse(example.write()).write())
+
+var status = new StatusResponse() {
+  :InReplyToStatusId = 24134134,
+  :User = new json.twitter.status.User() {
+    :Name = "jpcamara",
+    :CreatedAt = new java.util.Date(),
+    :Url = "http://twitter.com/jpcamara",
+    :Id = 12312312,
+    :GeoEnabled = true
+  }
+}
+print(status.write())
+
+/*
+{
+  "status": "string",
+  "results": [ {
+    "types": [{ "enum" : [ "street_address" ] }],
+    "formatted_address": "string",
+    "address_components": [{
+      "long_name": "string",
+      "short_name": "string",
+      "types": [{ "enum" : [ "street_number" ] }    }
+  } ]
+}
+*/
+var geocode = new GeocodeResponse() {
+  :Status = "Good",
+  :Results = {
+    new json.google.geocode.Results() {
+      :Types = {
+        json.google.geocode.Types.STREET_ADDRESS
+      },
+      :FormattedAddress = "123 Main St, Boulder CO",
+      :Geometry = new json.google.geocode.Geometry() {
+        :Location = new json.google.geocode.Location() {
+          :Lat = -123.123123,
+          :Lng = 12.12312
+        }
+      }
+    }
+  }
+}
+print(GeocodeResponse.parse(geocode.write()).write())

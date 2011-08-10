@@ -84,8 +84,25 @@ public class JsonTypeLoader extends TypeLoaderBase {
 				Object arrEntry = object.getWithIndex(key, 0);
 				if (JsonParser.isJSONObject(arrEntry)) {
 					JsonParser typeInArray = new JsonParser(arrEntry);
-					searchAndAddTypes(key, path, typeInArray);
-					addType(key, path, typeInArray);
+/*          searchAndAddTypes(key, path, typeInArray);
+          addType(key, path, typeInArray);*/
+					
+					
+					try {
+  			    if (typeInArray.get("enum") != null) {
+  			      addEnumType(key, path, typeInArray);
+  			    } else {
+  			      searchAndAddTypes(key, path, typeInArray);
+      				addType(key, path, typeInArray);
+  			    }
+  			  } catch (Exception e) {
+  			    e.printStackTrace();
+  			    //This shouldn't throw an exception anyway, oy
+  			  }
+					
+					
+					
+					
 				}
 			}
 		}

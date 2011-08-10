@@ -22,6 +22,8 @@ import gw.lang.reflect.IPropertyInfo;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.gs.IGosuObject;
 import gw.lang.reflect.java.IJavaType;
+import gw.lang.reflect.IEnumType;
+import gw.lang.reflect.IEnumValue;
 
 public class Json implements IGosuObject {
   private JSONObject json;
@@ -109,9 +111,15 @@ public class Json implements IGosuObject {
 	  for (int i = 0; i < arr.length(); i++) {
 	    Parse parser = PARSE.get(type);
 	    if (parser == null) {
-	      list.add(new Json(createJson((JSONObject)arr.get(i), 
-          (JsonTypeInfo)type.getTypeInfo()), type));
-        continue;
+	      if (arr.get(i) instanceof String) { //enum
+	        IEnumType enumType = (IEnumType)type;
+	        list.add(enumType.getEnumValue(JsonEnumType.enumify((String)arr.get(i))));
+          continue;
+	      } else {
+	        list.add(new Json(createJson((JSONObject)arr.get(i), 
+            (JsonTypeInfo)type.getTypeInfo()), type));
+          continue;
+	      }
 	    }
 	    list.add(parser.parse(arr.get(i)));
 	  }
@@ -219,6 +227,9 @@ public class Json implements IGosuObject {
 						    array.put(((BigInteger)o).longValue());
 						  } else if (o instanceof java.util.Date) {
 						    array.put(o.toString());
+						  } else if (o instanceof JsonEnumType.JsonEnumValue) {
+						    JsonEnumType.JsonEnumValue enumVal = (JsonEnumType.JsonEnumValue)o;
+      				  array.put(enumVal.getJsonCode());
 						  }
 						}
 					}
