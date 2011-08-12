@@ -23,7 +23,7 @@ import org.json.JSONObject;
 
 public class JsonTypeLoader extends TypeLoaderBase {
   private Map<String, IType> types = new HashMap<String, IType>();
-  private static final String EXT = "json";
+  private static final String EXT = "sj";
 
   public JsonTypeLoader(IModule env) {
     super(env);
@@ -129,7 +129,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
       for (Pair<String, IFile> pair : files) {
         JsonFile current = new JsonFile();
 
-        String fileName = pair.getSecond().getName().replaceAll("\\.json", "");
+        String fileName = pair.getSecond().getName().replaceAll("\\." + EXT, "");
         String path = pair.getFirst().replaceAll(pair.getSecond().getName(), "");
         if (path.isEmpty()) {
           throw new RuntimeException("Cannot have Simple JSON Schema definitions in the default package");
