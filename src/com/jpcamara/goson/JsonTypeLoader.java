@@ -1,6 +1,7 @@
 package com.jpcamara.goson;
 
 import gw.fs.IFile;
+import gw.fs.ResourcePath;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeLoaderBase;
 import gw.lang.reflect.TypeSystem;
@@ -10,6 +11,7 @@ import gw.util.Pair;
 import gw.util.concurrent.LazyVar;
 
 import java.io.FileNotFoundException;
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -139,10 +141,17 @@ public class JsonTypeLoader extends TypeLoaderBase {
 				JsonFile current = new JsonFile();
 				
 				String fileName = pair.getSecond().getName().replaceAll("\\.json", "");
-				int lastIndex = fileName.lastIndexOf(".");
+				String path = pair.getFirst().replaceAll(pair.getSecond().getName(), "");
+				if (path.isEmpty()) {
+				  throw new RuntimeException("Cannot have Simple JSON Schema definitions in the default package");
+				}
 				
+				int lastSeparatorIndex = path.lastIndexOf(File.separator);
+			  path = path.substring(0, lastSeparatorIndex).replace(File.separator, ".");
+				
+				int lastIndex = fileName.lastIndexOf(".");
 				current.name = fileName.substring(lastIndex + 1);
-				current.path = "json." + fileName.substring(0, lastIndex);
+				current.path = path;
 
 				Scanner s = null;
 				try {
