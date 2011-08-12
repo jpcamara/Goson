@@ -93,3 +93,6 @@ var geocode = new GeocodeResponse() {
   }
 }
 print(GeocodeResponse.parse(geocode.write()).write())
+print(GeocodeResponse.parse(new java.net.URL(
+  "http://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&sensor=false"))
+  .prettyPrint())

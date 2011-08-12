@@ -27,6 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
+import java.io.BufferedReader; 
+import java.io.InputStreamReader;
+
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -82,12 +85,10 @@ public class JsonTypeInfo extends TypeInfoBase {
     			}
     		})
     		.build(JsonTypeInfo.this));    		
-    	typeMethods.add(new MethodInfoBuilder()
-    		.withName("parse")
-    		.withReturnType(getOwnersType())
-    		.withStatic(true)
+    	typeMethods.add(parseMethod()
     		.withParameters(new ParameterInfoBuilder()
-    			.withType(IJavaType.STRING))
+    			.withType(IJavaType.STRING)
+    			.withName("content"))
     		.withCallHandler(new IMethodCallHandler() {
     			@Override
     			public Object handleCall(Object ctx, Object... args) {
@@ -100,7 +101,37 @@ public class JsonTypeInfo extends TypeInfoBase {
     			}
     		})
     		.build(JsonTypeInfo.this));
+    	typeMethods.add(parseMethod()
+    		.withParameters(new ParameterInfoBuilder()
+    			.withType((IJavaType)TypeSystem.get(java.net.URL.class))
+    			.withName("content"))
+    		.withCallHandler(new IMethodCallHandler() {
+    			@Override
+    			public Object handleCall(Object ctx, Object... args) {
+    				try {
+    				  java.net.URL content = (java.net.URL)args[0];
+      				BufferedReader reader = new BufferedReader(new InputStreamReader(content.openConnection().getInputStream()));
+      				StringBuilder builder = new StringBuilder();
+      				String line = reader.readLine();
+      				while (line != null) {
+      				  builder.append(line);
+      				  line = reader.readLine();
+      				}
+    					return new Json(builder.toString(), JsonTypeInfo.this);
+    				} catch (Exception e) {
+    					throw new RuntimeException(e);
+    				}
+    			}
+    		})
+    		.build(JsonTypeInfo.this));    		
     	return typeMethods;
+    }
+    
+    private MethodInfoBuilder parseMethod() {
+      return new MethodInfoBuilder()
+        .withName("parse")
+        .withReturnType(getOwnersType())
+        .withStatic(true);
     }
   };
     
