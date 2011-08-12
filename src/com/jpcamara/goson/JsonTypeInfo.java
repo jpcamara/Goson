@@ -66,10 +66,22 @@ public class JsonTypeInfo extends TypeInfoBase {
     			@Override
     			public Object handleCall(Object ctx, Object... args) {
     				Json me = (Json)ctx;
-    				return me.serialize();
+    				return me.serialize(-1);
     			}
     		})
     		.build(JsonTypeInfo.this));
+    	typeMethods.add(new MethodInfoBuilder()
+    		.withName("prettyPrint")
+    		.withReturnType(IJavaType.STRING)
+    		.withStatic(true)
+    		.withCallHandler(new IMethodCallHandler() {
+    			@Override
+    			public Object handleCall(Object ctx, Object... args) {
+    				Json me = (Json)ctx;
+    				return me.serialize(2);
+    			}
+    		})
+    		.build(JsonTypeInfo.this));    		
     	typeMethods.add(new MethodInfoBuilder()
     		.withName("parse")
     		.withReturnType(getOwnersType())
@@ -205,8 +217,14 @@ public class JsonTypeInfo extends TypeInfoBase {
               throw new RuntimeException("You must specify a key and value type");
             }
             IJavaType keyType = findJavaType((String)o.get("key"));
-            IJavaType valueType = findJavaType((String)o.get("value"));
-            //TODO if you're not a reg java type - kablooey
+            IType valueType = null;
+            if (o.get("value") instanceof JSONObject) {
+              IType ownerType = getOwnersType();
+              valueType = ownerType.getTypeLoader()
+                .getType(ownerType.getNamespace() + "." + new JsonName(key).getName());
+            } else {
+              valueType = findJavaType((String)o.get("value"));
+            }
             properties.add(createWithMapType(key, keyType, valueType));
             continue;
           } catch (Exception e) {

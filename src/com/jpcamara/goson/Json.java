@@ -89,15 +89,22 @@ public class Json implements IGosuObject {
           JSONObject jsonObj = (JSONObject)o;
           Parse keyParser = PARSE.get(featureType.getTypeParameters()[0]);
           Parse valueParser = PARSE.get(featureType.getTypeParameters()[1]);
-          if (keyParser == null || valueParser == null) {
-            throw new RuntimeException("Map key and value currently only support simple types that conform to simple JSON");
+          if (keyParser == null) {
+            throw new RuntimeException("Map key currently only supports simple types that conform to simple JSON");
           }
           
           Map jsonMap = new HashMap();
           Iterator iterate = jsonObj.keys();
           while (iterate.hasNext()) {
             String itKey = (String)iterate.next();
-            jsonMap.put(keyParser.parse(itKey), valueParser.parse(jsonObj.get(itKey)));
+            if (valueParser == null) {
+              jsonMap.put(keyParser.parse(itKey), 
+                new Json(createJson((JSONObject)jsonObj.get(itKey), 
+                        (JsonTypeInfo)featureType.getTypeParameters()[1].getTypeInfo()),
+                        featureType.getTypeParameters()[1]));
+            } else {
+              jsonMap.put(keyParser.parse(itKey), valueParser.parse(jsonObj.get(itKey)));
+            }
           }
           it.put(jsonName, (Object)jsonMap);
         }
@@ -177,10 +184,13 @@ public class Json implements IGosuObject {
 		this.json = (JSONObject)json;
 	}
 	
-	public String serialize() {
+	public String serialize(int indentation) {
 		JSONObject output = serializeAsJSONObject();
 		try {
-      return output.toString(2);
+		  if (indentation == -1) {
+		    return output.toString();
+		  }
+      return output.toString(indentation);
 		} catch (JSONException e) {
 		  throw new RuntimeException(e);
 		}
@@ -260,7 +270,7 @@ public class Json implements IGosuObject {
 					  }
 				  }
 				  
-				//map
+				//map 
 				} else if (value instanceof java.util.Map) {
           handleJavaMapType(output, name.getJsonName(), (Map)value);
         //java types
@@ -271,17 +281,26 @@ public class Json implements IGosuObject {
 		} catch (JSONException e) {
 			throw new RuntimeException(e);
 		}
-		
-/*    System.out.println("End of writing: " + output.toString());*/
 		return output;
 	}
 	
 	private void handleJavaMapType(JSONObject output, String key, Map value) throws JSONException {
 	  JSONObject j = new JSONObject();
     for (Object mapKey : ((Map)value).keySet()) {
-      handleJavaSimpleType(j, mapKey.toString(), ((Map)value).get(mapKey));
+      Object get = ((Map)value).get(mapKey);
+      if (get instanceof Json) {
+        if (!output.has(key)) {
+          output.put(key, new JSONObject());
+        }
+        JSONObject mapOutput = output.getJSONObject(key);
+        mapOutput.put(mapKey.toString(), ((Json)get).serializeAsJSONObject());
+      } else {
+        handleJavaSimpleType(j, mapKey.toString(), get);
+      }
     }
-    output.put(key, j);
+    if (!output.has(key)) {
+      output.put(key, j);
+    }
 	}
 	
 	private void handleJavaSimpleType(JSONObject output, String key, Object value) throws JSONException {

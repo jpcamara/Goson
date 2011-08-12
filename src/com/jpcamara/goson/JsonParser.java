@@ -63,6 +63,18 @@ public class JsonParser {
 		}
 	}
 	
+	public void put(String key, Object o) {
+    try {
+      if (o == null) {
+        json.remove(key);
+        return;
+      }
+      json.put(key, o);
+    } catch (JSONException e) {
+      throw new JSONParserException(e);		
+    }
+	}
+	
 	public Object getWithIndex(String key, int index) {
 		try {
 			if (json.has(key) == false) {
@@ -84,6 +96,14 @@ public class JsonParser {
 		} catch (JSONException e) {
 			throw new JSONParserException(e);
 		}
+	}
+	
+	public JsonParser copy() {
+		try {
+			return new JsonParser(new JSONObject(json.toString()));
+		} catch (JSONException e) {
+			throw new JSONParserException(e);
+		}	  
 	}
 	
 	public String toString() {

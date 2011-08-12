@@ -54,6 +54,22 @@ public class JsonTypeLoader extends TypeLoaderBase {
   }
 
   private void addType(String name, String path, JsonParser o) {
+    if (o.get("enum") != null) {
+      addEnumType(name, path, o);
+      return;
+    }
+    if (o.get("map_of") != null) {
+      o = o.copy();
+      JsonParser mapStuff = o.getJsonParser("map_of");
+      if (mapStuff.get("value") instanceof JSONObject) {
+        mapStuff = mapStuff.getJsonParser("value");
+        for (String key : mapStuff.keys()) {
+          o.put(key, mapStuff.get(key));
+        }
+      }
+      o.put("map_of", null);
+      o.put("value", null);
+    }
     JsonName typeName = new JsonName(name);
     JsonType type = new JsonType(typeName, path, this, o);
     types.put(path + "." + typeName.getName(), type);
@@ -70,33 +86,14 @@ public class JsonTypeLoader extends TypeLoaderBase {
     for (String key : object.keys()) {
       Object obj = object.get(key);
       if (JsonParser.isJSONObject(obj)) {
-        try {
-          if (((JSONObject)obj).has("enum")) {
-            addEnumType(key, path, object.getJsonParser(key));
-          } else {
-            searchAndAddTypes(key, path, object.getJsonParser(key));
-            addType(key, path, object.getJsonParser(key));
-          }
-        } catch (Exception e) {
-          e.printStackTrace();
-          //This shouldn't throw an exception anyway, oy
-        }
+        searchAndAddTypes(key, path, object.getJsonParser(key));
+        addType(key, path, object.getJsonParser(key));
       } else if (JsonParser.isJSONArray(obj)) {
         Object arrEntry = object.getWithIndex(key, 0);
         if (JsonParser.isJSONObject(arrEntry)) {
           JsonParser typeInArray = new JsonParser(arrEntry);
-
-          try {
-            if (typeInArray.get("enum") != null) {
-              addEnumType(key, path, typeInArray);
-            } else {
-              searchAndAddTypes(key, path, typeInArray);
-              addType(key, path, typeInArray);
-            }
-          } catch (Exception e) {
-            e.printStackTrace();
-            //This shouldn't throw an exception anyway, oy
-          }
+          searchAndAddTypes(key, path, typeInArray);
+          addType(key, path, typeInArray);
         }
       }
     }
