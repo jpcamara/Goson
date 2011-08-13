@@ -22,7 +22,5 @@ function addType(name : String, path : String, o : JsonElement) {
 }
 
 function searchAndAddTypes(name : String, path : String, o : JsonObject) {
-  for (Set<Map.Entry<String, JsonElement>> entry : o.entrySet()) {
-    
-  }
+
 }

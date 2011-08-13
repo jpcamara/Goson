@@ -8,10 +8,9 @@ var junit = new org.junit.runner.JUnitCore()
 var result = junit.run({typeloading.TestJsonTypes})
 print("Run: ${result.getRunCount()} | Failed: ${result.getFailureCount()}")
 result.getFailures().each(\ failure -> {
-	print(failure.Message)
-/*	print(failure.TestHeader)*/
-	print(failure.Description)
-	print(failure.Trace)
+  print(failure.Message)
+  print(failure.Description)
+  print(failure.Trace)
 })
 
 typeloading.TestJsonTypes.TypeInfo.Properties.each(\ p -> print(p.FeatureType))

@@ -1,11 +1,6 @@
 classpath "../build/dist,../src"
 typeloader com.jpcamara.goson.JsonTypeLoader
 
-uses java.lang.*
-uses java.util.ArrayList
-uses java.util.List
-uses java.util.Arrays
-
 uses simplejson.PeopleId
 uses simplejson.NameAndAge
 

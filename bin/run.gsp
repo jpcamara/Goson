@@ -11,7 +11,6 @@ uses simplejson.fullexample.TypeInArray
 uses simplejson.fullexample.EnumEx
 uses simplejson.fullexample.NestedType
 uses simplejson.fullexample.NestedTypeInArray
-uses com.EnumExample
 
 uses simplejson.twitter.status.StatusResponse
 uses simplejson.google.geocode.GeocodeResponse
