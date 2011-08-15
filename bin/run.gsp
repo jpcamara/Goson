@@ -5,15 +5,15 @@ uses java.lang.*
 uses java.util.ArrayList
 uses java.util.List
 uses java.util.Arrays
-uses simplejson.fullexample.Example
-uses simplejson.fullexample.SomeType
-uses simplejson.fullexample.TypeInArray
-uses simplejson.fullexample.EnumEx
-uses simplejson.fullexample.NestedType
-uses simplejson.fullexample.NestedTypeInArray
+uses jschema.fullexample.Example
+uses jschema.fullexample.SomeType
+uses jschema.fullexample.TypeInArray
+uses jschema.fullexample.EnumEx
+uses jschema.fullexample.NestedType
+uses jschema.fullexample.NestedTypeInArray
 
-uses simplejson.twitter.status.StatusResponse
-uses simplejson.google.geocode.GeocodeResponse
+uses jschema.twitter.status.StatusResponse
+uses jschema.google.geocode.GeocodeResponse
 
 var example = new Example() {
   :SomeType = new SomeType() {
@@ -51,7 +51,7 @@ print(Example.parse(example.write()).write())
 
 var status = new StatusResponse() {
   :InReplyToStatusId = 24134134,
-  :User = new simplejson.twitter.status.User() {
+  :User = new jschema.twitter.status.User() {
     :Name = "jpcamara",
     :CreatedAt = new java.util.Date(),
     :Url = "http://twitter.com/jpcamara",
@@ -77,13 +77,13 @@ print(status.write())
 var geocode = new GeocodeResponse() {
   :Status = "Good",
   :Results = {
-    new simplejson.google.geocode.Results() {
+    new jschema.google.geocode.Results() {
       :Types = {
-        simplejson.google.geocode.Types.STREET_ADDRESS
+        jschema.google.geocode.Types.STREET_ADDRESS
       },
       :FormattedAddress = "123 Main St, Boulder CO",
-      :Geometry = new simplejson.google.geocode.Geometry() {
-        :Location = new simplejson.google.geocode.Location() {
+      :Geometry = new jschema.google.geocode.Geometry() {
+        :Location = new jschema.google.geocode.Location() {
           :Lat = -123.123123,
           :Lng = 12.12312
         }
