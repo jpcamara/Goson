@@ -23,7 +23,7 @@ import org.json.JSONObject;
 
 public class JsonTypeLoader extends TypeLoaderBase {
   private Map<String, IType> types = new HashMap<String, IType>();
-  private static final String EXT = "jsd";
+  private static final String EXT = "jsc";
 
   public JsonTypeLoader(IModule env) {
     super(env);
