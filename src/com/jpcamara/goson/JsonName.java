@@ -19,10 +19,10 @@ public class JsonName {
 		return originalName;
 	}
 	
-	//FIXME Only handles underscores in the name... and poorly
 	private String namify(String name) {
 		StringBuilder typeName = new StringBuilder();
-		for (String piece : name.split("_")) {
+		String normalizedName = name.replaceAll("\\s", "_");
+		for (String piece : normalizedName.split("_")) {
 			typeName.append(GosuStringUtil.capitalize(piece));
 		}
 		

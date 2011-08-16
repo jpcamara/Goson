@@ -106,15 +106,6 @@ public class JsonParser {
 		}	  
 	}
 	
-	public String toString() {
-		String str = "[";
-		for (String key : keys()) {
-			str += key + ",";
-		}
-		str += "]";
-		return str;
-	}
-	
 	public static boolean isJSONArray(Object o) {
 		return o instanceof JSONArray;
 	}
@@ -128,14 +119,6 @@ public class JsonParser {
 	}
 	
 	public Iterable<String> keys() {
-		return new IterableJson();
-	}
-	
-	private class IterableJson implements Iterable<String> {
-		@SuppressWarnings("unchecked")
-		@Override
-		public Iterator<String> iterator() {
-			return (Iterator<String>)json.keys();
-		}
+		return new JsonKeys(json);
 	}
 }

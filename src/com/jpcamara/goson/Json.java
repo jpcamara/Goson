@@ -133,50 +133,6 @@ public class Json implements IGosuObject {
     return list;
   }
 
-  private static interface Parse<T> {
-    T parse(Object parsable);
-  }
-
-  private static final Map<IType, Parse> PARSE = new HashMap<IType, Parse>();
-  static {
-    PARSE.put(IJavaType.INTEGER, new Parse<Integer>() {
-      public Integer parse(Object parse) {
-        return Integer.valueOf(parse.toString());
-      }
-    });
-    PARSE.put(IJavaType.DOUBLE, new Parse<Double>() {
-      public Double parse(Object parse) {
-        return Double.valueOf(parse.toString());
-      }
-    });
-    PARSE.put(IJavaType.BIGDECIMAL, new Parse<BigDecimal>() {
-      public BigDecimal parse(Object parse) {
-        return new BigDecimal(parse instanceof Long ? Long.valueOf(parse.toString()) :
-                              Double.valueOf(parse.toString()));
-      }
-    });
-    PARSE.put(IJavaType.BIGINTEGER, new Parse<BigInteger>() {
-      public BigInteger parse(Object parse) {
-        return BigInteger.valueOf(Long.valueOf(parse.toString()));
-      }
-    });
-    PARSE.put(IJavaType.STRING, new Parse<String>() {
-      public String parse(Object parse) {
-        return parse.toString();
-      }
-    });
-    PARSE.put(IJavaType.BOOLEAN, new Parse<Boolean>() {
-      public Boolean parse(Object parse) {
-        return Boolean.valueOf(parse.toString());
-      }
-    });
-    PARSE.put(IJavaType.DATE, new Parse<Date>() {
-      public Date parse(Object parse) {
-        return new Date(parse.toString());
-      }
-    });
-  }
-
   public Json(Object json) {
     if ((json instanceof JSONObject) == false) {
       throw new JSONParserException("Must be a JSONObject");
@@ -320,21 +276,6 @@ public class Json implements IGosuObject {
     }
   }
 
-  public Object getWithIndex(String key, int index) {
-    try {
-      if (json.has(key) == false) {
-        return null;
-      }
-      Object o = json.get(key);
-      if (JsonParser.isJSONArray(o) == false) {
-        throw new JSONParserException(key + " is not an array");
-      }
-      return ((JSONArray)o).get(index);
-    } catch (JSONException e) {
-      throw new JSONParserException(e);
-    }
-  }
-
   public void put(String key, Object value) {
     try {
       json.put(key, value);
@@ -361,19 +302,55 @@ public class Json implements IGosuObject {
   }
 
   public Iterable<String> keys() {
-    return new IterableJson();
+    return new JsonKeys(json);
   }
 
   @Override
   public IType getIntrinsicType() {
     return type;
   }
+  
+  private static interface Parse<T> {
+    T parse(Object parsable);
+  }
 
-  private class IterableJson implements Iterable<String> {
-    @SuppressWarnings("unchecked")
-    @Override
-    public Iterator<String> iterator() {
-      return (Iterator<String>)json.keys();
-    }
+  private static final Map<IType, Parse> PARSE = new HashMap<IType, Parse>();
+  static {
+    PARSE.put(IJavaType.INTEGER, new Parse<Integer>() {
+      public Integer parse(Object parse) {
+        return Integer.valueOf(parse.toString());
+      }
+    });
+    PARSE.put(IJavaType.DOUBLE, new Parse<Double>() {
+      public Double parse(Object parse) {
+        return Double.valueOf(parse.toString());
+      }
+    });
+    PARSE.put(IJavaType.BIGDECIMAL, new Parse<BigDecimal>() {
+      public BigDecimal parse(Object parse) {
+        return new BigDecimal(parse instanceof Long ? Long.valueOf(parse.toString()) :
+                              Double.valueOf(parse.toString()));
+      }
+    });
+    PARSE.put(IJavaType.BIGINTEGER, new Parse<BigInteger>() {
+      public BigInteger parse(Object parse) {
+        return BigInteger.valueOf(Long.valueOf(parse.toString()));
+      }
+    });
+    PARSE.put(IJavaType.STRING, new Parse<String>() {
+      public String parse(Object parse) {
+        return parse.toString();
+      }
+    });
+    PARSE.put(IJavaType.BOOLEAN, new Parse<Boolean>() {
+      public Boolean parse(Object parse) {
+        return Boolean.valueOf(parse.toString());
+      }
+    });
+    PARSE.put(IJavaType.DATE, new Parse<Date>() {
+      public Date parse(Object parse) {
+        return new Date(parse.toString());
+      }
+    });
   }
 }
