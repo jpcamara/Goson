@@ -63,6 +63,18 @@ public class JsonParser {
 		}
 	}
 	
+	public static Object get(String key, Object o) {
+		try {
+		  JSONObject obj = (JSONObject)o;
+			if (obj.has(key) == false) {
+				return null;
+			}
+			return obj.get(key);
+		} catch (JSONException e) {
+			throw new JSONParserException(e);		
+		}
+	}
+	
 	public void put(String key, Object o) {
     try {
       if (o == null) {
@@ -73,6 +85,10 @@ public class JsonParser {
     } catch (JSONException e) {
       throw new JSONParserException(e);		
     }
+	}
+	
+	public boolean has(String key) {
+	  return json.has(key);
 	}
 	
 	public Object getWithIndex(String key, int index) {

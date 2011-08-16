@@ -27,12 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
+import org.json.JSONArray;
+
 import java.io.BufferedReader; 
 import java.io.InputStreamReader;
-
-import org.json.JSONObject;
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -192,8 +190,6 @@ public class JsonTypeInfo extends TypeInfoBase {
 	    return null;
 	  }
 	  return t;
-/*    return null; //TODO throw exception*/
-/*    throw new RuntimeException("bad type: " + typeName);*/
 	}
 	
 	private void createEnumProperties(final String key, JSONArray enumCodes) {
@@ -211,7 +207,7 @@ public class JsonTypeInfo extends TypeInfoBase {
           	@Override
           	public Object getValue(Object ctx) {
           		try {
-          			return value;//((JsonEnumType) ctx).get(code);
+          			return value;
           		} catch (Exception e) {
           			throw new RuntimeException(e);
           		}
@@ -240,23 +236,11 @@ public class JsonTypeInfo extends TypeInfoBase {
         continue;
       }
       if (JsonParser.isJSONObject(value)) {
-        if (((JSONObject)value).has("map_of")) {
+        if (JsonParser.get("map_of", value) != null) {
           //WOW SO UGLY
           try {
-            JSONObject o = ((JSONObject)value).getJSONObject("map_of");
-            if (!o.has("key") || !o.has("value")) {
-              throw new RuntimeException("You must specify a key and value type");
-            }
-            IJavaType keyType = findJavaType((String)o.get("key"));
-            IType valueType = null;
-            if (o.get("value") instanceof JSONObject) {
-              IType ownerType = getOwnersType();
-              valueType = ownerType.getTypeLoader()
-                .getType(ownerType.getNamespace() + "." + new JsonName(key).getName());
-            } else {
-              valueType = findJavaType((String)o.get("value"));
-            }
-            properties.add(createWithMapType(key, keyType, valueType));
+            JsonParser o = new JsonParser(value).getJsonParser("map_of");
+            addMapProperty(key, o);
             continue;
           } catch (Exception e) {
             e.printStackTrace();
@@ -285,7 +269,7 @@ public class JsonTypeInfo extends TypeInfoBase {
     	}
       
       if (!(value instanceof String)) {
-        throw new RuntimeException("Unless a JSONObject or a JSONArray, the value should be" +
+        throw new RuntimeException("Unless a JSON Object or a JSON Array, the value should be" +
           " a string name of the desired type");
       }
       
@@ -297,9 +281,25 @@ public class JsonTypeInfo extends TypeInfoBase {
         continue; //no properties for the enum, they're at the type level?
       } else if (JsonParser.isJSONNull(json.get(key))) {
     		Logger.getLogger(getClass().getName()).log(Level.FINE, 
-    		  "Cannot handle NULL values. No type created.");
+    		  "Cannot handle NULL values. No property created.");
     	}
     }
+	}
+	
+	private void addMapProperty(String key, JsonParser o) {
+	  if (!o.has("key") || !o.has("value")) {
+      throw new RuntimeException("You must specify a key and value type");
+    }
+    IJavaType keyType = findJavaType((String)o.get("key"));
+    IType valueType = null;
+    if (JsonParser.isJSONObject(o.get("value"))) {
+      IType ownerType = getOwnersType();
+      valueType = ownerType.getTypeLoader()
+        .getType(ownerType.getNamespace() + "." + new JsonName(key).getName());
+    } else {
+      valueType = findJavaType((String)o.get("value"));
+    }
+    properties.add(createWithMapType(key, keyType, valueType));
 	}
 
 	private IConstructorInfo defaultConstructor = new ConstructorInfoBuilder()
