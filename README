@@ -7,6 +7,6 @@ To use GeocodeResponse, it would be:
 
 uses jschema.google.geocode.GeocodeResponse
 
-var geocode = GeocodeResponse.parse(new java.net.URL("http://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&sensor=false"))
+var geocode = GeocodeResponse.parse(new java.net.URL('http://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&sensor=false'))
 print(geocode.Status)
 
