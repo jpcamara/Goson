@@ -1,7 +1,12 @@
-Goson uses the Gosu Open Type System to create first-class Gosu types from a JSON schema. Just place a sample
-JSON schema in your project, and Goson will creates types from it. The package is currently derived from
-the name of the file. 
-For instance,
-twitter.status.Response.json will create a package of json.twitter.status. "Response" will be used as
-the name of the top level object in the JSON file. The type of each property works off of the rules of
-Simple JSON Schema [more to follow]
+Goson uses the Gosu Open Type System to create first-class Gosu types from a jschema. Just place a sample
+jschema in your project, and Goson will creates types from it. The package is currently derived from the directory structure.
+For an example, see src/jschema/google/geocode/GeocodeResponse.jsc
+Since the root of a JSON Object has no name, the name of the file is used as the top level type.
+
+To use GeocodeResponse, it would be:
+
+uses jschema.google.geocode.GeocodeResponse
+
+var geocode = GeocodeResponse.parse(new java.net.URL("http://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&sensor=false"))
+print(geocode.Status)
+
