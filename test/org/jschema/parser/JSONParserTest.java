@@ -5,6 +5,8 @@ import junit.framework.TestCase;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class JSONParserTest extends TestCase {
   
@@ -20,6 +22,14 @@ public class JSONParserTest extends TestCase {
     // numbers
     assertEquals(1, JSONParser.parseJSON("1"));
     assertEquals(1.1, JSONParser.parseJSON("1.1"));
+    assertEquals(-1, JSONParser.parseJSON("-1"));
+    assertEquals(-1.1, JSONParser.parseJSON("-1.1"));
+    assertEquals(1e1, JSONParser.parseJSON("1e1"));
+    assertEquals(1E1, JSONParser.parseJSON("1E1"));
+    assertEquals(1e+1, JSONParser.parseJSON("1e+1"));
+    assertEquals(1E+1, JSONParser.parseJSON("1E+1"));
+    assertEquals(1e-1, JSONParser.parseJSON("1e-1"));
+    assertEquals(1E-1, JSONParser.parseJSON("1E-1"));
 
     // booleans
     assertEquals(Boolean.TRUE, JSONParser.parseJSON("true"));
@@ -36,6 +46,38 @@ public class JSONParserTest extends TestCase {
     map.put("foo", 10);
     map.put("bar", false);
     assertEquals(map, JSONParser.parseJSON("{\"foo\" : 10, \"bar\" : false}"));
+  }
+
+  public void testBasicNestedDataStructures() {
+    Map obj = (Map) JSONParser.parseJSON(
+            "{" +
+                    "\"null\" : null, " +
+                    " \"number1\" : 1, " +
+                    " \"number2\" : 1.1, " +
+                    " \"boolean\" : true, " +
+                    " \"list1\" : [ 1, 2, 3 ], " +
+                    " \"list2\" : [ { \"str\" : \"string\" } ]," +
+                    " \"map\" : { " +
+                    "    \"map_boolean\" : true," +
+                    "    \"map_string\" : \"string\"" +
+                    "  } " +
+                    "}");
+    assertEquals(null, obj.get("null"));
+    assertEquals(1, obj.get("number1"));
+    assertEquals(1.1, obj.get("number2"));
+    assertEquals(true, obj.get("boolean"));
+    assertEquals(Arrays.asList(1, 2, 3), obj.get("list1"));
+
+    List list2 = (List) obj.get("list2");
+    assertEquals(1, list2.size());
+
+    Map o = (Map) list2.get(0);
+    assertEquals("string", o.get("str"));
+
+    Map map2 = (Map) obj.get("map");
+    assertEquals(2, map2.size());
+    assertEquals(true, map2.get("map_boolean"));
+    assertEquals("string", map2.get("map_string"));
   }
 
 }

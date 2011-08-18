@@ -84,10 +84,21 @@ public class JSONTokenizer {
   private boolean consumeNumber() {
     if (Character.isDigit(currentChar())) {
       consumeDigit();
-      if (!atEndOfInput() && ( currentChar() == '.') ) {
-        if (canPeek(1) && Character.isDigit(peek())) {
-          incrementOffset();
-          consumeDigit();
+      if (!atEndOfInput()) {
+        if (currentChar() == '.') {
+          if (canPeek(1) && Character.isDigit(peek())) {
+            incrementOffset();
+            consumeDigit();
+          }
+        } else if (currentChar() == 'e' || currentChar() == 'E') {
+          if (canPeek(1) && Character.isDigit(peek())) {
+            incrementOffset();
+            consumeDigit();
+          } else if (canPeek(2) && (peek() == '-' || peek() == '+') && Character.isDigit(peek(2))) {
+            incrementOffset();
+            incrementOffset();
+            consumeDigit();
+          }
         }
       }
       return true;

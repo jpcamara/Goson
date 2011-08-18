@@ -107,14 +107,28 @@ public class JSONParser {
   }
 
   private Number parseNumber() {
+    boolean leadingNegative = false;
+    if (match("-")) {
+      leadingNegative = true;
+    }
     if (_currentToken.isNumber()) {
       String value = _currentToken.getValue();
       consumeToken();
-      if (value.contains(".")) {
-        return Double.parseDouble(value);
+      if (value.contains(".") || value.contains("e") || value.contains("E")) {
+        if (leadingNegative) {
+          return -1.0 * Double.parseDouble(value);
+        } else {
+          return Double.parseDouble(value);
+        }
       } else {
-        return Integer.parseInt(value);
+        if (leadingNegative) {
+          return -1 * Integer.parseInt(value);
+        } else {
+          return Integer.parseInt(value);
+        }
       }
+    } else if (leadingNegative) {
+      badToken();
     }
     return null;
   }
