@@ -3,19 +3,13 @@ package com.jpcamara.goson;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.ITypeInfo;
 import gw.lang.reflect.ITypeLoader;
-import gw.lang.reflect.IEnumType;
-import gw.lang.reflect.IEnumValue;
 import gw.lang.reflect.TypeBase;
 import gw.lang.reflect.java.IJavaType;
 import gw.util.concurrent.LazyVar;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
 import java.util.logging.Logger;
-import gw.lang.reflect.TypeSystem;
-import gw.lang.reflect.gs.IGosuObject;
 
 public class JsonType extends TypeBase {
   private static final long serialVersionUID = -8034222055932240161L;
@@ -26,8 +20,7 @@ public class JsonType extends TypeBase {
   private LazyVar<JsonTypeInfo> typeInfo;
   private Logger logger = Logger.getLogger(getClass().getName());
 
-  public JsonType(JsonName name, String path, ITypeLoader typeloader,
-    final JsonParser object) {
+  public JsonType(JsonName name, String path, ITypeLoader typeloader, final JsonParser object) {
     this.name = name;
     this.path = path;
     this.loader = typeloader;

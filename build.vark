@@ -11,7 +11,11 @@ if (gosuHome == null) {
 } 
 var gosuDir = file("${gosuHome}/jars")
 
-@Depends("clean")
+function deps() {
+  Ivy.retrieve(:sync = true, :log = "download-only")
+}
+
+@Depends({"clean", "deps"})
 function compile() {
   Ant.mkdir(:dir = classesDir)
   Ant.javac(:srcdir = path(srcDir),
