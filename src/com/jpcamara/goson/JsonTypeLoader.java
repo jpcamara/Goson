@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
-import org.json.JSONObject;
 
 public class JsonTypeLoader extends TypeLoaderBase {
   private Map<String, IType> types = new HashMap<String, IType>();
@@ -61,7 +60,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
     if (o.get("map_of") != null) {
       o = o.copy();
       JsonParser mapStuff = o.getJsonParser("map_of");
-      if (mapStuff.get("value") instanceof JSONObject) {
+      if (JsonParser.isJSONObject(mapStuff.get("value"))) {
         mapStuff = mapStuff.getJsonParser("value");
         for (String key : mapStuff.keys()) {
           o.put(key, mapStuff.get(key));
