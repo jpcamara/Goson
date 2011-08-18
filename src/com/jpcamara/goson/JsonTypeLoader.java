@@ -1,17 +1,15 @@
 package com.jpcamara.goson;
 
 import gw.fs.IFile;
-import gw.fs.ResourcePath;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeLoaderBase;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.module.IModule;
-import gw.lang.reflect.module.IResourceAccess;
 import gw.util.Pair;
 import gw.util.concurrent.LazyVar;
 
-import java.io.FileNotFoundException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,8 +19,11 @@ import java.util.Scanner;
 import java.util.Set;
 
 public class JsonTypeLoader extends TypeLoaderBase {
+
   private Map<String, IType> types = new HashMap<String, IType>();
-  private static final String EXT = "jsc";
+
+  private static final String JSC_RPC_EXT = "jsc-rpc";
+  private static final String JSC_EXT = "jsc";
 
   public JsonTypeLoader(IModule env) {
     super(env);
@@ -40,11 +41,10 @@ public class JsonTypeLoader extends TypeLoaderBase {
 
   private void maybeInitTypes() {
     if (types.isEmpty()) {
-      List<JsonFile> files = jsonFiles.get();
-      for (JsonFile file : files) {
+      for (JsonFile jshFile : jscFiles.get()) {
         try {
-          searchAndAddTypes(file.name, file.path, file.content);
-          addType(file.name, file.path, file.content);
+          searchAndAddTypes(jshFile.name, jshFile.path, jshFile.content);
+          addType(jshFile.name, jshFile.path, jshFile.content);
         } catch (Exception e) {
           throw new RuntimeException(e);
         }
@@ -113,22 +113,21 @@ public class JsonTypeLoader extends TypeLoaderBase {
   /*
   * Default implementation to handle Gosu 0.9 reqs
   */
-  @Override
+//  @Override TODO restore later
   public boolean handlesNonPrefixLoads() {
     return true;
   }
 
-  private LazyVar<List<JsonFile>> jsonFiles = new LazyVar<List<JsonFile>>() {
+  private LazyVar<List<JsonFile>> jscFiles = new LazyVar<List<JsonFile>>() {
     @Override
     protected List<JsonFile> init() {
       List<JsonFile> init = new java.util.ArrayList<JsonFile>();
 
-      List<Pair<String, IFile>> files = 
-      JsonTypeLoader.this.getModule().getResourceAccess().findAllFilesByExtension(EXT);
+      List<Pair<String, IFile>> files = getModule().getResourceAccess().findAllFilesByExtension(JSC_EXT);
       for (Pair<String, IFile> pair : files) {
         JsonFile current = new JsonFile();
 
-        String fileName = pair.getSecond().getName().replaceAll("\\." + EXT, "");
+        String fileName = pair.getSecond().getName().replaceAll("\\." + JSC_EXT, "");
         String path = pair.getFirst().replaceAll(pair.getSecond().getName(), "");
         if (path.isEmpty()) {
           throw new RuntimeException("Cannot have Simple JSON Schema definitions in the default package");

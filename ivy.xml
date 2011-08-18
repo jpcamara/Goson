@@ -1,0 +1,9 @@
+<ivy-module version="2.0">
+  <info organisation="JSchema" module="JSchema" revision="SNAPSHOT"/>
+  <configurations>
+    <conf name="lib"/>
+  </configurations>
+  <dependencies>
+    <dependency org="junit" name="junit" rev="4.8.2" conf="lib->*,!sources,!javadoc"/>
+  </dependencies>
+</ivy-module>
