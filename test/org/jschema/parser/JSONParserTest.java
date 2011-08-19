@@ -48,6 +48,14 @@ public class JSONParserTest extends TestCase {
     assertEquals(map, JSONParser.parseJSON("{\"foo\" : 10, \"bar\" : false}"));
   }
 
+  public void testComments() {
+    assertNull(JSONParser.parseJSON("null // test comment"));
+    assertNull(JSONParser.parseJSON("\nnull \n// test comment\n"));
+    assertNull(JSONParser.parseJSON("\nnull \n/* test \ncomment */\n"));
+    assertNull(JSONParser.parseJSON("/* test comment */ null "));
+    assertNull(JSONParser.parseJSON("\n/* \ntest comment */\n null \n"));
+  }
+
   public void testBasicNestedDataStructures() {
     Map obj = (Map) JSONParser.parseJSON(
             "{" +
