@@ -13,7 +13,7 @@ public class JSONParser {
   private JSONToken _currentToken;
 
   public JSONParser(String json) {
-    _currentToken = JSONToken.tokenize(json);
+    _currentToken = JSONToken.tokenize(json).removeTokens(JSONTokenType.COMMENT);
   }
 
   public static Object parseJSON(String json) {

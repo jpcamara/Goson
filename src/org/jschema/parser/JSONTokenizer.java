@@ -62,8 +62,13 @@ public class JSONTokenizer {
   private boolean consumeComment()
   {
     if (!atEndOfInput() &&
-        currentChar() == '-' && canPeek( 2 ) && peek() == '-') {
+        currentChar() == '/' && canPeek( 1 ) && peek() == '/') {
       consumeLineComment();
+      return true;
+    } else if (!atEndOfInput() && currentChar() == '/' && canPeek( 1 ) && peek() == '*') {
+      incrementOffset();
+      incrementOffset();
+      consumeMultiLineComment();
       return true;
     }
     return false;
@@ -73,6 +78,20 @@ public class JSONTokenizer {
   {
     while( !atEndOfInput() && currentChar() != '\n' )
     {
+      incrementOffset();
+    }
+  }
+
+  private void consumeMultiLineComment()
+  {
+    while( !atEndOfInput() && (lastChar() != '*' || currentChar() != '/') ) {
+      if (Character.isWhitespace(currentChar())) {
+        eatWhitespace();
+      } else {
+        incrementOffset();
+      }
+    }
+    if (currentChar() == '/') {
       incrementOffset();
     }
   }
@@ -192,6 +211,10 @@ public class JSONTokenizer {
   private void incrementOffset() {
     _offset++;
     _col++;
+  }
+
+  private char lastChar() {
+    return _contents.charAt(_offset - 1);
   }
 
   private char currentChar() {
