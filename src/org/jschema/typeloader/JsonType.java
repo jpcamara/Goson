@@ -1,4 +1,4 @@
-package com.jpcamara.goson;
+package org.jschema.typeloader;
 
 import gw.lang.reflect.IType;
 import gw.lang.reflect.ITypeInfo;
@@ -6,6 +6,7 @@ import gw.lang.reflect.ITypeLoader;
 import gw.lang.reflect.TypeBase;
 import gw.lang.reflect.java.IJavaType;
 import gw.util.concurrent.LazyVar;
+import org.jschema.parser.JSONParser;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +21,7 @@ public class JsonType extends TypeBase {
   private LazyVar<JsonTypeInfo> typeInfo;
   private Logger logger = Logger.getLogger(getClass().getName());
 
-  public JsonType(JsonName name, String path, ITypeLoader typeloader, final JsonParser object) {
+  public JsonType(JsonName name, String path, ITypeLoader typeloader, final Object object) {
     this.name = name;
     this.path = path;
     this.loader = typeloader;
@@ -34,7 +35,7 @@ public class JsonType extends TypeBase {
 
   @Override
   public String getName() {
-    return path + "." + name.getName();
+    return path + "." + name.join(".");
   }
 
   @Override
@@ -49,6 +50,10 @@ public class JsonType extends TypeBase {
 
   public String getJsonRelativeName() {
     return name.getJsonName();
+  }
+  
+  public JsonName getNameInfo() {
+    return name;
   }
 
   @Override
@@ -77,6 +82,6 @@ public class JsonType extends TypeBase {
   }
 
   public String toString() {
-    return getName();
+    return name.join(".");
   }
 }

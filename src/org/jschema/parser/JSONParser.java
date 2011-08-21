@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+//TODO doesn't handle java.lang.Long correctly - for instance, try using 12314235134 in run.gsp for BigIntEx
 public class JSONParser {
 
   private JSONToken _currentToken;
@@ -22,13 +23,13 @@ public class JSONParser {
   }
 
   public static String serializeJSON(Object json) {
-    return  buildJSON(new StringBuilder(), json).toString();
+    return buildJSON(new StringBuilder(), json).toString();
   }
 
   private static StringBuilder buildJSON(StringBuilder stringBuilder, Object json) {
     if (json instanceof String) {
       return stringBuilder.append("\"").append(json).append('\"');
-    } else if (json instanceof Integer || json instanceof Double) {
+    } else if (json instanceof Integer || json instanceof Double || json instanceof Long) {
       return stringBuilder.append(json.toString());
     } else if (json instanceof Boolean) {
       return stringBuilder.append(json.toString());

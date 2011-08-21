@@ -1,8 +1,13 @@
 classpath "../build/dist,../src"
-typeloader com.jpcamara.goson.JsonTypeLoader
+typeloader org.jschema.typeloader.JsonTypeLoader
 
 uses jschema.PeopleId
+uses jschema.PeopleId.IdToPeople
+uses jschema.PeopleId.EyeColor
 uses jschema.NameAndAge
+
+uses jschema.people1.Peeps
+uses jschema.people1.Peeps.People
 
 /* { "name" : "string", "age" : "integer" } */
 /* { "name" : "Joe", "age" : "42" } */
@@ -22,14 +27,14 @@ print(NameAndAge.parse(person.write()).write())
   { "name" : "Paul", "age" : "28" }
   { "name" : "Mack", "age" : "55" } ] }
 */
-var people = new jschema.people1.Peeps() {
+var people = new Peeps() {
   :People = {
-    new jschema.people1.People() { :Name = "Joe", :Age = 42 },
-    new jschema.people1.People() { :Name = "Paul", :Age = 28 },
-    new jschema.people1.People() { :Name = "Mack", :Age = 55 }
+    new People() { :Name = "Joe", :Age = 42 },
+    new People() { :Name = "Paul", :Age = 28 },
+    new People() { :Name = "Mack", :Age = 55 }
   }
 }
-print(jschema.people1.Peeps.parse(people.write()).write())
+print(Peeps.parse(people.write()).write())
 
 /*
 { "people" : [ { "name" : "string", 
@@ -44,24 +49,22 @@ print(jschema.people1.Peeps.parse(people.write()).write())
   { "name" : "Paul", "age" : "28", "eye_color" : "brown" },
   { "name" : "Mack", "age" : "55", "eye_color" : "blue" } ] }
 */
-var people2 = new jschema.people2.Peeps() {
+/*var people2 = new jschema.people2.Peeps() {
   :People = {
     new jschema.people2.People() { :Name = "Joe", :Age = 42, :EyeColor = jschema.people2.EyeColor.BROWN },
     new jschema.people2.People() { :Name = "Paul", :Age = 28, :EyeColor = jschema.people2.EyeColor.BROWN },
     new jschema.people2.People() { :Name = "Mack", :Age = 55, :EyeColor = jschema.people2.EyeColor.BLUE }
   }
 }
-print(jschema.people2.Peeps.parse(people2.write()).write())
+print(jschema.people2.Peeps.parse(people2.write()).write())*/
 
 /*
 { "id_to_people" : {
-    "map_of" : {
-    "key" : "biginteger",
-    "value" : { "name" : "string", 
+    "map_of" : { "name" : "string", 
                 "age" : "integer",
                 "eye_color" : {"enum" : ["brown", 
                                          "blue", 
-                                         "green"]} }
+                                         "green"]}
     }
   }
 }
@@ -76,9 +79,9 @@ print(jschema.people2.Peeps.parse(people2.write()).write())
 */
 var peopleMap = new PeopleId() {
   :IdToPeople = {
-    1 -> new jschema.IdToPeople() { :Name = "Joe", :Age = 42, :EyeColor = jschema.EyeColor.BROWN },
-    2 -> new jschema.IdToPeople() { :Name = "Paul", :Age = 28, :EyeColor = jschema.EyeColor.BROWN },
-    3 -> new jschema.IdToPeople() { :Name = "Mack", :Age = 55, :EyeColor = jschema.EyeColor.BLUE }
+    "1" -> new IdToPeople() { :Name = "Joe", :Age = 42, :EyeColor = EyeColor.BROWN },
+    "2" -> new IdToPeople() { :Name = "Paul", :Age = 28, :EyeColor = EyeColor.BROWN },
+    "3" -> new IdToPeople() { :Name = "Mack", :Age = 55, :EyeColor = EyeColor.BLUE }
   }
 }
 print(PeopleId.parse(peopleMap.write()).write())

@@ -1,4 +1,4 @@
-package com.jpcamara.goson;
+package org.jschema.typeloader;
 
 import gw.lang.reflect.IType;
 import gw.lang.reflect.ITypeInfo;
@@ -9,16 +9,10 @@ import gw.lang.reflect.TypeBase;
 import gw.lang.reflect.java.IJavaType;
 import gw.util.concurrent.LazyVar;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.gs.IGosuObject;
-
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -26,19 +20,14 @@ public class JsonEnumType extends JsonType implements IEnumType {
   private List<IEnumValue> values = new ArrayList<IEnumValue>();
 
   public JsonEnumType(JsonName name, String path, ITypeLoader typeloader,
-    final JsonParser object) {
+    final Object object) {
     super(name, path, typeloader, object);
-    Object obj = object.get("enum");
-    if (obj == null || !(obj instanceof JSONArray)) {
+    List obj = (List)((Map)object).get("enum");
+    if (obj == null || !(obj instanceof List)) {
       throw new RuntimeException("An enum must be an array of values.");
     }
-    JSONArray arr = (JSONArray)obj;
-    try {
-      for (int i = 0; i < arr.length(); i++) {
-        values.add(new JsonEnumValue((String)arr.get(i)));
-      }
-    } catch (JSONException e) {
-      throw new RuntimeException(e);
+    for (int i = 0; i < obj.size(); i++) {
+      values.add(new JsonEnumValue((String)obj.get(i)));
     }
   }
   
@@ -60,17 +49,6 @@ public class JsonEnumType extends JsonType implements IEnumType {
   public static String enumify(String original) {
     return original.replaceAll("\\s", "_").toUpperCase();
   }
-
-/*Not used for enum
-  @Override
-  public IType getSupertype() {
-    return TypeSystem.get(Enum.class);
-  }
-
-  @Override
-  public boolean isEnum() {
-    return true;
-  }*/
   
   public class JsonEnumValue implements IEnumValue, IGosuObject {
     public String code;

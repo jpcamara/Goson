@@ -1,4 +1,4 @@
-package typeloading
+package org.jschema.typeloader
 
 //uses org.junit.Assert;
 //uses org.junit.Test;

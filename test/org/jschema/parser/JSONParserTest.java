@@ -30,6 +30,7 @@ public class JSONParserTest extends TestCase {
     assertEquals(1E+1, JSONParser.parseJSON("1E+1"));
     assertEquals(1e-1, JSONParser.parseJSON("1e-1"));
     assertEquals(1E-1, JSONParser.parseJSON("1E-1"));
+    assertEquals(12314235134, JSONParser.parseJSON("12314235134")); //broken
 
     // booleans
     assertEquals(Boolean.TRUE, JSONParser.parseJSON("true"));

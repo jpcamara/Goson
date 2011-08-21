@@ -1,4 +1,4 @@
-package com.jpcamara.goson;
+package org.jschema.typeloader;
 
 import gw.fs.IFile;
 import gw.lang.reflect.IType;
@@ -7,6 +7,7 @@ import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.module.IModule;
 import gw.util.Pair;
 import gw.util.concurrent.LazyVar;
+import org.jschema.parser.JSONParser;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -43,57 +44,33 @@ public class JsonTypeLoader extends TypeLoaderBase {
     if (types.isEmpty()) {
       for (JsonFile jshFile : jscFiles.get()) {
         try {
-          searchAndAddTypes(jshFile.name, jshFile.path, jshFile.content);
-          addType(jshFile.name, jshFile.path, jshFile.content);
+          addTypes(types, new JsonName(jshFile.name), jshFile.path, jshFile.content);
         } catch (Exception e) {
           throw new RuntimeException(e);
         }
       }
+      System.out.println(types.keySet());
     }
   }
 
-  private void addType(String name, String path, JsonParser o) {
-    if (o.get("enum") != null) {
-      addEnumType(name, path, o);
-      return;
+  private void addTypes(Map<String, IType> types, JsonName name, String path, Object o) {
+    if (o instanceof List && !((List)o).isEmpty()) {
+      o = ((List)o).get(0);
     }
-    if (o.get("map_of") != null) {
-      o = o.copy();
-      JsonParser mapStuff = o.getJsonParser("map_of");
-      if (JsonParser.isJSONObject(mapStuff.get("value"))) {
-        mapStuff = mapStuff.getJsonParser("value");
-        for (String key : mapStuff.keys()) {
-          o.put(key, mapStuff.get(key));
+    if (o instanceof Map) {
+      Map<Object, Object> type = (Map<Object, Object>)o;
+      System.out.println("Map: " + name + " content: " + type);
+      if (type.get("enum") != null) {
+        types.put(path + "." + name, new JsonEnumType(name, path, this, o));
+      } else if (types.get("map_of") != null) {
+        System.out.println("map_of: " + name);
+        addTypes(types, name, path, type.get("map_of"));
+      } else {
+        for (Object key : type.keySet()) {
+          System.out.println("key: [" + key + "]");
+          addTypes(types, new JsonName(name, (String)key), path, type.get(key));
         }
-      }
-      o.put("map_of", null);
-      o.put("value", null);
-    }
-    JsonName typeName = new JsonName(name);
-    JsonType type = new JsonType(typeName, path, this, o);
-    types.put(path + "." + typeName.getName(), type);
-  }
-
-  private void addEnumType(String name, String path, JsonParser o) {
-    JsonName typeName = new JsonName(name);
-    JsonEnumType type = new JsonEnumType(typeName, path, this, o);
-    types.put(path + "." + typeName.getName(), type);
-  }
-
-  private void searchAndAddTypes(String name, String path, JsonParser object)
-    throws Exception {
-    for (String key : object.keys()) {
-      Object obj = object.get(key);
-      if (JsonParser.isJSONObject(obj)) {
-        searchAndAddTypes(key, path, object.getJsonParser(key));
-        addType(key, path, object.getJsonParser(key));
-      } else if (JsonParser.isJSONArray(obj)) {
-        Object arrEntry = object.getWithIndex(key, 0);
-        if (JsonParser.isJSONObject(arrEntry)) {
-          JsonParser typeInArray = new JsonParser(arrEntry);
-          searchAndAddTypes(key, path, typeInArray);
-          addType(key, path, typeInArray);
-        }
+        types.put(path + "." + name, new JsonType(name, path, this, o));
       }
     }
   }
@@ -147,7 +124,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
           while (s.hasNextLine()) {
             jsonString.append(s.nextLine());
           }
-          current.content = new JsonParser(jsonString.toString());
+          current.content = JSONParser.parseJSON(jsonString.toString());
         } catch (FileNotFoundException e) {
           throw new RuntimeException(e);
         } finally {
@@ -160,7 +137,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
   };
 
   private static class JsonFile {
-    private JsonParser content;
+    private Object content;
     private String path;
     private String name;
   }

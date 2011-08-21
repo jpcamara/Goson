@@ -1,4 +1,4 @@
-package com.jpcamara.goson;
+package org.jschema.typeloader;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,10 +13,6 @@ import java.util.Date;
 import java.math.BigInteger;
 import java.math.BigDecimal;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import gw.lang.reflect.IType;
 import gw.lang.reflect.IPropertyInfo;
 import gw.lang.reflect.TypeSystem;
@@ -25,21 +21,23 @@ import gw.lang.reflect.java.IJavaType;
 import gw.lang.reflect.IEnumType;
 import gw.lang.reflect.IEnumValue;
 
+import org.jschema.parser.JSONParser;
+
 public class Json implements IGosuObject {
-  private JSONObject json;
+  private Map json;
   private IType type;
 
   public Json(IType type) {
     this.type = type;
-    this.json = new JSONObject();
+    this.json = new HashMap();
   }
 
   public Json(Object json, IType type) {
-    if ((json instanceof JSONObject) == false) {
-      throw new JSONParserException("Must be a JSONObject");
+    if ((json instanceof Map) == false) {
+      throw new JSONParserException("Must be a Map");
     }
     this.type = type;
-    this.json = (JSONObject)json;
+    this.json = (Map)json;
   }
 
   /**
@@ -47,20 +45,16 @@ public class Json implements IGosuObject {
   * string against the JsonTypeInfo provided.
   */
   public Json(String json, JsonTypeInfo structure) {
-    try {
-      this.type = structure.getOwnersType();
-      this.json = createJson(new JSONObject(json), structure);
-    } catch (JSONException e) {
-      throw new JSONParserException(e);
-    }
+    this.type = structure.getOwnersType();
+    this.json = createJson((Map)JSONParser.parseJSON(json), structure);
   }
 
   //TODO add validity checks to verify the type is correct before parsing it.
-  private JSONObject createJson(JSONObject it, JsonTypeInfo structure) throws JSONException {
+  private Map createJson(Map it, JsonTypeInfo structure) {
     for (IPropertyInfo info : structure.getProperties()) {
       IType featureType = info.getFeatureType();
       String jsonName = structure.getJsonPropertyName(info.getName());
-      if (!it.has(jsonName)) {
+      if (!it.containsKey(jsonName)) {
         continue;
       }
       Object o = it.get(jsonName);
@@ -74,19 +68,19 @@ public class Json implements IGosuObject {
         if (o instanceof String) { //JsonEnumType
           it.put(jsonName, o);
         } else {
-          it.put(jsonName, new Json(createJson((JSONObject)o, (JsonTypeInfo)featureType.getTypeInfo()), featureType));
+          it.put(jsonName, new Json(createJson((Map)o, (JsonTypeInfo)featureType.getTypeInfo()), featureType));
         }
       } else if (featureType instanceof gw.internal.gosu.parser.IJavaTypeInternal) { //hack to determine list
-        if (JsonParser.isJSONArray(o)) {
-          JSONArray arr = (JSONArray)o;
-          if (arr.length() == 0) {
+        if (o instanceof List) {
+          List arr = (List)o;
+          if (arr.size() == 0) {
             continue;
           }
           IType parameterizedType = featureType.getTypeParameters()[0];
           ArrayList rawList = createList(arr, parameterizedType);
-          it.put(jsonName, (Object)rawList); //cast it so it doesn't get transformed into a jsonarray
-        } else if (JsonParser.isJSONObject(o)) {
-          JSONObject jsonObj = (JSONObject)o;
+          it.put(jsonName, rawList);
+        } else if (o instanceof Map) {
+          Map jsonObj = (Map)o;
           Parse keyParser = PARSE.get(featureType.getTypeParameters()[0]);
           Parse valueParser = PARSE.get(featureType.getTypeParameters()[1]);
           if (keyParser == null) {
@@ -94,8 +88,20 @@ public class Json implements IGosuObject {
           }
 
           Map jsonMap = new HashMap();
-          Iterator iterate = jsonObj.keys();
-          while (iterate.hasNext()) {
+          Set iterate = jsonObj.keySet();
+          for (Object iter : iterate) {
+            String itKey = (String)iter;
+            if (valueParser == null) {
+              jsonMap.put(keyParser.parse(itKey), 
+                new Json(createJson((Map)jsonObj.get(itKey), 
+                        (JsonTypeInfo)featureType.getTypeParameters()[1].getTypeInfo()),
+                        featureType.getTypeParameters()[1]));
+            } else {
+              jsonMap.put(keyParser.parse(itKey), valueParser.parse(jsonObj.get(itKey)));
+            }
+          }
+          
+/*          while (iterate.hasNext()) {
             String itKey = (String)iterate.next();
             if (valueParser == null) {
               jsonMap.put(keyParser.parse(itKey), 
@@ -105,7 +111,7 @@ public class Json implements IGosuObject {
             } else {
               jsonMap.put(keyParser.parse(itKey), valueParser.parse(jsonObj.get(itKey)));
             }
-          }
+          }*/
           it.put(jsonName, (Object)jsonMap);
         }
       }
@@ -113,9 +119,9 @@ public class Json implements IGosuObject {
     return it;
   }
 
-  private ArrayList createList(JSONArray arr, IType type) throws JSONException {
+  private ArrayList createList(List arr, IType type) {
     ArrayList list = new ArrayList();
-    for (int i = 0; i < arr.length(); i++) {
+    for (int i = 0; i < arr.size(); i++) {
       Parse parser = PARSE.get(type);
       if (parser == null) {
         if (arr.get(i) instanceof String) { //enum
@@ -123,7 +129,7 @@ public class Json implements IGosuObject {
           list.add(enumType.getEnumValue(JsonEnumType.enumify((String)arr.get(i))));
           continue;
         } else {
-          list.add(new Json(createJson((JSONObject)arr.get(i), 
+          list.add(new Json(createJson((Map)arr.get(i), 
                   (JsonTypeInfo)type.getTypeInfo()), type));
           continue;
         }
@@ -134,126 +140,126 @@ public class Json implements IGosuObject {
   }
 
   public Json(Object json) {
-    if ((json instanceof JSONObject) == false) {
-      throw new JSONParserException("Must be a JSONObject");
+    if ((json instanceof Map) == false) {
+      throw new JSONParserException("Must be a Map");
     }
-    this.json = (JSONObject)json;
+    this.json = (Map)json;
   }
 
   public String serialize(int indentation) {
-    JSONObject output = serializeAsJSONObject();
-    try {
-      if (indentation == -1) {
-        return output.toString();
-      }
-      return output.toString(indentation);
-    } catch (JSONException e) {
-      throw new RuntimeException(e);
+    Map output = serializeAsJSONObject();
+/*    try {*/
+    if (indentation == -1) {
+      return JSONParser.serializeJSON(output);
     }
+    return JSONParser.serializeJSON(output);
+/*    } catch (JSONException e) {
+      throw new RuntimeException(e);
+    }*/
   }
 
-  private JSONObject serializeAsJSONObject() {
-    JSONObject output = new JSONObject();
+  private Map serializeAsJSONObject() {
+    Map output = new HashMap();
 
-    try {
-      for (String key : keys()) {
-        JsonName name = new JsonName(key);
-        Object value = get(key);
+/*    try {*/
+    for (String key : keys()) {
+      JsonName name = new JsonName(key);
+      Object value = get(key);
 
-        //enum
-        if (value instanceof JsonEnumType.JsonEnumValue) {
-          JsonEnumType.JsonEnumValue enumVal = (JsonEnumType.JsonEnumValue)value;
-          output.put(name.getJsonName(), enumVal.getJsonCode());
-        //list
-        } else if (value instanceof List) {
-          List list = (List)value;
-          JSONArray array = new JSONArray();
-          if (output.has(name.getJsonName())) {
-            array = output.getJSONArray(name.getJsonName());
-          } else {
-            output.put(name.getJsonName(), array);
+      //enum
+      if (value instanceof JsonEnumType.JsonEnumValue) {
+        JsonEnumType.JsonEnumValue enumVal = (JsonEnumType.JsonEnumValue)value;
+        output.put(name.getJsonName(), enumVal.getJsonCode());
+      //list
+      } else if (value instanceof List) {
+        List list = (List)value;
+        List array = new ArrayList();
+        if (output.containsKey(name.getJsonName())) {
+          array = (List)output.get(name.getJsonName());
+        } else {
+          output.put(name.getJsonName(), array);
+        }
+
+        if (list.size() > 0) {
+
+        }
+        if (list.size() > 0 && list.get(0) instanceof Json) {
+          List<Json> jsons = (List<Json>)list;
+          for (Json j : jsons) {
+            array.add(j.serializeAsJSONObject());
           }
-
-          if (list.size() > 0) {
-          /*System.out.println("list of: " + list.get(0).getClass() + " - length: " + list.size());*/
-          }
-          if (list.size() > 0 && list.get(0) instanceof Json) {
-            List<Json> jsons = (List<Json>)list;
-            for (Json j : jsons) {
-              array.put(j.serializeAsJSONObject());
-            }
-          } else {
-            for (Object o : list) {
-              if (o instanceof Boolean || o instanceof String || o instanceof java.lang.Integer || o instanceof java.lang.Double) {
-                array.put(o);
-              } else if (o instanceof java.math.BigDecimal) {
-                array.put(((BigDecimal)o).doubleValue()); //TODO loss of precision
-              } else if (o instanceof java.math.BigInteger) {
-                array.put(((BigInteger)o).longValue());
-              } else if (o instanceof java.util.Date) {
-                array.put(o.toString());
-              } else if (o instanceof JsonEnumType.JsonEnumValue) {
-                JsonEnumType.JsonEnumValue enumVal = (JsonEnumType.JsonEnumValue)o;
-                array.put(enumVal.getJsonCode());
-              }
+        } else {
+          for (Object o : list) {
+            if (o instanceof Boolean || o instanceof String || o instanceof java.lang.Integer || o instanceof java.lang.Double) {
+              array.add(o);
+            } else if (o instanceof java.math.BigDecimal) {
+              array.add(((BigDecimal)o).doubleValue()); //TODO loss of precision
+            } else if (o instanceof java.math.BigInteger) {
+              array.add(((BigInteger)o).longValue());
+            } else if (o instanceof java.util.Date) {
+              array.add(o.toString());
+            } else if (o instanceof JsonEnumType.JsonEnumValue) {
+              JsonEnumType.JsonEnumValue enumVal = (JsonEnumType.JsonEnumValue)o;
+              array.add(enumVal.getJsonCode());
             }
           }
-          //json
-          } else if (value instanceof Json) {
-            Json current = (Json)value;//get(name.getJsonName());
-            output.put(name.getJsonName(), current.serializeAsJSONObject());
-          //jsonarray	
-          } else if (value instanceof JSONArray) {
-            JSONArray arr = (JSONArray)value;
-            for (int i = 0; i < arr.length(); i++) {
-              Object o = arr.get(i);
-              if (o instanceof Json) {
-                arr.put(i, ((Json)o).serializeAsJSONObject());
-              } else if (o instanceof Boolean || o instanceof String || o instanceof java.lang.Integer || o instanceof java.lang.Double) {
-                arr.put(i, o);
-              } else if (o instanceof java.math.BigDecimal) {
-                arr.put(i, ((BigDecimal)o).doubleValue()); //TODO loss of precision
-              } else if (o instanceof java.math.BigInteger) {
-                arr.put(i, ((BigInteger)o).longValue());
-              } else if (o instanceof java.util.Date) {
-                arr.put(i, o.toString());
-              }
+        }
+        //json
+        } else if (value instanceof Json) {
+          Json current = (Json)value;//get(name.getJsonName());
+          output.put(name.getJsonName(), current.serializeAsJSONObject());
+        //jsonarray	
+        //} else if (value instanceof JSONArray) {
+/*            JSONArray arr = (JSONArray)value;
+          for (int i = 0; i < arr.length(); i++) {
+            Object o = arr.get(i);
+            if (o instanceof Json) {
+              arr.put(i, ((Json)o).serializeAsJSONObject());
+            } else if (o instanceof Boolean || o instanceof String || o instanceof java.lang.Integer || o instanceof java.lang.Double) {
+              arr.put(i, o);
+            } else if (o instanceof java.math.BigDecimal) {
+              arr.put(i, ((BigDecimal)o).doubleValue()); //TODO loss of precision
+            } else if (o instanceof java.math.BigInteger) {
+              arr.put(i, ((BigInteger)o).longValue());
+            } else if (o instanceof java.util.Date) {
+              arr.put(i, o.toString());
             }
+          }*/
 
-          //map 
-          } else if (value instanceof java.util.Map) {
-            handleJavaMapType(output, name.getJsonName(), (Map)value);
-          //java types
-          } else {
-            handleJavaSimpleType(output, name.getJsonName(), value);
-          } 
-      }
-    } catch (JSONException e) {
-      throw new RuntimeException(e);
+        //map 
+        } else if (value instanceof java.util.Map) {
+          handleJavaMapType(output, name.getJsonName(), (Map)value);
+        //java types
+        } else {
+          handleJavaSimpleType(output, name.getJsonName(), value);
+        } 
     }
+/*    } catch (JSONException e) {
+      throw new RuntimeException(e);
+    }*/
     return output;
   }
 
-  private void handleJavaMapType(JSONObject output, String key, Map value) throws JSONException {
-    JSONObject j = new JSONObject();
+  private void handleJavaMapType(Map output, String key, Map value) {
+    Map j = new HashMap();
     for (Object mapKey : ((Map)value).keySet()) {
       Object get = ((Map)value).get(mapKey);
       if (get instanceof Json) {
-        if (!output.has(key)) {
-          output.put(key, new JSONObject());
+        if (!output.containsKey(key)) {
+          output.put(key, new HashMap());
         }
-        JSONObject mapOutput = output.getJSONObject(key);
+        Map mapOutput = (Map)output.get(key);
         mapOutput.put(mapKey.toString(), ((Json)get).serializeAsJSONObject());
       } else {
         handleJavaSimpleType(j, mapKey.toString(), get);
       }
     }
-    if (!output.has(key)) {
+    if (!output.containsKey(key)) {
       output.put(key, j);
     }
   }
 
-  private void handleJavaSimpleType(JSONObject output, String key, Object value) throws JSONException {
+  private void handleJavaSimpleType(Map output, String key, Object value) {
     if (value instanceof Boolean || value instanceof String || value instanceof java.lang.Integer || value instanceof java.lang.Double) {
       output.put(key, value);
     } else if (value instanceof java.math.BigDecimal) {
@@ -266,30 +272,18 @@ public class Json implements IGosuObject {
   }
 
   public Object get(String key) {
-    try {
-      if (json.has(key) == false) {
-        return null;
-      }
-      return json.get(key);
-    } catch (JSONException e) {
-      throw new JSONParserException(e);		
+    if (json.containsKey(key) == false) {
+      return null;
     }
+    return json.get(key);
   }
 
   public void put(String key, Object value) {
-    try {
-      json.put(key, value);
-    } catch (JSONException e) {
-      throw new JSONParserException(e);
-    }
+    json.put(key, value);
   }
 
   public Json getJson(String key) {
-    try {
-      return new Json(json.getJSONObject(key), type);
-    } catch (JSONException e) {
-      throw new JSONParserException(e);
-    }
+    return new Json(json.get(key), type);
   }
 
   public String toString() {
@@ -302,7 +296,7 @@ public class Json implements IGosuObject {
   }
 
   public Iterable<String> keys() {
-    return new JsonKeys(json);
+    return (Iterable<String>)json.keySet();
   }
 
   @Override
