@@ -59,16 +59,16 @@ public class JsonTypeLoader extends TypeLoaderBase {
     }
     if (o instanceof Map) {
       Map<Object, Object> type = (Map<Object, Object>)o;
-      System.out.println("Map: " + name + " content: " + type);
+//      System.out.println("Map: " + name + " content: " + type);
       if (type.get("enum") != null) {
         types.put(path + "." + name, new JsonEnumType(name, path, this, o));
       } else if (types.get("map_of") != null) {
-        System.out.println("map_of: " + name);
+//        System.out.println("map_of: " + name);
         addTypes(types, name, path, type.get("map_of"));
       } else {
         for (Object key : type.keySet()) {
-          System.out.println("key: [" + key + "]");
-          addTypes(types, new JsonName(name, (String)key), path, type.get(key));
+//          System.out.println("key: [" + key + "]");
+          addTypes(types, name.copyAndAppend((String)key), path, type.get(key));
         }
         types.put(path + "." + name, new JsonType(name, path, this, o));
       }

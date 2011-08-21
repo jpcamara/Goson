@@ -54,6 +54,15 @@ public class JsonName {
 		
 		return typeName.toString();
 	}
+
+  /**
+   * Creates a new JsonName object based on the original
+   * @param name new addition to the json name
+   * @return brand new JsonName object
+   */
+  public JsonName copyAndAppend(String name) {
+    return new JsonName(this, name);
+  }
 	
 	public String join(String joiner) {
 	  return join(names, joiner);
