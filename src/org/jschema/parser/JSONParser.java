@@ -1,5 +1,7 @@
 package org.jschema.parser;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,7 +30,11 @@ public class JSONParser {
   private static StringBuilder buildJSON(StringBuilder stringBuilder, Object json) {
     if (json instanceof String) {
       return stringBuilder.append("\"").append(json).append('\"');
-    } else if (json instanceof Integer || json instanceof Double || json instanceof Long) {
+    } else if (json instanceof Integer ||
+      json instanceof Double ||
+      json instanceof Long ||
+      json instanceof BigDecimal ||
+      json instanceof BigInteger) {
       return stringBuilder.append(json.toString());
     } else if (json instanceof Boolean) {
       return stringBuilder.append(json.toString());
@@ -116,15 +122,31 @@ public class JSONParser {
       consumeToken();
       if (value.contains(".") || value.contains("e") || value.contains("E")) {
         if (leadingNegative) {
-          return -1.0 * Double.parseDouble(value);
+          return Double.parseDouble("-" + value);
         } else {
           return Double.parseDouble(value);
         }
       } else {
-        if (leadingNegative) {
-          return -1 * Integer.parseInt(value);
-        } else {
-          return Integer.parseInt(value);
+        try {
+          if (leadingNegative) {
+            return Integer.parseInt("-" + value);
+          } else {
+            return Integer.parseInt(value);
+          }
+        } catch (NumberFormatException e) {
+          try {
+            if (leadingNegative) {
+              return Long.parseLong("-" + value);
+            } else {
+              return Long.parseLong(value);
+            }
+          } catch (NumberFormatException e1) {
+            if (leadingNegative) {
+              return new BigInteger("-" + value);
+            } else {
+              return new BigInteger(value);
+            }
+          }
         }
       }
     } else if (leadingNegative) {
