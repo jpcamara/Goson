@@ -1,25 +1,24 @@
-classpath "../build/dist,../src"
-typeloader org.jschema.typeloader.JsonTypeLoader
+classpath "../build/dist,../test"
 
 uses java.lang.*
 uses java.util.ArrayList
 uses java.util.List
 uses java.util.Arrays
-uses jschema.fullexample.Example
-uses jschema.fullexample.Example.SomeType
-uses jschema.fullexample.Example.SomeType.TypeInArray
-uses jschema.fullexample.Example.SomeType.EnumEx
-uses jschema.fullexample.Example.SomeType.NestedType
-uses jschema.fullexample.Example.SomeType.NestedType.NestedTypeInArray
+uses org.jschema.examples.fullexample.Example
+uses org.jschema.examples.fullexample.Example.SomeType
+uses org.jschema.examples.fullexample.Example.SomeType.TypeInArray
+uses org.jschema.examples.fullexample.Example.SomeType.EnumEx
+uses org.jschema.examples.fullexample.Example.SomeType.NestedType
+uses org.jschema.examples.fullexample.Example.SomeType.NestedType.NestedTypeInArray
 
-uses jschema.twitter.status.StatusResponse
-uses jschema.twitter.status.StatusResponse.User
+uses org.jschema.examples.twitter.status.StatusResponse
+uses org.jschema.examples.twitter.status.StatusResponse.User
 
-uses jschema.google.geocode.GeocodeResponse
-uses jschema.google.geocode.GeocodeResponse.Results
-uses jschema.google.geocode.GeocodeResponse.Results.Types
-uses jschema.google.geocode.GeocodeResponse.Results.Geometry
-uses jschema.google.geocode.GeocodeResponse.Results.Geometry.Location
+uses org.jschema.examples.google.geocode.GeocodeResponse
+uses org.jschema.examples.google.geocode.GeocodeResponse.Results
+uses org.jschema.examples.google.geocode.GeocodeResponse.Results.Types
+uses org.jschema.examples.google.geocode.GeocodeResponse.Results.Geometry
+uses org.jschema.examples.google.geocode.GeocodeResponse.Results.Geometry.Location
 
 var example = new Example() {
   :SomeType = new SomeType() {
@@ -58,7 +57,7 @@ print("")
 
 var status = new StatusResponse() {
   :InReplyToStatusId = 1232,
-  //TODO :User = new jschema.twitter.status.StatusResponse.User() why won't this work?
+  //TODO :User = new org.jschema.examples.twitter.status.StatusResponse.User() why won't this work?
   :User = new User() {
     :Name = "jpcamara",
     :CreatedAt = new java.util.Date(),

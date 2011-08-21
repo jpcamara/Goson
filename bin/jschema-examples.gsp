@@ -1,13 +1,12 @@
-classpath "../build/dist,../src"
-typeloader org.jschema.typeloader.JsonTypeLoader
+classpath "../build/dist,../test"
 
-uses jschema.PeopleId
-uses jschema.PeopleId.IdToPeople
-uses jschema.PeopleId.EyeColor
-uses jschema.NameAndAge
+uses org.jschema.examples.PeopleId
+uses org.jschema.examples.PeopleId.IdToPeople
+uses org.jschema.examples.PeopleId.EyeColor
+uses org.jschema.examples.NameAndAge
 
-uses jschema.people1.Peeps
-uses jschema.people1.Peeps.People
+uses org.jschema.examples.people1.Peeps
+uses org.jschema.examples.people1.Peeps.People
 
 /* { "name" : "string", "age" : "integer" } */
 /* { "name" : "Joe", "age" : "42" } */
