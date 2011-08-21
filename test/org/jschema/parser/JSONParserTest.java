@@ -88,4 +88,13 @@ public class JSONParserTest extends TestCase {
     assertEquals("string", map2.get("map_string"));
   }
 
+  public void testLongParse() {
+    assertEquals(12314235134l, JSONParser.parseJSON("12314235134")); //broken
+  }
+
+  public void testLongSerialize() {
+    Map map = new HashMap();
+    map.put("int_key", 123123123123l);
+    assertEquals("{\"int_key\" : 123123123123}", JSONParser.serializeJSON(map));
+  }
 }

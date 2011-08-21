@@ -1,23 +1,29 @@
 classpath "../build/dist,../src"
-typeloader com.jpcamara.goson.JsonTypeLoader
+typeloader org.jschema.typeloader.JsonTypeLoader
 
 uses java.lang.*
 uses java.util.ArrayList
 uses java.util.List
 uses java.util.Arrays
 uses jschema.fullexample.Example
-uses jschema.fullexample.SomeType
-uses jschema.fullexample.TypeInArray
-uses jschema.fullexample.EnumEx
-uses jschema.fullexample.NestedType
-uses jschema.fullexample.NestedTypeInArray
+uses jschema.fullexample.Example.SomeType
+uses jschema.fullexample.Example.SomeType.TypeInArray
+uses jschema.fullexample.Example.SomeType.EnumEx
+uses jschema.fullexample.Example.SomeType.NestedType
+uses jschema.fullexample.Example.SomeType.NestedType.NestedTypeInArray
 
 uses jschema.twitter.status.StatusResponse
+uses jschema.twitter.status.StatusResponse.User
+
 uses jschema.google.geocode.GeocodeResponse
+uses jschema.google.geocode.GeocodeResponse.Results
+uses jschema.google.geocode.GeocodeResponse.Results.Types
+uses jschema.google.geocode.GeocodeResponse.Results.Geometry
+uses jschema.google.geocode.GeocodeResponse.Results.Geometry.Location
 
 var example = new Example() {
   :SomeType = new SomeType() {
-    :BigIntEx = 12314235134,
+    :BigIntEx = 12312,
     :StringEx = "Example",
     :BooleanEx = true,
     :BigDecimalEx = 20.1231,
@@ -28,7 +34,7 @@ var example = new Example() {
         :Content = "Example Content"
       }
     },
-    :MapEx = { 1232 -> "OneTwoThreeTwo", 111 -> "OneOneOne" },
+    :MapEx = { "1232" -> "OneTwoThreeTwo", "111" -> "OneOneOne" },
     :EnumEx = EnumEx.JSON,
     :NestedType = new NestedType() {
       :NestedStringEx = "Nested Example",
@@ -38,9 +44,9 @@ var example = new Example() {
           :ADate = new java.util.Date()
         }
       },
-      :BigIntArrayEx = { 123112311 },
+      :BigIntArrayEx = { 312 },
       :StringArrayEx = { "Oh Nice", "This", "Is", "An", "Array" },
-      :NestedBigIntEx = 2312314,
+      :NestedBigIntEx = 12312,
       :NestedBigDecimalEx = 123.1239141
     }
   }
@@ -48,10 +54,12 @@ var example = new Example() {
 
 print(example.SomeType.NestedType.StringArrayEx.join(" "))
 print(Example.parse(example.write()).write())
+print("")
 
 var status = new StatusResponse() {
-  :InReplyToStatusId = 24134134,
-  :User = new jschema.twitter.status.User() {
+  :InReplyToStatusId = 1232,
+  //TODO :User = new jschema.twitter.status.StatusResponse.User() why won't this work?
+  :User = new User() {
     :Name = "jpcamara",
     :CreatedAt = new java.util.Date(),
     :Url = "http://twitter.com/jpcamara",
@@ -60,6 +68,7 @@ var status = new StatusResponse() {
   }
 }
 print(status.write())
+print("")
 
 /*
 {
@@ -77,13 +86,13 @@ print(status.write())
 var geocode = new GeocodeResponse() {
   :Status = "Good",
   :Results = {
-    new jschema.google.geocode.Results() {
+    new Results() {
       :Types = {
-        jschema.google.geocode.Types.STREET_ADDRESS
+        Types.STREET_ADDRESS
       },
       :FormattedAddress = "123 Main St, Boulder CO",
-      :Geometry = new jschema.google.geocode.Geometry() {
-        :Location = new jschema.google.geocode.Location() {
+      :Geometry = new Geometry() {
+        :Location = new Location() {
           :Lat = -123.123123,
           :Lng = 12.12312
         }
@@ -91,6 +100,7 @@ var geocode = new GeocodeResponse() {
     }
   }
 }
+
 print(GeocodeResponse.parse(geocode.write()).write())
 print(GeocodeResponse.parse(new java.net.URL(
   "http://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&sensor=false"))

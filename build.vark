@@ -2,7 +2,12 @@ ProjectName = "Goson"
 DefaultTarget = "jar"
 BaseDir = file(".")
 
+uses org.apache.tools.ant.BuildException
+uses org.apache.tools.ant.taskdefs.optional.junit.JUnitTest
+
 var srcDir = file("src")
+var testDir = file("test")
+var libDir = file("lib")
 var classesDir = file("build/classes")
 var distDir = file("build/dist")
 var gosuHome = java.lang.System.getenv().get("GOSU_HOME")
@@ -27,6 +32,37 @@ function compile() {
   classesDir.file("META-INF").mkdir()
   classesDir.file("META-INF/MANIFEST.MF").write("Gosu-Typeloaders: com.jpcamara.gosu.json.JsonTypeLoader\n\n")
 }
+
+@Depends({"clean", "deps", "compile"})
+function test() {
+  Ant.javac(:srcdir = path(testDir),
+            :debug = true,
+            :classpath = classpath()
+              .withFileset(gosuDir.fileset())
+              .withFileset(libDir.fileset()),
+            :destdir = classesDir,
+            :includeantruntime = false)
+}
+
+/*function test() {
+  var formatterElement = new org.apache.tools.ant.taskdefs.optional.junit.FormatterElement()
+  var attr = org.apache.tools.ant.types.EnumeratedAttribute.getInstance(org.apache.tools.ant.taskdefs.optional.junit.FormatterElement.TypeAttribute, "plain")
+  formatterElement.setType(attr as org.apache.tools.ant.taskdefs.optional.junit.FormatterElement.TypeAttribute)
+  
+  Ant.junit(:fork = true, :printsummary = Yes, :haltonfailure = true, :haltonerror = true,
+    :classpathBlocks = {
+      \ p -> p.withFileset(rootDir.fileset("lib/run/*.jar,lib/test/*.jar", null)),
+      \ p -> p.withFile(launcherModule.file("classes")),
+      \ p -> p.withFile(aardvarkModule.file("classes")),
+      \ p -> p.withFile(aardvarkModule.file("testclasses"))
+    },
+    :formatterList = {
+      formatterElement
+    },
+    :testList = {
+      new JUnitTest("gw.vark.AardvarkSuite")
+    })
+}*/
 
 @Depends("compile")
 function jar() {

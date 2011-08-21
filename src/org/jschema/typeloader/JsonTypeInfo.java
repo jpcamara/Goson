@@ -1,4 +1,4 @@
-package com.jpcamara.goson;
+package org.jschema.typeloader;
 
 import gw.lang.reflect.ConstructorInfoBuilder;
 import gw.lang.reflect.IAnnotationInfo;
@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
-import org.json.JSONArray;
-
 import java.io.BufferedReader; 
 import java.io.InputStreamReader;
 
@@ -52,7 +50,7 @@ public class JsonTypeInfo extends TypeInfoBase {
   }
 
   private JsonType owner;
-  private JsonParser json;
+  private Map json;
   private Map<String, String> propertyNames = new HashMap<String, String>();
   private List<IPropertyInfo> properties;
   private LazyVar<List<IMethodInfo>> methods = new LazyVar<List<IMethodInfo>>() {
@@ -133,9 +131,9 @@ public class JsonTypeInfo extends TypeInfoBase {
     }
   };
     
-  public JsonTypeInfo(JsonType owner, JsonParser object) {
+  public JsonTypeInfo(JsonType owner, Object object) {
     this.owner = owner;
-    this.json = object;
+    this.json = (Map)object;
     createProperties();
   }
   
@@ -179,9 +177,9 @@ public class JsonTypeInfo extends TypeInfoBase {
 	  return property.withType(IJavaType.ARRAYLIST.getParameterizedType(new IType[] { type })).build(this);
 	}
 	
-	private IPropertyInfo createWithMapType(final String name, IType key, IType value) {
+	private IPropertyInfo createWithMapType(final String name, IType value) {
 	  PropertyInfoBuilder property = create(name);
-	  return property.withType(IJavaType.MAP.getParameterizedType(key, value)).build(this);
+	  return property.withType(IJavaType.HASHMAP.getParameterizedType(IJavaType.STRING, value)).build(this);
 	}
 	
 	private IJavaType findJavaType(String typeName) {
@@ -192,11 +190,11 @@ public class JsonTypeInfo extends TypeInfoBase {
 	  return t;
 	}
 	
-	private void createEnumProperties(final String key, JSONArray enumCodes) {
+	private void createEnumProperties(final String key, List enumCodes) {
 	  JsonEnumType type = (JsonEnumType)getOwnersType();
     try {
-      for (int i = 0; i < enumCodes.length(); i++) {
-        final String code = enumCodes.getString(i);
+      for (int i = 0; i < enumCodes.size(); i++) {
+        final String code = (String)enumCodes.get(i);
         final String enumified = JsonEnumType.enumify(code);
         final IEnumValue value = type.getEnumValue(enumified);
         
@@ -229,37 +227,29 @@ public class JsonTypeInfo extends TypeInfoBase {
 	
 	private void createProperties() {
     properties = new ArrayList<IPropertyInfo>();
-    for (String key : json.keys()) {
+    for (Object k : json.keySet()) {
+      String key = (String)k;
       Object value = json.get(key);
       if (key.equals(ENUM_KEY)) {
-        createEnumProperties(key, (JSONArray)value);
+        createEnumProperties(key, (java.util.List)value);
         continue;
       }
-      if (JsonParser.isJSONObject(value)) {
-        if (JsonParser.get("map_of", value) != null) {
-          //WOW SO UGLY
-          try {
-            JsonParser o = new JsonParser(value).getJsonParser("map_of");
-            addMapProperty(key, o);
-            continue;
-          } catch (Exception e) {
-            e.printStackTrace();
-            continue;
-          }
+      if (value instanceof Map) {
+        Map val = (Map)value;
+        if (val.get("map_of") != null) {
+          Object o = val.get("map_of");
+          addMapProperty(key, o);
+          continue;
         }
-        JsonType type = getOwnersType();
-        IType propertyType = type.getTypeLoader()
-          .getType(type.getNamespace() + "." + new JsonName(key).getName());
+        IType propertyType = findIType(key);
         properties.add(createWithType(key, propertyType));
         continue;
-      } else if (JsonParser.isJSONArray(value)) {
-    		Object firstEntry = json.getWithIndex(key, 0);
-    		if (JsonParser.isJSONObject(firstEntry)) {
-    		  JsonType type = getOwnersType();
-    			IType propertyType = type.getTypeLoader()
-    					.getType(type.getNamespace() + "." + new JsonName(key).getName());
+      } else if (value instanceof List) {
+    		Object firstEntry = ((List)value).get(0);
+    		if (firstEntry instanceof Map) {
+    			IType propertyType = findIType(key);
     			if (propertyType == null) {
-    				throw new RuntimeException("No type found");
+    				throw new RuntimeException("No type found for " + key + " with owner of " + getOwnersType());
     			}
     			properties.add(createWithListType(key, propertyType));
         } else {
@@ -279,27 +269,30 @@ public class JsonTypeInfo extends TypeInfoBase {
       }
       if (javaType == IJavaType.ENUM) {
         continue; //no properties for the enum, they're at the type level?
-      } else if (JsonParser.isJSONNull(json.get(key))) {
+      } else if (json.get(key) == null) {
     		Logger.getLogger(getClass().getName()).log(Level.FINE, 
     		  "Cannot handle NULL values. No property created.");
     	}
     }
 	}
 	
-	private void addMapProperty(String key, JsonParser o) {
-	  if (!o.has("key") || !o.has("value")) {
-      throw new RuntimeException("You must specify a key and value type");
-    }
-    IJavaType keyType = findJavaType((String)o.get("key"));
+	private IType findIType(String key) {
+    JsonType type = getOwnersType();
+	  JsonName fullName = new JsonName(type.getNameInfo(), key);
+		IType propertyType = type.getTypeLoader()
+				.getType(type.getNamespace() + "." + fullName.join("."));
+		return propertyType;
+	}
+	
+	private void addMapProperty(String key, Object o) {
     IType valueType = null;
-    if (JsonParser.isJSONObject(o.get("value"))) {
+    if (o instanceof Map) {
       IType ownerType = getOwnersType();
-      valueType = ownerType.getTypeLoader()
-        .getType(ownerType.getNamespace() + "." + new JsonName(key).getName());
+      valueType = findIType(key);
     } else {
-      valueType = findJavaType((String)o.get("value"));
+      valueType = findJavaType((String)o);
     }
-    properties.add(createWithMapType(key, keyType, valueType));
+    properties.add(createWithMapType(key, valueType));
 	}
 
 	private IConstructorInfo defaultConstructor = new ConstructorInfoBuilder()

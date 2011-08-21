@@ -10,10 +10,7 @@
       "content": "string"
     }],
     "map_ex": { 
-      "map_of" : { 
-        "key" : "biginteger", 
-        "value" : "string" 
-      } 
+      "map_of" : "string"
     },
     "enum_ex": { "enum" : ["json", "txt", "xml", "jsd", "wtf"] },
     "nested_type": {
