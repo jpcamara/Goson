@@ -100,18 +100,6 @@ public class Json implements IGosuObject {
               jsonMap.put(keyParser.parse(itKey), valueParser.parse(jsonObj.get(itKey)));
             }
           }
-          
-/*          while (iterate.hasNext()) {
-            String itKey = (String)iterate.next();
-            if (valueParser == null) {
-              jsonMap.put(keyParser.parse(itKey), 
-                new Json(createJson((JSONObject)jsonObj.get(itKey), 
-                        (JsonTypeInfo)featureType.getTypeParameters()[1].getTypeInfo()),
-                        featureType.getTypeParameters()[1]));
-            } else {
-              jsonMap.put(keyParser.parse(itKey), valueParser.parse(jsonObj.get(itKey)));
-            }
-          }*/
           it.put(jsonName, (Object)jsonMap);
         }
       }
@@ -148,20 +136,15 @@ public class Json implements IGosuObject {
 
   public String serialize(int indentation) {
     Map output = serializeAsJSONObject();
-/*    try {*/
     if (indentation == -1) {
       return JSONParser.serializeJSON(output);
     }
     return JSONParser.serializeJSON(output);
-/*    } catch (JSONException e) {
-      throw new RuntimeException(e);
-    }*/
   }
 
   private Map serializeAsJSONObject() {
     Map output = new HashMap();
 
-/*    try {*/
     for (String key : keys()) {
       JsonName name = new JsonName(key);
       Object value = get(key);
@@ -234,9 +217,6 @@ public class Json implements IGosuObject {
           handleJavaSimpleType(output, name.getJsonName(), value);
         } 
     }
-/*    } catch (JSONException e) {
-      throw new RuntimeException(e);
-    }*/
     return output;
   }
 
