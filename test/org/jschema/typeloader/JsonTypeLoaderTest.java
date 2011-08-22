@@ -29,8 +29,21 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class JsonTypeLoaderTest extends GosonTest {
+
   public void testBasicGosonTypes() {
     IType nameAndAge = TypeSystem.getByFullName("org.jschema.examples.NameAndAge");
     assertNotNull(nameAndAge);
   }
+
+  public void testNestedGosonTypes() {
+    IType fullExample = TypeSystem.getByFullName("org.jschema.examples.fullexample.Example");
+    assertNotNull(fullExample);
+
+    IType someType = TypeSystem.getByFullName("org.jschema.examples.fullexample.Example.SomeType");
+    assertNotNull(someType);
+
+    IType nestedType = TypeSystem.getByFullName("org.jschema.examples.fullexample.Example.SomeType.NestedType");
+    assertNotNull(nestedType);
+  }
+
 }

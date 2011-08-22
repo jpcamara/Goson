@@ -9,6 +9,7 @@ var srcDir = file("src")
 var testDir = file("test")
 var libDir = file("lib")
 var classesDir = file("build/classes")
+var testClassesDir = file("build/tests")
 var distDir = file("build/dist")
 var gosuHome = java.lang.System.getenv().get("GOSU_HOME")
 if (gosuHome == null) {
@@ -20,7 +21,7 @@ function deps() {
   Ivy.retrieve(:sync = true, :log = "download-only")
 }
 
-@Depends({"clean", "deps"})
+@Depends("deps")
 function compile() {
   Ant.mkdir(:dir = classesDir)
   Ant.javac(:srcdir = path(srcDir),
@@ -33,36 +34,40 @@ function compile() {
   classesDir.file("META-INF/MANIFEST.MF").write("Gosu-Typeloaders: com.jpcamara.gosu.json.JsonTypeLoader\n\n")
 }
 
-@Depends({"clean", "deps", "compile"})
-function test() {
+@Depends("compile")
+function compileTests() {
+  Ant.mkdir(:dir = testClassesDir)
   Ant.javac(:srcdir = path(testDir),
             :debug = true,
-            :classpath = classpath()
+            :classpath = classpath().withFile(classesDir)
               .withFileset(gosuDir.fileset())
               .withFileset(libDir.fileset()),
-            :destdir = classesDir,
+            :destdir = testClassesDir,
             :includeantruntime = false)
 }
 
-/*function test() {
+@Depends("compileTests")
+function test() {
+
   var formatterElement = new org.apache.tools.ant.taskdefs.optional.junit.FormatterElement()
   var attr = org.apache.tools.ant.types.EnumeratedAttribute.getInstance(org.apache.tools.ant.taskdefs.optional.junit.FormatterElement.TypeAttribute, "plain")
   formatterElement.setType(attr as org.apache.tools.ant.taskdefs.optional.junit.FormatterElement.TypeAttribute)
   
   Ant.junit(:fork = true, :printsummary = Yes, :haltonfailure = true, :haltonerror = true,
     :classpathBlocks = {
-      \ p -> p.withFileset(rootDir.fileset("lib/run/*.jar,lib/test/*.jar", null)),
-      \ p -> p.withFile(launcherModule.file("classes")),
-      \ p -> p.withFile(aardvarkModule.file("classes")),
-      \ p -> p.withFile(aardvarkModule.file("testclasses"))
+      \ p -> p.withFileset(libDir.fileset("*.jar", null)),
+      \ p -> p.withFileset(gosuDir.fileset("*.jar", null)),
+      \ p -> p.withFile(classesDir),
+      \ p -> p.withFile(testClassesDir),
+      \ p -> p.withFile(testDir)
     },
     :formatterList = {
       formatterElement
     },
     :testList = {
-      new JUnitTest("gw.vark.AardvarkSuite")
+      new org.apache.tools.ant.taskdefs.optional.junit.JUnitTest("org.jschema.test.GosonSuite")
     })
-}*/
+}
 
 @Depends("compile")
 function jar() {

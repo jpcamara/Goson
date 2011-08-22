@@ -146,21 +146,20 @@ public class Json implements IGosuObject {
     Map output = new HashMap();
 
     for (String key : keys()) {
-      JsonName name = new JsonName(key);
       Object value = get(key);
 
       //enum
       if (value instanceof JsonEnumType.JsonEnumValue) {
         JsonEnumType.JsonEnumValue enumVal = (JsonEnumType.JsonEnumValue)value;
-        output.put(name.getJsonName(), enumVal.getJsonCode());
+        output.put(key, enumVal.getJsonCode());
       //list
       } else if (value instanceof List) {
         List list = (List)value;
         List array = new ArrayList();
-        if (output.containsKey(name.getJsonName())) {
-          array = (List)output.get(name.getJsonName());
+        if (output.containsKey(key)) {
+          array = (List)output.get(key);
         } else {
-          output.put(name.getJsonName(), array);
+          output.put(key, array);
         }
 
         if (list.size() > 0) {
@@ -190,7 +189,7 @@ public class Json implements IGosuObject {
         //json
         } else if (value instanceof Json) {
           Json current = (Json)value;//get(name.getJsonName());
-          output.put(name.getJsonName(), current.serializeAsJSONObject());
+          output.put(key, current.serializeAsJSONObject());
         //jsonarray	
         //} else if (value instanceof JSONArray) {
 /*            JSONArray arr = (JSONArray)value;
@@ -211,10 +210,10 @@ public class Json implements IGosuObject {
 
         //map 
         } else if (value instanceof java.util.Map) {
-          handleJavaMapType(output, name.getJsonName(), (Map)value);
+          handleJavaMapType(output, key, (Map)value);
         //java types
         } else {
-          handleJavaSimpleType(output, name.getJsonName(), value);
+          handleJavaSimpleType(output, key, value);
         } 
     }
     return output;

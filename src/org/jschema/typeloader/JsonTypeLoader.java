@@ -5,19 +5,14 @@ import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeLoaderBase;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.module.IModule;
+import gw.util.GosuExceptionUtil;
 import gw.util.Pair;
 import gw.util.concurrent.LazyVar;
 import org.jschema.parser.JSONParser;
+import org.jschema.util.JSONUtils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 
 public class JsonTypeLoader extends TypeLoaderBase {
 
@@ -44,33 +39,67 @@ public class JsonTypeLoader extends TypeLoaderBase {
     if (types.isEmpty()) {
       for (JsonFile jshFile : jscFiles.get()) {
         try {
-          addTypes(types, new JsonName(jshFile.name), jshFile.path, jshFile.content);
+          addTypes(types, jshFile.rootTypeName, jshFile.content);
         } catch (Exception e) {
-          throw new RuntimeException(e);
+          throw GosuExceptionUtil.forceThrow(e);
+        }
+      }
+      for (JsonFile jshRpcFile : jscRpcFiles.get()) {
+        try {
+          addRpcTypes(types, jshRpcFile.rootTypeName, jshRpcFile.content);
+        } catch (Exception e) {
+          throw GosuExceptionUtil.forceThrow(e);
         }
       }
       System.out.println(types.keySet());
     }
   }
 
-  private void addTypes(Map<String, IType> types, JsonName name, String path, Object o) {
+  private void addTypes(Map<String, IType> types, String name, Object o) {
     if (o instanceof List && !((List)o).isEmpty()) {
       o = ((List)o).get(0);
     }
     if (o instanceof Map) {
-      Map<Object, Object> type = (Map<Object, Object>)o;
-//      System.out.println("Map: " + name + " content: " + type);
-      if (type.get("enum") != null) {
-        types.put(path + "." + name, new JsonEnumType(name, path, this, o));
-      } else if (types.get("map_of") != null) {
-//        System.out.println("map_of: " + name);
-        addTypes(types, name, path, type.get("map_of"));
+      Map<Object, Object> jsonMap = (Map<Object, Object>)o;
+      if (jsonMap.get("enum") != null) {
+        types.put(name, new JsonEnumType(name, this, o));
+      } else if (jsonMap.get("map_of") != null) {
+        addTypes(types, name, jsonMap.get("map_of"));
       } else {
-        for (Object key : type.keySet()) {
-//          System.out.println("key: [" + key + "]");
-          addTypes(types, name.copyAndAppend((String)key), path, type.get(key));
+        for (Object key : jsonMap.keySet()) {
+          addTypes(types,
+            name + "." + JSONUtils.convertJSONStringToGosuIdentifier(key.toString()),
+            jsonMap.get(key));
         }
-        types.put(path + "." + name, new JsonType(name, path, this, o));
+        types.put(name, new JsonType(name, this, o));
+      }
+    }
+  }
+
+  private void addRpcTypes(Map<String, IType> types, String name, Object o) {
+    types.put(name, new JSchemaRPCType(name, this, o));
+    if (o instanceof Map) {
+      Object functions = ((Map) o).get("functions");
+      if (functions instanceof List) {
+        for (Object function : (List) functions) {
+          if (function instanceof Map) {
+            Map functionMap = (Map) function;
+            Object str = functionMap.get("name");
+            String functionTypeName =  name + JSONUtils.convertJSONStringToGosuIdentifier(str.toString());
+
+            // add parameter names
+            Object args = functionMap.get("args");
+            if (args instanceof Map) {
+              Object argName = ((Map) args).get("name");
+              addTypes(types,
+                functionTypeName + "." + JSONUtils.convertJSONStringToGosuIdentifier(argName.toString()),
+                ((Map) args).get("type"));
+            }
+
+            // add the return type
+            addTypes(types, functionTypeName, ((Map) function).get("returns"));
+          }
+        }
       }
     }
   }
@@ -83,8 +112,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
 
   @Override
   public List<String> getHandledPrefixes() {
-    List<String> prefixes = Arrays.asList(getAllNamespaces().toArray(new String[] {}));
-    return prefixes;
+    return Collections.emptyList();
   }
 
   /*
@@ -98,47 +126,53 @@ public class JsonTypeLoader extends TypeLoaderBase {
   private LazyVar<List<JsonFile>> jscFiles = new LazyVar<List<JsonFile>>() {
     @Override
     protected List<JsonFile> init() {
-      List<JsonFile> init = new java.util.ArrayList<JsonFile>();
-
-      List<Pair<String, IFile>> files = getModule().getResourceAccess().findAllFilesByExtension(JSC_EXT);
-      for (Pair<String, IFile> pair : files) {
-        JsonFile current = new JsonFile();
-
-        String fileName = pair.getSecond().getName().replaceAll("\\." + JSC_EXT, "");
-        String path = pair.getFirst().replaceAll(pair.getSecond().getName(), "");
-        if (path.isEmpty()) {
-          throw new RuntimeException("Cannot have Simple JSON Schema definitions in the default package");
-        }
-
-        int lastSeparatorIndex = path.lastIndexOf(File.separator);
-        path = path.substring(0, lastSeparatorIndex).replace(File.separator, ".");
-
-        int lastIndex = fileName.lastIndexOf(".");
-        current.name = fileName.substring(lastIndex + 1);
-        current.path = path;
-
-        Scanner s = null;
-        try {
-          java.lang.StringBuilder jsonString = new java.lang.StringBuilder();
-          s = new Scanner(pair.getSecond().toJavaFile());
-          while (s.hasNextLine()) {
-            jsonString.append(s.nextLine());
-          }
-          current.content = JSONParser.parseJSON(jsonString.toString());
-        } catch (FileNotFoundException e) {
-          throw new RuntimeException(e);
-        } finally {
-          if (s != null) { s.close(); }
-        }
-        init.add(current);
-      }
-      return init;
+      return findFilesOfType(JSC_EXT);
     }
   };
 
+  private LazyVar<List<JsonFile>> jscRpcFiles = new LazyVar<List<JsonFile>>() {
+    @Override
+    protected List<JsonFile> init() {
+      return findFilesOfType(JSC_RPC_EXT);
+    }
+  };
+
+  private List<JsonFile> findFilesOfType(String extension) {
+    List<JsonFile> init = new java.util.ArrayList<JsonFile>();
+
+    List<Pair<String, IFile>> files = getModule().getResourceAccess().findAllFilesByExtension(extension);
+    for (Pair<String, IFile> pair : files) {
+      JsonFile current = new JsonFile();
+
+      String relativeNameAsFile = pair.getFirst();
+      int trimmedLength = relativeNameAsFile.length() - extension.length() - 1;
+      String typeName = relativeNameAsFile.replace('/', '.').replace('\\', '.').substring(0, trimmedLength);
+      if (typeName.indexOf('.') == -1) {
+        //TODO ignore?
+        throw new RuntimeException("Cannot have Simple JSON Schema definitions in the default package");
+      }
+      current.rootTypeName = typeName;
+
+      Scanner s = null;
+      try {
+        StringBuilder jsonString = new StringBuilder();
+        s = new Scanner(pair.getSecond().toJavaFile());
+        while (s.hasNextLine()) {
+          jsonString.append(s.nextLine());
+        }
+        current.content = JSONParser.parseJSON(jsonString.toString());
+      } catch (FileNotFoundException e) {
+        throw new RuntimeException(e);
+      } finally {
+        if (s != null) { s.close(); }
+      }
+      init.add(current);
+    }
+    return init;
+  }
+
   private static class JsonFile {
     private Object content;
-    private String path;
-    private String name;
+    private String rootTypeName;
   }
 }

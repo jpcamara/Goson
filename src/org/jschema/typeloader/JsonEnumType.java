@@ -19,9 +19,8 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 public class JsonEnumType extends JsonType implements IEnumType {
   private List<IEnumValue> values = new ArrayList<IEnumValue>();
 
-  public JsonEnumType(JsonName name, String path, ITypeLoader typeloader,
-    final Object object) {
-    super(name, path, typeloader, object);
+  public JsonEnumType(String name, ITypeLoader typeloader, final Object object) {
+    super(name, typeloader, object);
     List obj = (List)((Map)object).get("enum");
     if (obj == null || !(obj instanceof List)) {
       throw new RuntimeException("An enum must be an array of values.");

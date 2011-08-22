@@ -20,6 +20,7 @@ import gw.lang.reflect.java.IJavaType;
 import gw.lang.reflect.gs.IGosuObject;
 import gw.util.concurrent.LazyVar;
 import gw.lang.reflect.IEnumValue;
+import org.jschema.util.JSONUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -99,7 +100,7 @@ public class JsonTypeInfo extends TypeInfoBase {
     		.build(JsonTypeInfo.this));
     	typeMethods.add(parseMethod()
     		.withParameters(new ParameterInfoBuilder()
-    			.withType((IJavaType)TypeSystem.get(java.net.URL.class))
+    			.withType(TypeSystem.get(java.net.URL.class))
     			.withName("content"))
     		.withCallHandler(new IMethodCallHandler() {
     			@Override
@@ -137,17 +138,17 @@ public class JsonTypeInfo extends TypeInfoBase {
     createProperties();
   }
   
-  private PropertyInfoBuilder create(final String name) {
-    JsonName propertyName = new JsonName(name);
-	  propertyNames.put(propertyName.getName(), name);
+  private PropertyInfoBuilder create(final String originalName) {
+    String propertyName = JSONUtils.convertJSONStringToGosuIdentifier(originalName);
+	  propertyNames.put(propertyName, originalName);
     return new PropertyInfoBuilder()
-      .withName(propertyName.getName()).withWritable(true)
+      .withName(propertyName).withWritable(true)
       .withAccessor(new IPropertyAccessor() {
       	@Override
       	public void setValue(Object ctx, Object value) {
       		Json json = (Json) ctx;
       		try {
-      			json.put(name, value);
+      			json.put(originalName, value);
       		} catch (Exception e) {
       			throw new RuntimeException(e);
       		}
@@ -156,10 +157,10 @@ public class JsonTypeInfo extends TypeInfoBase {
       	@Override
       	public Object getValue(Object ctx) {
       		try {
-      		  Object o = ((Json) ctx).get(name);
+      		  Object o = ((Json) ctx).get(originalName);
       		  if (o instanceof List) {
       		  }
-      			return ((Json) ctx).get(name);
+      			return ((Json) ctx).get(originalName);
       		} catch (Exception e) {
       			throw new RuntimeException(e);
       		}
@@ -277,12 +278,8 @@ public class JsonTypeInfo extends TypeInfoBase {
 	}
 	
 	private IType findIType(String key) {
-    JsonType type = getOwnersType();
-	  JsonName fullName = new JsonName(type.getNameInfo(), key);
-		IType propertyType = type.getTypeLoader()
-				.getType(type.getNamespace() + "." + fullName.join("."));
-		return propertyType;
-	}
+    return TypeSystem.getByFullName(getOwnersType().getName() + "." + JSONUtils.convertJSONStringToGosuIdentifier(key));
+  }
 	
 	private void addMapProperty(String key, Object o) {
     IType valueType = null;
