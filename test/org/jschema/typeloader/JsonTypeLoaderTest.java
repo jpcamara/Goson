@@ -45,5 +45,16 @@ public class JsonTypeLoaderTest extends GosonTest {
     IType nestedType = TypeSystem.getByFullName("org.jschema.examples.fullexample.Example.SomeType.NestedType");
     assertNotNull(nestedType);
   }
+  
+  public void testRPCTypes() {
+    assertNotNull(TypeSystem.getByFullName("org.jschema.examples.rpc.Sample1"));
+
+    assertNotNull(TypeSystem.getByFullName("org.jschema.examples.rpc.Sample1.GetEmployee"));
+
+    assertNull(TypeSystem.getByFullNameIfValid("org.jschema.examples.rpc.Sample1.GetEmployee.Id"));
+
+    assertNull(TypeSystem.getByFullNameIfValid("org.jschema.examples.rpc.Sample1.UpdateEmployee"));
+    assertNotNull(TypeSystem.getByFullName("org.jschema.examples.rpc.Sample1.UpdateEmployee.Employee"));
+  }
 
 }

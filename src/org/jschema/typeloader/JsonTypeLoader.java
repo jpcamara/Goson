@@ -85,17 +85,27 @@ public class JsonTypeLoader extends TypeLoaderBase {
           if (function instanceof Map) {
             Map functionMap = (Map) function;
             Object str = functionMap.get("name");
-            String functionTypeName =  name + JSONUtils.convertJSONStringToGosuIdentifier(str.toString());
+            String functionTypeName =  name + "." + JSONUtils.convertJSONStringToGosuIdentifier(str.toString());
 
             // add parameter names
             Object args = functionMap.get("args");
-            if (args instanceof Map) {
-              Object argName = ((Map) args).get("name");
-              addTypes(types,
-                functionTypeName + "." + JSONUtils.convertJSONStringToGosuIdentifier(argName.toString()),
-                ((Map) args).get("type"));
-            }
+            if (args instanceof List) {
+              for (Object arg : (List) args) {
+                if (arg instanceof Map) {
+                  Set argSpecKeys = ((Map) arg).keySet();
+                  for (Object key : argSpecKeys) {
+                    if (key.equals("default") || key.equals("description")) {
+                      continue;
+                    } else {
+                      addTypes(types,
+                        functionTypeName + "." + JSONUtils.convertJSONStringToGosuIdentifier(key.toString()),
+                        ((Map) arg).get(key));
+                    }
+                  }
+                }
 
+              }
+            }
             // add the return type
             addTypes(types, functionTypeName, ((Map) function).get("returns"));
           }
