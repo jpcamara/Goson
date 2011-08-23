@@ -2,13 +2,7 @@ package org.jschema.parser;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class JSONParser {
 
@@ -188,7 +182,7 @@ public class JSONParser {
       if (match("}")) {
         return Collections.EMPTY_MAP;
       } else {
-        Map map = new HashMap();
+        Map map = new LinkedHashMap();
         do {
           String key = parseString();
 
