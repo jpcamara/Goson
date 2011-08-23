@@ -1,9 +1,11 @@
 package org.jschema.test;
 
+import com.sun.source.tree.ModifiersTree;
 import gw.fs.ResourcePath;
 import gw.fs.physical.PhysicalDirectoryImpl;
 import gw.lang.init.GosuInitialization;
 import gw.lang.init.GosuPathEntry;
+import gw.lang.reflect.IHasJavaClass;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.java.IJavaBackedType;
@@ -11,6 +13,7 @@ import gw.lang.shell.Gosu;
 import junit.framework.TestSuite;
 import org.jschema.typeloader.JsonTypeLoader;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,8 +39,11 @@ public class GosonSuite extends TestSuite {
     String[] testNames = getTests();
     List<Class> tests = new ArrayList<Class>();
     for (String test : testNames) {
-      IJavaBackedType byFullName = (IJavaBackedType) TypeSystem.getByFullName(test);
-      tests.add(byFullName.getBackingClass());
+      IHasJavaClass byFullName = (IHasJavaClass) TypeSystem.getByFullName(test);
+      Class backingClass = byFullName.getBackingClass();
+      if (!Modifier.isAbstract(backingClass.getModifiers())) {
+        tests.add(backingClass);
+      }
     }
     return tests.toArray(new Class[tests.size()]);
   }

@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//TODO doesn't handle java.lang.Long correctly - for instance, try using 12314235134 in run.gsp for BigIntEx
 public class JSONParser {
 
   private JSONToken _currentToken;

@@ -1,0 +1,25 @@
+{ "description" : "Methods for manipulating employees",
+  "default_url" : "http://myserver:8080/EmployeeController",
+  "functions" : [
+    { "name" : "getEmployee",
+      "description" : "Returns the employee of the given name",
+      "args" : [ {"id" : "biginteger"} ],
+      "returns" : { "first_name" : "string",
+                    "last_name" : "string",
+                    "age" : "integer",
+                    "id" : "biginteger"
+                  }
+    },
+    { "name" : "updateEmployee",
+      "description" : "Updates the given employee",
+      "args" : [ {"employee" : {
+                        "first_name" : "string",
+                        "last_name" : "string",
+                        "age" : "integer",
+                        "id" : "biginteger"
+                    }
+                  } ],
+      "returns" : "boolean"
+    }
+  ]
+}
