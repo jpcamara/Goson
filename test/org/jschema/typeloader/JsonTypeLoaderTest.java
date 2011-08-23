@@ -1,10 +1,12 @@
 package org.jschema.typeloader;
 
+import gw.config.CommonServices;
 import gw.fs.IDirectory;
 import gw.fs.IFile;
 import gw.fs.IResource;
 import gw.fs.ResourcePath;
 import gw.lang.init.GosuInitialization;
+import gw.lang.reflect.IPropertyInfo;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.ITypeLoader;
 import gw.lang.reflect.TypeSystem;
@@ -14,6 +16,7 @@ import gw.util.Pair;
 import junit.framework.TestCase;
 import org.jschema.test.GosonTest;
 import org.junit.Test;
+import org.omg.CORBA.CTX_RESTRICT_SCOPE;
 
 import java.io.File;
 import java.io.IOException;

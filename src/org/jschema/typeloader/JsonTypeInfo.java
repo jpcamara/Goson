@@ -55,9 +55,9 @@ public class JsonTypeInfo extends TypeInfoBase {
   private Map<String, String> propertyNames = new HashMap<String, String>();
   private List<IPropertyInfo> properties;
   private LazyVar<List<IMethodInfo>> methods = new LazyVar<List<IMethodInfo>>() {
-    private List<IMethodInfo> typeMethods = new ArrayList<IMethodInfo>();		
     @Override
     protected List<IMethodInfo> init() {
+      List<IMethodInfo> typeMethods = new ArrayList<IMethodInfo>();
     	typeMethods.add(new MethodInfoBuilder()
     		.withName("write")
     		.withReturnType(IJavaType.STRING)
@@ -183,7 +183,7 @@ public class JsonTypeInfo extends TypeInfoBase {
 	  return property.withType(IJavaType.HASHMAP.getParameterizedType(IJavaType.STRING, value)).build(this);
 	}
 	
-	private IJavaType findJavaType(String typeName) {
+	public static IJavaType findJavaType(String typeName) {
 	  IJavaType t = TYPES.get(typeName);
 	  if (t == null) {
 	    return null;

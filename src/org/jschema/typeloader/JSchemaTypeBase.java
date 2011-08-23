@@ -19,7 +19,7 @@ public abstract class JSchemaTypeBase extends TypeBase {
   private String packageName;
   private String fullName;
   private ITypeLoader loader;
-  private LazyVar<JsonTypeInfo> typeInfo;
+  private LazyVar<ITypeInfo> typeInfo;
   private Logger logger = Logger.getLogger(getClass().getName());
 
   public JSchemaTypeBase(String name, ITypeLoader typeloader, final Object object) {
@@ -27,15 +27,15 @@ public abstract class JSchemaTypeBase extends TypeBase {
     this.packageName = GosuClassUtil.getPackage(name);
     this.fullName = name;
     this.loader = typeloader;
-    this.typeInfo = new LazyVar<JsonTypeInfo>() {
+    this.typeInfo = new LazyVar<ITypeInfo>() {
       @Override
-      protected JsonTypeInfo init() {
+      protected ITypeInfo init() {
         return initTypeInfo(object);
       }
     };
   }
 
-  protected abstract JsonTypeInfo initTypeInfo(Object object);
+  protected abstract ITypeInfo initTypeInfo(Object object);
 
   @Override
   public String getName() {
