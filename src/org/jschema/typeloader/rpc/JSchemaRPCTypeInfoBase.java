@@ -1,34 +1,42 @@
-package org.jschema.typeloader;
+package org.jschema.typeloader.rpc;
 
 import gw.lang.reflect.*;
-import gw.lang.reflect.java.IJavaArrayType;
 import gw.lang.reflect.java.IJavaType;
+import org.jschema.parser.JSONParser;
+import org.jschema.typeloader.IJsonType;
+import org.jschema.typeloader.Json;
+import org.jschema.typeloader.JsonTypeInfo;
 import org.jschema.util.JSONUtils;
 
 import java.util.*;
 
-public class JSchemaRPCTypeInfo extends TypeInfoBase
-{
-  private JSchemaRPCType _owner;
+public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
+  private JSchemaRPCTypeBase _owner;
   private List<? extends IMethodInfo> _methods;
 
-  public JSchemaRPCTypeInfo(JSchemaRPCType owner) {
+  public JSchemaRPCTypeInfoBase(JSchemaRPCTypeBase owner) {
     _owner = owner;
     _methods = buildMethods();
   }
 
-  private List<? extends IMethodInfo> buildMethods() {
+  protected List<IMethodInfo> buildMethods() {
     ArrayList<IMethodInfo> methods = new ArrayList<IMethodInfo>();
+    buildFunctionMethods(methods);
+    return methods;
+  }
 
+  private void buildFunctionMethods(ArrayList<IMethodInfo> methods) {
     for (Map function : _owner.getFunctions()) {
 
       String name = (String) function.get("name");
-      String functionTypeName = getOwnersType().getName() + "." + JSONUtils.convertJSONStringToGosuIdentifier(name);
+      String functionTypeName = getRootTypeName() + "." + JSONUtils.convertJSONStringToGosuIdentifier(name);
       String description = (String) function.get("description");
       List<ParameterInfoBuilder> argBuilders = new ArrayList<ParameterInfoBuilder>();
+      final List<String> argNames = new ArrayList<String>();
 
       for (Map arg : (List<Map>) function.get("args")) {
         String argName = (String) arg.keySet().iterator().next();
+        argNames.add(argName);
         Object type = arg.get(argName);
         String argDescription = (String) arg.get("description");
         String defaultValue = (String) arg.get("default");
@@ -42,7 +50,7 @@ public class JSchemaRPCTypeInfo extends TypeInfoBase
       }
 
       Object returnTypeSpec = function.get("returns");
-      IType returnType;
+      final IType returnType;
       if (returnTypeSpec == null) {
         returnType = IJavaType.pVOID;
       } else {
@@ -52,20 +60,45 @@ public class JSchemaRPCTypeInfo extends TypeInfoBase
       methods.add(new MethodInfoBuilder()
         .withName(JSONUtils.convertJSONStringToGosuIdentifier(name, false))
         .withDescription(description)
-        .withStatic()
+        .withStatic(areRPCMethodsStatic())
         .withParameters(argBuilders.toArray(new ParameterInfoBuilder[argBuilders.size()]))
         .withReturnType(returnType)
         .withCallHandler(new IMethodCallHandler() {
+
           @Override
           public Object handleCall(Object ctx, Object... args) {
-            throw new RuntimeException("Not implemented");
+
+            Map<String, String> argsMap = new HashMap<String, String>();
+            for (int i = 0; i < args.length; i++) {
+              Object value = args[i];
+              String name = argNames.get(i);
+              String valueString;
+              if (value instanceof Json) {
+                valueString = ((Json) value).serialize(0);
+              } else {
+                valueString = JSONParser.serializeJSON(value);
+              }
+              argsMap.put(name, valueString);
+            }
+
+            String json = handleRPCMethodInvocation(ctx, argsMap);
+            if (returnType instanceof IJsonType) {
+              return new Json(JSONParser.parseJSON(json), returnType);
+            } else {
+              return JSONParser.parseJSON(json);
+            }
           }
         })
         .build(this)
       );
     }
-    return methods;
   }
+
+  protected abstract String getRootTypeName();
+
+  protected abstract String handleRPCMethodInvocation(Object ctx, Map<String, String> argsMap);
+
+  protected abstract boolean areRPCMethodsStatic();
 
   private IType getType(String s, Object type) {
     if (type instanceof String) {
@@ -114,7 +147,7 @@ public class JSchemaRPCTypeInfo extends TypeInfoBase
   }
 
   @Override
-  public IType getOwnersType() {
+  public JSchemaRPCTypeBase getOwnersType() {
     return _owner;
   }
 }

@@ -10,6 +10,15 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Gosu" level="project" />
     <orderEntry type="library" scope="TEST" name="Support" level="project" />
+    <orderEntry type="module-library" scope="TEST">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/test" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
 

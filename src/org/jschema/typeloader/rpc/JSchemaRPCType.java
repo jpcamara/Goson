@@ -1,25 +1,18 @@
-package org.jschema.typeloader;
+package org.jschema.typeloader.rpc;
 
 import gw.lang.reflect.ITypeLoader;
+import org.jschema.typeloader.JSchemaTypeBase;
 
 import java.util.List;
 import java.util.Map;
 
-public class JSchemaRPCType extends JSchemaTypeBase {
-
-  private Map _object;
-
+public class JSchemaRPCType extends JSchemaRPCTypeBase {
   public JSchemaRPCType(String name, ITypeLoader typeloader, Object object) {
     super(name, typeloader, object);
-    _object = (Map) object;
   }
 
   @Override
   protected JSchemaRPCTypeInfo initTypeInfo(Object object) {
     return new JSchemaRPCTypeInfo(JSchemaRPCType.this);
-  }
-
-  public List<Map> getFunctions() {
-    return (List<Map>) _object.get("functions");
   }
 }

@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class JsonType extends JSchemaTypeBase {
+public class JsonType extends JSchemaTypeBase implements IJsonType {
   public JsonType(String name, ITypeLoader typeloader, final Object object) {
     super(name, typeloader, object);
   }
