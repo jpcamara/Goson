@@ -9,6 +9,8 @@ import gw.util.GosuExceptionUtil;
 import gw.util.Pair;
 import gw.util.concurrent.LazyVar;
 import org.jschema.parser.JSONParser;
+import org.jschema.typeloader.rpc.JSchemaCustomizedRPCType;
+import org.jschema.typeloader.rpc.JSchemaRPCType;
 import org.jschema.util.JSONUtils;
 
 import java.io.*;
@@ -78,6 +80,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
 
   private void addRpcTypes(Map<String, IType> types, String name, Object o) {
     types.put(name, new JSchemaRPCType(name, this, o));
+    types.put(name + JSchemaCustomizedRPCType.TYPE_SUFFIX, new JSchemaCustomizedRPCType(name + JSchemaCustomizedRPCType.TYPE_SUFFIX, this, o));
     if (o instanceof Map) {
       Object functions = ((Map) o).get("functions");
       if (functions instanceof List) {

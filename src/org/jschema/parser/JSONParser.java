@@ -68,7 +68,7 @@ public class JSONParser {
     }
   }
 
-  private Object parseValue() {
+  public Object parseValue() {
 
     String str = parseString();
     if (str != null ) {
