@@ -6,7 +6,7 @@ import org.jschema.typeloader.JSchemaTypeBase;
 import java.util.List;
 import java.util.Map;
 
-public class JSchemaRPCType extends JSchemaRPCTypeBase {
+public class JSchemaRPCType extends JSchemaRPCTypeBase  implements IJSchemaRPCType {
   public JSchemaRPCType(String name, ITypeLoader typeloader, Object object) {
     super(name, typeloader, object);
   }

@@ -11,7 +11,7 @@ import gw.util.concurrent.LazyVar;
 import org.jschema.parser.JSONParser;
 import org.jschema.typeloader.rpc.JSchemaCustomizedRPCType;
 import org.jschema.typeloader.rpc.JSchemaRPCType;
-import org.jschema.util.JSONUtils;
+import org.jschema.util.JSchemaUtils;
 
 import java.io.*;
 import java.util.*;
@@ -70,7 +70,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
       } else {
         for (Object key : jsonMap.keySet()) {
           addTypes(types,
-            name + "." + JSONUtils.convertJSONStringToGosuIdentifier(key.toString()),
+            name + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(key.toString()),
             jsonMap.get(key));
         }
         types.put(name, new JsonType(name, this, o));
@@ -88,7 +88,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
           if (function instanceof Map) {
             Map functionMap = (Map) function;
             Object str = functionMap.get("name");
-            String functionTypeName =  name + "." + JSONUtils.convertJSONStringToGosuIdentifier(str.toString());
+            String functionTypeName =  name + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(str.toString());
 
             // add parameter names
             Object args = functionMap.get("args");
@@ -101,7 +101,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
                       continue;
                     } else {
                       addTypes(types,
-                        functionTypeName + "." + JSONUtils.convertJSONStringToGosuIdentifier(key.toString()),
+                        functionTypeName + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(key.toString()),
                         ((Map) arg).get(key));
                     }
                   }

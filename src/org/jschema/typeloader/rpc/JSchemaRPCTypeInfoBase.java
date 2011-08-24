@@ -6,7 +6,7 @@ import org.jschema.parser.JSONParser;
 import org.jschema.typeloader.IJsonType;
 import org.jschema.typeloader.Json;
 import org.jschema.typeloader.JsonTypeInfo;
-import org.jschema.util.JSONUtils;
+import org.jschema.util.JSchemaUtils;
 
 import java.util.*;
 
@@ -28,8 +28,8 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
   private void buildFunctionMethods(ArrayList<IMethodInfo> methods) {
     for (Map function : _owner.getFunctions()) {
 
-      String name = (String) function.get("name");
-      String functionTypeName = getRootTypeName() + "." + JSONUtils.convertJSONStringToGosuIdentifier(name);
+      final String name = (String) function.get("name");
+      String functionTypeName = getRootTypeName() + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(name);
       String description = (String) function.get("description");
       List<ParameterInfoBuilder> argBuilders = new ArrayList<ParameterInfoBuilder>();
       final List<String> argNames = new ArrayList<String>();
@@ -42,7 +42,7 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
         String defaultValue = (String) arg.get("default");
         ParameterInfoBuilder pib = new ParameterInfoBuilder()
           .withName(argName)
-          .withType(getType(functionTypeName + "." + JSONUtils.convertJSONStringToGosuIdentifier(argName), type));
+          .withType(getType(functionTypeName + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(argName), type));
         if (argDescription != null) {
           pib.withDescription(argDescription);
         }
@@ -58,7 +58,7 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
       }
 
       methods.add(new MethodInfoBuilder()
-        .withName(JSONUtils.convertJSONStringToGosuIdentifier(name, false))
+        .withName(JSchemaUtils.convertJSONStringToGosuIdentifier(name, false))
         .withDescription(description)
         .withStatic(areRPCMethodsStatic())
         .withParameters(argBuilders.toArray(new ParameterInfoBuilder[argBuilders.size()]))
@@ -72,21 +72,13 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
             for (int i = 0; i < args.length; i++) {
               Object value = args[i];
               String name = argNames.get(i);
-              String valueString;
-              if (value instanceof Json) {
-                valueString = ((Json) value).serialize(0);
-              } else {
-                valueString = JSONParser.serializeJSON(value);
-              }
+              String valueString = JSchemaUtils.serializeJson(value);
               argsMap.put(name, valueString);
             }
 
-            String json = handleRPCMethodInvocation(ctx, argsMap);
-            if (returnType instanceof IJsonType) {
-              return new Json(JSONParser.parseJSON(json), returnType);
-            } else {
-              return JSONParser.parseJSON(json);
-            }
+            String json = handleRPCMethodInvocation(ctx, name, argsMap);
+
+            return JSchemaUtils.parseJson(json, returnType);
           }
         })
         .build(this)
@@ -96,7 +88,7 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
 
   protected abstract String getRootTypeName();
 
-  protected abstract String handleRPCMethodInvocation(Object ctx, Map<String, String> argsMap);
+  protected abstract String handleRPCMethodInvocation(Object ctx, String method, Map<String, String> argsMap);
 
   protected abstract boolean areRPCMethodsStatic();
 
