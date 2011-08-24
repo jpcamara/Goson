@@ -56,9 +56,9 @@ public class JSchemaRPCTypeInfo extends JSchemaRPCTypeInfoBase
   }
 
   @Override
-  protected String handleRPCMethodInvocation(Object ctx, Map<String, String> argsMap) {
+  protected String handleRPCMethodInvocation(Object ctx, String method, Map<String, String> argsMap) {
     RPCConfig config = new RPCConfig();
     return config.getCallHandler().handleCall(config.getMethod().name(),
-      getOwnersType().getDefaultURL(), argsMap);
+      getOwnersType().getDefaultURL() + "/" + method, argsMap);
   }
 }

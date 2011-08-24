@@ -6,7 +6,6 @@ import gw.lang.reflect.IConstructorHandler;
 import gw.lang.reflect.IConstructorInfo;
 import gw.lang.reflect.IMethodCallHandler;
 import gw.lang.reflect.IMethodInfo;
-import gw.lang.reflect.IParameterInfo;
 import gw.lang.reflect.IPropertyAccessor;
 import gw.lang.reflect.IPropertyInfo;
 import gw.lang.reflect.IType;
@@ -17,10 +16,9 @@ import gw.lang.reflect.PropertyInfoBuilder;
 import gw.lang.reflect.TypeInfoBase;
 import gw.lang.reflect.IRelativeTypeInfo.Accessibility;
 import gw.lang.reflect.java.IJavaType;
-import gw.lang.reflect.gs.IGosuObject;
 import gw.util.concurrent.LazyVar;
 import gw.lang.reflect.IEnumValue;
-import org.jschema.util.JSONUtils;
+import org.jschema.util.JSchemaUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -139,7 +137,7 @@ public class JsonTypeInfo extends TypeInfoBase {
   }
   
   private PropertyInfoBuilder create(final String originalName) {
-    String propertyName = JSONUtils.convertJSONStringToGosuIdentifier(originalName);
+    String propertyName = JSchemaUtils.convertJSONStringToGosuIdentifier(originalName);
 	  propertyNames.put(propertyName, originalName);
     return new PropertyInfoBuilder()
       .withName(propertyName).withWritable(true)
@@ -278,7 +276,7 @@ public class JsonTypeInfo extends TypeInfoBase {
 	}
 	
 	private IType findIType(String key) {
-    return TypeSystem.getByFullName(getOwnersType().getName() + "." + JSONUtils.convertJSONStringToGosuIdentifier(key));
+    return TypeSystem.getByFullName(getOwnersType().getName() + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(key));
   }
 	
 	private void addMapProperty(String key, Object o) {

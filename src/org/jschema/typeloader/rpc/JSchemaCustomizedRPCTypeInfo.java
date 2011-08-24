@@ -22,13 +22,14 @@ public class JSchemaCustomizedRPCTypeInfo extends JSchemaRPCTypeInfoBase
   }
 
   @Override
-  protected String handleRPCMethodInvocation(Object ctx, Map<String, String> argsMap) {
+  protected String handleRPCMethodInvocation(Object ctx, String method, Map<String, String> argsMap) {
     CustomRPCInstance customRPCInstance = (CustomRPCInstance) ctx;
     RPCConfig config = customRPCInstance.getConfig();
     String url = customRPCInstance.getUrl();
     if (url == null || "".equals(url)) {
       url = getOwnersType().getDefaultURL();
     }
+    url = url + "/" + method;
     return config.getCallHandler().handleCall(config.getMethod().name(),
       url, argsMap);
   }
