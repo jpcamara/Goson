@@ -7,6 +7,7 @@ uses org.jschema.rpc.*
 uses org.jschema.examples.rpc.Sample1
 uses org.jschema.examples.rpc.Sample1.GetEmployee
 uses org.jschema.examples.rpc.Sample1.UpdateEmployee.Employee
+uses org.jschema.examples.rpc.Sample2
 
 class JSchemaRPCTypesTest extends GosonTest {
 
@@ -63,5 +64,24 @@ class JSchemaRPCTypesTest extends GosonTest {
      }
    }
  }
+
+ function testBootstrapWithTypeDef() {
+ 
+   var emp = Sample2
+                .with( :handler = \ method, url, args -> '{ "first_name" : "Joe", "last_name" : "Blow", "age" : 21, "id" : 42 }' )
+                .getEmployee(22)
+
+   assertEquals( "Joe", emp.FirstName )
+   assertEquals( "Blow", emp.LastName )
+   assertEquals( 21, emp.Age )
+
+   var result = Sample2
+                .with( :handler = \ method, url, args -> 'true' )
+                .updateEmployee(emp)
+
+   assertTrue( result )
+ }
+
+
 
 }

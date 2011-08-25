@@ -9,10 +9,12 @@ import java.util.Map;
 abstract class JSchemaRPCTypeBase extends JSchemaTypeBase {
 
   private Map _object;
+  private Map<String, String> _typeDefs;
 
-  public JSchemaRPCTypeBase(String name, ITypeLoader typeloader, Object object) {
+  public JSchemaRPCTypeBase(String name, ITypeLoader typeloader, Object object, Map<String, String> typeDefs) {
     super(name, typeloader, object);
     _object = (Map) object;
+    _typeDefs = typeDefs;
   }
 
   public List<Map> getFunctions() {
@@ -21,5 +23,9 @@ abstract class JSchemaRPCTypeBase extends JSchemaTypeBase {
 
   public String getDefaultURL() {
     return (String) _object.get("url");
+  }
+
+  public Map<String, String> getTypeDefs() {
+    return _typeDefs;
   }
 }

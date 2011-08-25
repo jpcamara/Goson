@@ -20,7 +20,7 @@ public class JsonEnumType extends JsonType implements IEnumType {
   private List<IEnumValue> values = new ArrayList<IEnumValue>();
 
   public JsonEnumType(String name, ITypeLoader typeloader, final Object object) {
-    super(name, typeloader, object);
+    super(name, typeloader, object, Collections.EMPTY_MAP);
     List obj = (List)((Map)object).get("enum");
     if (obj == null || !(obj instanceof List)) {
       throw new RuntimeException("An enum must be an array of values.");

@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 public class JSchemaRPCType extends JSchemaRPCTypeBase  implements IJSchemaRPCType {
-  public JSchemaRPCType(String name, ITypeLoader typeloader, Object object) {
-    super(name, typeloader, object);
+  public JSchemaRPCType(String name, ITypeLoader typeloader, Object object, Map<String, String> typeDefs) {
+    super(name, typeloader, object, typeDefs);
   }
 
   @Override
