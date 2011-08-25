@@ -94,7 +94,15 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
 
   private IType getType(String s, Object type) {
     if (type instanceof String) {
-      return JsonTypeInfo.findJavaType((String) type);
+      IJavaType javaType = JsonTypeInfo.findJavaType((String) type);
+      if (javaType != null) {
+        return javaType;
+      }
+
+      String name = getOwnersType().getTypeDefs().get((String) type);
+      if (name != null) {
+        return TypeSystem.getByFullName(name);
+      }
     } else if (type instanceof List) {
       return IJavaType.LIST.getParameterizedType(getType(s, ((List) type).get(0)));
     } else if (type instanceof Map) {
@@ -103,9 +111,8 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
       } else {
         return TypeSystem.getByFullName(s);
       }
-    } else {
-      throw new IllegalArgumentException("Don't know how to create a type for " + type);
     }
+    throw new IllegalArgumentException("Don't know how to create a type for " + type);
   }
 
   @Override

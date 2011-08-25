@@ -180,7 +180,24 @@ public class JsonTypeInfo extends TypeInfoBase {
 	  PropertyInfoBuilder property = create(name);
 	  return property.withType(IJavaType.HASHMAP.getParameterizedType(IJavaType.STRING, value)).build(this);
 	}
-	
+
+  public IType findNamedType(String typeName) {
+    if (typeName.equals("self")) {
+      return getOwnersType();
+    }
+    IJavaType javaType = findJavaType(typeName);
+    if (javaType != null) {
+      return javaType;
+    }
+
+    String typeDefType = getOwnersType().getTypeDefs().get(typeName);
+    if (typeDefType != null) {
+      return TypeSystem.getByFullName(typeDefType);
+    }
+
+    return null;
+  }
+
 	public static IJavaType findJavaType(String typeName) {
 	  IJavaType t = TYPES.get(typeName);
 	  if (t == null) {
@@ -252,7 +269,7 @@ public class JsonTypeInfo extends TypeInfoBase {
     			}
     			properties.add(createWithListType(key, propertyType));
         } else {
-          properties.add(createWithListType(key, findJavaType((String)firstEntry)));
+          properties.add(createWithListType(key, findNamedType((String) firstEntry)));
         }
     	  continue;
     	}
@@ -262,11 +279,11 @@ public class JsonTypeInfo extends TypeInfoBase {
           " a string name of the desired type");
       }
       
-      IJavaType javaType = findJavaType((String)value);
-      if (javaType != null) {
-        properties.add(createWithType(key, javaType));
+      IType type = findNamedType((String) value);
+      if (type != null) {
+        properties.add(createWithType(key, type));
       }
-      if (javaType == IJavaType.ENUM) {
+      if (type == IJavaType.ENUM) {
         continue; //no properties for the enum, they're at the type level?
       } else if (json.get(key) == null) {
     		Logger.getLogger(getClass().getName()).log(Level.FINE, 
@@ -285,7 +302,7 @@ public class JsonTypeInfo extends TypeInfoBase {
       IType ownerType = getOwnersType();
       valueType = findIType(key);
     } else {
-      valueType = findJavaType((String)o);
+      valueType = findNamedType((String) o);
     }
     properties.add(createWithMapType(key, valueType));
 	}

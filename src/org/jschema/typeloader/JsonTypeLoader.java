@@ -41,7 +41,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
     if (types.isEmpty()) {
       for (JsonFile jshFile : jscFiles.get()) {
         try {
-          addTypes(types, jshFile.rootTypeName, jshFile.content);
+          addTypes(types, new Stack<Map<String, String>>(), jshFile.rootTypeName, jshFile.content);
         } catch (Exception e) {
           throw GosuExceptionUtil.forceThrow(e);
         }
@@ -57,7 +57,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
     }
   }
 
-  private void addTypes(Map<String, IType> types, String name, Object o) {
+  private void addTypes(Map<String, IType> types, Stack<Map<String, String>> typeDefs, String name, Object o) {
     if (o instanceof List && !((List)o).isEmpty()) {
       o = ((List)o).get(0);
     }
@@ -66,22 +66,55 @@ public class JsonTypeLoader extends TypeLoaderBase {
       if (jsonMap.get("enum") != null) {
         types.put(name, new JsonEnumType(name, this, o));
       } else if (jsonMap.get("map_of") != null) {
-        addTypes(types, name, jsonMap.get("map_of"));
+        addTypes(types, typeDefs, name, jsonMap.get("map_of"));
       } else {
-        for (Object key : jsonMap.keySet()) {
-          addTypes(types,
-            name + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(key.toString()),
-            jsonMap.get(key));
+        try {
+          typeDefs.push(new HashMap<String, String>());
+          processTypeDefs(types, typeDefs, name, jsonMap);
+          for (Object key : jsonMap.keySet()) {
+            addTypes(types, typeDefs, name + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(key.toString()),
+              jsonMap.get(key));
+          }
+          types.put(name, new JsonType(name, this, o, copyTypeDefs(typeDefs)));
+        } finally {
+          typeDefs.pop();
         }
-        types.put(name, new JsonType(name, this, o));
+      }
+    }
+  }
+
+  private Map<String, String> copyTypeDefs(Stack<Map<String, String>> typeDefs) {
+    HashMap<String, String> allTypeDefs = new HashMap<String, String>();
+    for (Map<String, String> typeDef : typeDefs) {
+      allTypeDefs.putAll(typeDef);
+    }
+    return allTypeDefs;
+  }
+
+  private void processTypeDefs(Map<String, IType> types, Stack<Map<String, String>> typeDefs, String name, Map o) {
+    Object currentTypeDefs = o.get("typedefs@");
+    if (currentTypeDefs instanceof Map) {
+      Set set = ((Map) currentTypeDefs).keySet();
+      List<JsonType> previousTypeDefs = new ArrayList<JsonType>();
+      for (Object typeDefTypeName : set) {
+        String rawName = typeDefTypeName.toString();
+        String relativeName = JSchemaUtils.convertJSONStringToGosuIdentifier(rawName);
+        String fullyQualifiedName = name + "." + relativeName;
+        typeDefs.peek().put(rawName, fullyQualifiedName);
+        addTypes(types, typeDefs, fullyQualifiedName, ((Map) currentTypeDefs).get(typeDefTypeName));
+        for (JsonType previousTypeDef : previousTypeDefs) {
+          previousTypeDef.getTypeDefs().put(rawName, fullyQualifiedName);
+        }
+        previousTypeDefs.add((JsonType) types.get(fullyQualifiedName));
       }
     }
   }
 
   private void addRpcTypes(Map<String, IType> types, String name, Object o) {
-    types.put(name, new JSchemaRPCType(name, this, o));
-    types.put(name + JSchemaCustomizedRPCType.TYPE_SUFFIX, new JSchemaCustomizedRPCType(name + JSchemaCustomizedRPCType.TYPE_SUFFIX, this, o));
+    Stack<Map<String, String>> typeDefs = new Stack<Map<String, String>>();
+    typeDefs.push(new HashMap<String, String>());
     if (o instanceof Map) {
+      processTypeDefs(types, typeDefs, name, (Map) o);
       Object functions = ((Map) o).get("functions");
       if (functions instanceof List) {
         for (Object function : (List) functions) {
@@ -101,7 +134,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
                       continue;
                     } else {
                       addTypes(types,
-                        functionTypeName + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(key.toString()),
+                        typeDefs, functionTypeName + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(key.toString()),
                         ((Map) arg).get(key));
                     }
                   }
@@ -110,10 +143,12 @@ public class JsonTypeLoader extends TypeLoaderBase {
               }
             }
             // add the return type
-            addTypes(types, functionTypeName, ((Map) function).get("returns"));
+            addTypes(types, typeDefs, functionTypeName, ((Map) function).get("returns"));
           }
         }
       }
+      types.put(name, new JSchemaRPCType(name, this, o, typeDefs.peek()));
+      types.put(name + JSchemaCustomizedRPCType.TYPE_SUFFIX, new JSchemaCustomizedRPCType(name + JSchemaCustomizedRPCType.TYPE_SUFFIX, this, o, typeDefs.peek()));
     }
   }
 
