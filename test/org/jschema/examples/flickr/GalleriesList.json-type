@@ -1,0 +1,22 @@
+{
+    "galleries" : [{
+      "id" : "5704-72157622637971865",
+      "url" : "http://www.flickr.com/photos/george/galleries/72157622637971865",
+      "owner" : "34427469121@N01",
+      "date_create" : 1257711422,
+      "date_update" : 1260360756,
+      "primary_photo_id" : "107391222",
+      "primary_photo_server" : 39,
+      "primary_photo_farm" : 1,
+      "primary_photo_secret" : "ffa",
+      "count_photos" : 16,
+      "count_videos" : 2,
+      "title" : "I like me some black & white",
+      "description" : "black and whites"
+    }],
+    "total" : 9,
+    "page" : 1,
+    "pages" : 1,
+    "per_page" : 100,
+    "user_id" : "34427469121@N01"
+}

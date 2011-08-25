@@ -2,10 +2,7 @@ package org.jschema.typeloader.rpc;
 
 import gw.lang.reflect.*;
 import gw.lang.reflect.java.IJavaType;
-import org.jschema.parser.JSONParser;
-import org.jschema.typeloader.IJsonType;
-import org.jschema.typeloader.Json;
-import org.jschema.typeloader.JsonTypeInfo;
+import org.jschema.typeloader.JSchemaTypeInfo;
 import org.jschema.util.JSchemaUtils;
 
 import java.util.*;
@@ -94,7 +91,7 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
 
   private IType getType(String s, Object type) {
     if (type instanceof String) {
-      IJavaType javaType = JsonTypeInfo.findJavaType((String) type);
+      IJavaType javaType = JSchemaTypeInfo.findJavaType((String) type);
       if (javaType != null) {
         return javaType;
       }

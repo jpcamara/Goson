@@ -1,0 +1,20 @@
+{
+  "some_type": {
+    "big_int_ex": 1213,
+    "string_ex": "content",
+    "boolean_ex": true,
+    "type_in_array": [{
+      "content": "more content"
+    }],
+    "nested_type": {
+      "nested_string_ex": "nested content",
+      "nested_type_in_array": [{
+        "value": "string"
+      }],
+      "big_int_array_ex": [12321],
+      "string_array_ex": ["string array content"],
+      "nested_big_int_ex" : 213123,
+      "nested_big_decimal_ex" : 123123.1231
+    }
+  }
+}

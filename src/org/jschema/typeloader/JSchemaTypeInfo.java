@@ -32,7 +32,7 @@ import java.io.InputStreamReader;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
-public class JsonTypeInfo extends TypeInfoBase {
+public class JSchemaTypeInfo extends TypeInfoBase {
   private static final String ENUM_KEY = "enum";
   
   private static final Map<String, IJavaType> TYPES = new HashMap<String, IJavaType>();
@@ -48,7 +48,7 @@ public class JsonTypeInfo extends TypeInfoBase {
     TYPES.put("map_of", IJavaType.MAP);
   }
 
-  private JsonType owner;
+  private JSchemaType owner;
   private Map json;
   private Map<String, String> propertyNames = new HashMap<String, String>();
   private List<IPropertyInfo> properties;
@@ -67,7 +67,7 @@ public class JsonTypeInfo extends TypeInfoBase {
     				return me.serialize(-1);
     			}
     		})
-    		.build(JsonTypeInfo.this));
+    		.build(JSchemaTypeInfo.this));
     	typeMethods.add(new MethodInfoBuilder()
     		.withName("prettyPrint")
     		.withReturnType(IJavaType.STRING)
@@ -79,7 +79,7 @@ public class JsonTypeInfo extends TypeInfoBase {
     				return me.serialize(2);
     			}
     		})
-    		.build(JsonTypeInfo.this));    		
+    		.build(JSchemaTypeInfo.this));
     	typeMethods.add(parseMethod()
     		.withParameters(new ParameterInfoBuilder()
     			.withType(IJavaType.STRING)
@@ -89,13 +89,13 @@ public class JsonTypeInfo extends TypeInfoBase {
     			public Object handleCall(Object ctx, Object... args) {
     				String content = (String)args[0];
     				try {
-    					return new Json(content, JsonTypeInfo.this);
+    					return new Json(content, JSchemaTypeInfo.this);
     				} catch (Exception e) {
     					throw new RuntimeException(e);
     				}
     			}
     		})
-    		.build(JsonTypeInfo.this));
+    		.build(JSchemaTypeInfo.this));
     	typeMethods.add(parseMethod()
     		.withParameters(new ParameterInfoBuilder()
     			.withType(TypeSystem.get(java.net.URL.class))
@@ -112,13 +112,13 @@ public class JsonTypeInfo extends TypeInfoBase {
       				  builder.append(line);
       				  line = reader.readLine();
       				}
-    					return new Json(builder.toString(), JsonTypeInfo.this);
+    					return new Json(builder.toString(), JSchemaTypeInfo.this);
     				} catch (Exception e) {
     					throw new RuntimeException(e);
     				}
     			}
     		})
-    		.build(JsonTypeInfo.this));    		
+    		.build(JSchemaTypeInfo.this));
     	return typeMethods;
     }
     
@@ -130,7 +130,7 @@ public class JsonTypeInfo extends TypeInfoBase {
     }
   };
     
-  public JsonTypeInfo(JsonType owner, Object object) {
+  public JSchemaTypeInfo(JSchemaType owner, Object object) {
     this.owner = owner;
     this.json = (Map)object;
     createProperties();
@@ -207,11 +207,11 @@ public class JsonTypeInfo extends TypeInfoBase {
 	}
 	
 	private void createEnumProperties(final String key, List enumCodes) {
-	  JsonEnumType type = (JsonEnumType)getOwnersType();
+	  JSchemaEnumType type = (JSchemaEnumType)getOwnersType();
     try {
       for (int i = 0; i < enumCodes.size(); i++) {
         final String code = (String)enumCodes.get(i);
-        final String enumified = JsonEnumType.enumify(code);
+        final String enumified = JSchemaEnumType.enumify(code);
         final IEnumValue value = type.getEnumValue(enumified);
         
     	  propertyNames.put(enumified, code);
@@ -311,7 +311,7 @@ public class JsonTypeInfo extends TypeInfoBase {
 			.withConstructorHandler(new IConstructorHandler() {
 				@Override
 				public Object newInstance(Object... args) {
-					Json j = new Json(JsonTypeInfo.this.getOwnersType());
+					Json j = new Json(JSchemaTypeInfo.this.getOwnersType());
 					return j;
 				}
 			}).withAccessibility(Accessibility.PUBLIC).build(this);
@@ -368,7 +368,7 @@ public class JsonTypeInfo extends TypeInfoBase {
 	}
 
 	@Override
-	public JsonType getOwnersType() {
+	public JSchemaType getOwnersType() {
 		return owner;
 	}
 
