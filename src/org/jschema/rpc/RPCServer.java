@@ -5,8 +5,11 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import gw.lang.IReentrant;
 import gw.util.GosuExceptionUtil;
+import gw.util.StreamUtil;
 import org.jschema.util.JSchemaUtils;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -61,27 +64,28 @@ public class RPCServer implements IReentrant {
       String path = httpExchange.getRequestURI().getPath();
       for (RPCEndPoint endPoint : _endPoints) {
         if (endPoint.handles(path)) {
-          Map<String, String> args = new HashMap<String, String>();
           if (httpExchange.getRequestMethod().equals("GET")) {
-            String query = httpExchange.getRequestURI().getQuery();
-            String[] argArray = query.split("&");
-            for (String arg : argArray) {
-              String[] pair = arg.split("=");
-              if (pair.length == 2) {
-                args.put(URLDecoder.decode(pair[0]), URLDecoder.decode(pair[1]));
-              } else if (pair.length == 1) {
-                args.put(URLDecoder.decode(pair[0]), null);
-              }
-            }
-            writeResponse(httpExchange, 200, endPoint.handle(path, args));
+            handleRequest(httpExchange, path, endPoint, httpExchange.getRequestURI().getQuery());
           } else if (httpExchange.getRequestMethod().equals("POST")) {
-            writeResponse(httpExchange, 501, "'{' \"@@exception\" : \"Post not implemented!\" }");
-            return;
+            handleRequest(httpExchange, path, endPoint, new String(StreamUtil.getContent(httpExchange.getRequestBody())));
           }
-          writeResponse(httpExchange, 200, endPoint.handle(path, args));
         }
       }
       writeResponse(httpExchange, 404, JSchemaUtils.createExceptionJSON("No JSchema end point was found at '" + path + "'"));
+    }
+
+    private void handleRequest(HttpExchange httpExchange, String path, RPCEndPoint endPoint, String data) throws IOException {
+      Map<String, String> args = new HashMap<String, String>();
+      String[] argArray = data.split("&");
+      for (String arg : argArray) {
+        String[] pair = arg.split("=");
+        if (pair.length == 2) {
+          args.put(URLDecoder.decode(pair[0]), URLDecoder.decode(pair[1]));
+        } else if (pair.length == 1) {
+          args.put(URLDecoder.decode(pair[0]), null);
+        }
+      }
+      writeResponse(httpExchange, 200, endPoint.handle(path, args));
     }
 
     private void writeResponse(HttpExchange httpExchange, int responseCode, String message) throws IOException {
