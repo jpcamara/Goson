@@ -55,6 +55,20 @@ class JSchemaRPCTypesTest extends GosonTest {
    }
  }
 
+ function testBootstrapFileRemotelyWithPost() {
+   var server = new RPCServer()
+   server.addEndPoint( new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) )
+   using( server ) {
+     var emp = Sample1.getEmployee(22)
+
+     assertEquals( "Joe", emp.FirstName )
+     assertEquals( "Blow", emp.LastName )
+     assertEquals( 21, emp.Age )
+     //TODO cgross - need to do context sensitive parsing and produce an actual BigInteger
+  //   assertEquals( 42, emp.Id )
+   }
+ }
+
  class Impl1 {
    function getEmployee( id : int ) : GetEmployee {
      return new GetEmployee() {
