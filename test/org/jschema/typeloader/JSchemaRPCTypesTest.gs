@@ -131,7 +131,9 @@ class JSchemaRPCTypesTest extends GosonTest {
         ThrowsExceptions.npeException()
         fail("Should have thrown an NPE")
       } catch (npe : java.lang.NullPointerException) {
-        //pass
+        var stackTrace = npe.StackTraceAsString
+        assertTrue( stackTrace.contains("at org.jschema.typeloader.JSchemaRPCTypesTest$ThrowsImpl.npeException") )
+        assertTrue( stackTrace.contains("at org.jschema.examples.rpc.ThrowsExceptions.npeException()") )
       }
     }
  }
