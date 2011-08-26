@@ -31,7 +31,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class JsonTypeLoaderTest extends GosonTest {
+public class JSchemaTypeLoaderTest extends GosonTest {
 
   public void testBasicGosonTypes() {
     IType nameAndAge = TypeSystem.getByFullName("org.jschema.examples.NameAndAge");
@@ -58,6 +58,14 @@ public class JsonTypeLoaderTest extends GosonTest {
 
     assertNull(TypeSystem.getByFullNameIfValid("org.jschema.examples.rpc.Sample1.UpdateEmployee"));
     assertNotNull(TypeSystem.getByFullName("org.jschema.examples.rpc.Sample1.UpdateEmployee.Employee"));
+  }
+
+  public void testJsonTypes() {
+    assertNotNull(TypeSystem.getByFullName("org.jschema.examples.flickr.GalleriesList"));
+
+    assertNotNull(TypeSystem.getByFullName("org.jschema.examples.flickr.GalleriesList.Galleries"));
+
+    //assertNull(TypeSystem.getByFullNameIfValid("org.jschema.examples.RegularJson"));
   }
 
 }

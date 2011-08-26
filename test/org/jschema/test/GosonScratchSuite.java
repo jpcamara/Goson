@@ -2,10 +2,7 @@ package org.jschema.test;
 
 import gw.lang.reflect.IHasJavaClass;
 import gw.lang.reflect.TypeSystem;
-import gw.lang.reflect.java.IJavaBackedType;
 import junit.framework.TestSuite;
-import org.jschema.typeloader.JsonTypeLoader;
-import org.jschema.typeloader.JsonTypeLoaderTest;
 
 import java.util.ArrayList;
 import java.util.List;

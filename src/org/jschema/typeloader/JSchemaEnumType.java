@@ -1,25 +1,20 @@
 package org.jschema.typeloader;
 
 import gw.lang.reflect.IType;
-import gw.lang.reflect.ITypeInfo;
 import gw.lang.reflect.ITypeLoader;
 import gw.lang.reflect.IEnumType;
 import gw.lang.reflect.IEnumValue;
-import gw.lang.reflect.TypeBase;
-import gw.lang.reflect.java.IJavaType;
-import gw.util.concurrent.LazyVar;
 
 import java.util.*;
-import java.util.logging.Logger;
-import gw.lang.reflect.TypeSystem;
+
 import gw.lang.reflect.gs.IGosuObject;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-public class JsonEnumType extends JsonType implements IEnumType {
+public class JSchemaEnumType extends JSchemaType implements IEnumType {
   private List<IEnumValue> values = new ArrayList<IEnumValue>();
 
-  public JsonEnumType(String name, ITypeLoader typeloader, final Object object) {
+  public JSchemaEnumType(String name, ITypeLoader typeloader, final Object object) {
     super(name, typeloader, object, Collections.EMPTY_MAP);
     List obj = (List)((Map)object).get("enum");
     if (obj == null || !(obj instanceof List)) {
@@ -56,7 +51,7 @@ public class JsonEnumType extends JsonType implements IEnumType {
 
     public JsonEnumValue(String value) {
       originalValue = value;
-      code = JsonEnumType.enumify(value);
+      code = JSchemaEnumType.enumify(value);
       displayName = code;
     }
     
@@ -87,7 +82,7 @@ public class JsonEnumType extends JsonType implements IEnumType {
     
     @Override
   	public IType getIntrinsicType() {
-      return JsonEnumType.this;
+      return JSchemaEnumType.this;
   	}
   }
 }

@@ -16,14 +16,15 @@ import org.jschema.util.JSchemaUtils;
 import java.io.*;
 import java.util.*;
 
-public class JsonTypeLoader extends TypeLoaderBase {
+public class JSchemaTypeLoader extends TypeLoaderBase {
 
   private Map<String, IType> types = new HashMap<String, IType>();
 
   private static final String JSC_RPC_EXT = "jsc-rpc";
   private static final String JSC_EXT = "jsc";
+  private static final String JSON_EXT = "json-type";
 
-  public JsonTypeLoader(IModule env) {
+  public JSchemaTypeLoader(IModule env) {
     super(env);
   }
 
@@ -53,7 +54,14 @@ public class JsonTypeLoader extends TypeLoaderBase {
           throw GosuExceptionUtil.forceThrow(e);
         }
       }
-      System.out.println(types.keySet());
+      for (JsonFile jsonFile : jsonFiles.get()) {
+        try {
+          jsonFile.content = JSchemaUtils.convertJsonToJSchema(jsonFile.content);
+          addTypes(types, new Stack<Map<String, String>>(), jsonFile.rootTypeName, jsonFile.content);
+        } catch (Exception e) {
+          throw GosuExceptionUtil.forceThrow(e);
+        }
+      }
     }
   }
 
@@ -64,7 +72,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
     if (o instanceof Map) {
       Map<Object, Object> jsonMap = (Map<Object, Object>)o;
       if (jsonMap.get("enum") != null) {
-        types.put(name, new JsonEnumType(name, this, o));
+        types.put(name, new JSchemaEnumType(name, this, o));
       } else if (jsonMap.get("map_of") != null) {
         addTypes(types, typeDefs, name, jsonMap.get("map_of"));
       } else {
@@ -75,7 +83,7 @@ public class JsonTypeLoader extends TypeLoaderBase {
             addTypes(types, typeDefs, name + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(key.toString()),
               jsonMap.get(key));
           }
-          types.put(name, new JsonType(name, this, o, copyTypeDefs(typeDefs)));
+          types.put(name, new JSchemaType(name, this, o, copyTypeDefs(typeDefs)));
         } finally {
           typeDefs.pop();
         }
@@ -95,17 +103,17 @@ public class JsonTypeLoader extends TypeLoaderBase {
     Object currentTypeDefs = o.get("typedefs@");
     if (currentTypeDefs instanceof Map) {
       Set set = ((Map) currentTypeDefs).keySet();
-      List<JsonType> previousTypeDefs = new ArrayList<JsonType>();
+      List<JSchemaType> previousTypeDefs = new ArrayList<JSchemaType>();
       for (Object typeDefTypeName : set) {
         String rawName = typeDefTypeName.toString();
         String relativeName = JSchemaUtils.convertJSONStringToGosuIdentifier(rawName);
         String fullyQualifiedName = name + "." + relativeName;
         typeDefs.peek().put(rawName, fullyQualifiedName);
         addTypes(types, typeDefs, fullyQualifiedName, ((Map) currentTypeDefs).get(typeDefTypeName));
-        for (JsonType previousTypeDef : previousTypeDefs) {
+        for (JSchemaType previousTypeDef : previousTypeDefs) {
           previousTypeDef.getTypeDefs().put(rawName, fullyQualifiedName);
         }
-        previousTypeDefs.add((JsonType) types.get(fullyQualifiedName));
+        previousTypeDefs.add((JSchemaType) types.get(fullyQualifiedName));
       }
     }
   }
@@ -182,6 +190,13 @@ public class JsonTypeLoader extends TypeLoaderBase {
     @Override
     protected List<JsonFile> init() {
       return findFilesOfType(JSC_RPC_EXT);
+    }
+  };
+
+  private LazyVar<List<JsonFile>> jsonFiles = new LazyVar<List<JsonFile>>() {
+    @Override
+    protected List<JsonFile> init() {
+      return findFilesOfType(JSON_EXT);
     }
   };
 

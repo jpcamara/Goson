@@ -1,13 +1,10 @@
 package org.jschema.typeloader;
 
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.Map;
 import java.util.HashMap;
-import java.math.*;
 
 import java.util.Date;
 import java.math.BigInteger;
@@ -15,11 +12,9 @@ import java.math.BigDecimal;
 
 import gw.lang.reflect.IType;
 import gw.lang.reflect.IPropertyInfo;
-import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.gs.IGosuObject;
 import gw.lang.reflect.java.IJavaType;
 import gw.lang.reflect.IEnumType;
-import gw.lang.reflect.IEnumValue;
 
 import org.jschema.parser.JSONParser;
 
@@ -42,15 +37,15 @@ public class Json implements IGosuObject {
 
   /**
   * Creates Json object, validating structure of the json 
-  * string against the JsonTypeInfo provided.
+  * string against the JSchemaTypeInfo provided.
   */
-  public Json(String json, JsonTypeInfo structure) {
+  public Json(String json, JSchemaTypeInfo structure) {
     this.type = structure.getOwnersType();
     this.json = createJson((Map)JSONParser.parseJSON(json), structure);
   }
 
   //TODO add validity checks to verify the type is correct before parsing it.
-  private Map createJson(Map it, JsonTypeInfo structure) {
+  private Map createJson(Map it, JSchemaTypeInfo structure) {
     for (IPropertyInfo info : structure.getProperties()) {
       IType featureType = info.getFeatureType();
       String jsonName = structure.getJsonPropertyName(info.getName());
@@ -65,10 +60,10 @@ public class Json implements IGosuObject {
         it.put(jsonName, parse.parse(o));
       //Hackadoodledoo to determine if it's a custom json type
       } else if (!(featureType instanceof IJavaType) && !(featureType instanceof gw.internal.gosu.parser.IJavaTypeInternal)) {
-        if (o instanceof String) { //JsonEnumType
+        if (o instanceof String) { //JSchemaEnumType
           it.put(jsonName, o);
         } else {
-          it.put(jsonName, new Json(createJson((Map)o, (JsonTypeInfo)featureType.getTypeInfo()), featureType));
+          it.put(jsonName, new Json(createJson((Map)o, (JSchemaTypeInfo)featureType.getTypeInfo()), featureType));
         }
       } else if (featureType instanceof gw.internal.gosu.parser.IJavaTypeInternal) { //hack to determine list
         if (o instanceof List) {
@@ -94,7 +89,7 @@ public class Json implements IGosuObject {
             if (valueParser == null) {
               jsonMap.put(keyParser.parse(itKey), 
                 new Json(createJson((Map)jsonObj.get(itKey), 
-                        (JsonTypeInfo)featureType.getTypeParameters()[1].getTypeInfo()),
+                        (JSchemaTypeInfo)featureType.getTypeParameters()[1].getTypeInfo()),
                         featureType.getTypeParameters()[1]));
             } else {
               jsonMap.put(keyParser.parse(itKey), valueParser.parse(jsonObj.get(itKey)));
@@ -114,11 +109,11 @@ public class Json implements IGosuObject {
       if (parser == null) {
         if (arr.get(i) instanceof String) { //enum
           IEnumType enumType = (IEnumType)type;
-          list.add(enumType.getEnumValue(JsonEnumType.enumify((String)arr.get(i))));
+          list.add(enumType.getEnumValue(JSchemaEnumType.enumify((String) arr.get(i))));
           continue;
         } else {
           list.add(new Json(createJson((Map)arr.get(i), 
-                  (JsonTypeInfo)type.getTypeInfo()), type));
+                  (JSchemaTypeInfo)type.getTypeInfo()), type));
           continue;
         }
       }
@@ -149,8 +144,8 @@ public class Json implements IGosuObject {
       Object value = get(key);
 
       //enum
-      if (value instanceof JsonEnumType.JsonEnumValue) {
-        JsonEnumType.JsonEnumValue enumVal = (JsonEnumType.JsonEnumValue)value;
+      if (value instanceof JSchemaEnumType.JsonEnumValue) {
+        JSchemaEnumType.JsonEnumValue enumVal = (JSchemaEnumType.JsonEnumValue)value;
         output.put(key, enumVal.getJsonCode());
       //list
       } else if (value instanceof List) {
@@ -180,8 +175,8 @@ public class Json implements IGosuObject {
               array.add(((BigInteger)o).longValue());
             } else if (o instanceof java.util.Date) {
               array.add(o.toString());
-            } else if (o instanceof JsonEnumType.JsonEnumValue) {
-              JsonEnumType.JsonEnumValue enumVal = (JsonEnumType.JsonEnumValue)o;
+            } else if (o instanceof JSchemaEnumType.JsonEnumValue) {
+              JSchemaEnumType.JsonEnumValue enumVal = (JSchemaEnumType.JsonEnumValue)o;
               array.add(enumVal.getJsonCode());
             }
           }

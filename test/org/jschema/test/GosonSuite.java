@@ -1,17 +1,12 @@
 package org.jschema.test;
 
-import com.sun.source.tree.ModifiersTree;
-import gw.fs.ResourcePath;
-import gw.fs.physical.PhysicalDirectoryImpl;
 import gw.lang.init.GosuInitialization;
-import gw.lang.init.GosuPathEntry;
 import gw.lang.reflect.IHasJavaClass;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeSystem;
-import gw.lang.reflect.java.IJavaBackedType;
 import gw.lang.shell.Gosu;
 import junit.framework.TestSuite;
-import org.jschema.typeloader.JsonTypeLoader;
+import org.jschema.typeloader.JSchemaTypeLoader;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -56,9 +51,9 @@ public class GosonSuite extends TestSuite {
     if (!GosuInitialization.isInitialized()) {
       Gosu.init();
 
-      // check to see if there is a JsonTypeLoader around, and create one if not
-      if (TypeSystem.getTypeLoader(JsonTypeLoader.class) == null) {
-        TypeSystem.pushGlobalTypeLoader(new JsonTypeLoader(TypeSystem.getCurrentModule()));
+      // check to see if there is a JSchemaTypeLoader around, and create one if not
+      if (TypeSystem.getTypeLoader(JSchemaTypeLoader.class) == null) {
+        TypeSystem.pushGlobalTypeLoader(new JSchemaTypeLoader(TypeSystem.getCurrentModule()));
       }
 
       TypeSystem.refresh(true);
