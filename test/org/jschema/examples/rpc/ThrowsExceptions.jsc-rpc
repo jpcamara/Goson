@@ -1,0 +1,15 @@
+{
+  "url" : "http://localhost:12321/throws",
+
+  "functions" : [
+    { "name" : "exception",
+      "args" : []
+    },
+    { "name" : "deepException",
+      "args" : [ {"depth" : "integer"} ]
+    },
+    { "name" : "npeException",
+      "args" : []
+    }
+  ]
+}

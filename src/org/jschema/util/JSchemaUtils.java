@@ -15,6 +15,11 @@ import java.util.Map;
 
 public class JSchemaUtils {
 
+  public static final String JSCHEMA_EXCEPTION_KEY = "exception@";
+  public static final String JSCHEMA_TRACE_KEY = "trace@";
+  public static final String JSCHEMA_EXCEPTION_TYPE_KEY = "exception_type@";
+  public static final String JSCHEMA_TYPEDEFS_KEY = "typedefs@";
+
   //TODO use Character.isJavaIdentifierPart() to scrub bad characters?
   public static String convertJSONStringToGosuIdentifier(String name) {
     return convertJSONStringToGosuIdentifier(name, true);
@@ -37,13 +42,21 @@ public class JSchemaUtils {
   }
 
   public static String createExceptionJSON(String msg) {
-    return "'{' \"@@exception\" : \"" + GosuEscapeUtil.escapeForGosuStringLiteral(msg) + "\" }";
+    msg = msg == null ? "null" : msg;
+    return "'{' \"" + JSCHEMA_EXCEPTION_KEY + "\" : \"" + GosuEscapeUtil.escapeForGosuStringLiteral(msg) + "\" }";
   }
 
   public static String createExceptionJSON(String msg, String trace) {
-    return "{ \"@@exception\" : \"" + GosuEscapeUtil.escapeForGosuStringLiteral(msg) + "\"," +
-      " \"@@trace\" : \"" + GosuEscapeUtil.escapeForGosuStringLiteral(trace) + "\"  }";
+    msg = msg == null ? "null" : msg;
+    return "{ \"" + JSCHEMA_EXCEPTION_KEY + "\" : \"" + GosuEscapeUtil.escapeForGosuStringLiteral(msg) + "\"," +
+      " \"" + JSCHEMA_TRACE_KEY + "\" : \"" + GosuEscapeUtil.escapeForGosuStringLiteral(trace) + "\"  }";
+  }
 
+  public static String createExceptionJSON(String msg, String type, String trace) {
+    msg = msg == null ? "null" : msg;
+    return "{ \"" + JSCHEMA_EXCEPTION_KEY + "\" : \"" + GosuEscapeUtil.escapeForGosuStringLiteral(msg) + "\"," +
+      " \"" + JSCHEMA_EXCEPTION_TYPE_KEY  + "\" : \"" + type + "\"," +
+      " \"" + JSCHEMA_TRACE_KEY + "\" : \"" + GosuEscapeUtil.escapeForGosuStringLiteral(trace) + "\"  }";
   }
 
   public static Object parseJson(String json, IType rootType) {
