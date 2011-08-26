@@ -100,7 +100,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
   }
 
   private void processTypeDefs(Map<String, IType> types, Stack<Map<String, String>> typeDefs, String name, Map o) {
-    Object currentTypeDefs = o.get("typedefs@");
+    Object currentTypeDefs = o.get(JSchemaUtils.JSCHEMA_TYPEDEFS_KEY);
     if (currentTypeDefs instanceof Map) {
       Set set = ((Map) currentTypeDefs).keySet();
       List<JSchemaType> previousTypeDefs = new ArrayList<JSchemaType>();

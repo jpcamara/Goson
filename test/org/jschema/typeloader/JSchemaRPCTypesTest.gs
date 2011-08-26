@@ -5,6 +5,7 @@ uses java.lang.*
 uses org.jschema.test.*
 uses org.jschema.rpc.*
 uses org.jschema.examples.rpc.Sample1
+uses org.jschema.examples.rpc.ThrowsExceptions
 uses org.jschema.examples.rpc.Sample1.GetEmployee
 uses org.jschema.examples.rpc.Sample1.UpdateEmployee.Employee
 uses org.jschema.examples.rpc.Sample2
@@ -96,6 +97,62 @@ class JSchemaRPCTypesTest extends GosonTest {
    assertTrue( result )
  }
 
+ function testException() {
+    var server = new RPCServer()
+    server.addEndPoint( new RPCEndPoint( ThrowsExceptions, new ThrowsImpl(), "/throws" ) )
+    using( server ) {
+      try {
+        ThrowsExceptions.exception()
+        fail("Should have thrown an exception")
+      } catch( e ) {
+        //pass
+      }
+    }
+ }
 
+ function testNestedException() {
+    var server = new RPCServer()
+    server.addEndPoint( new RPCEndPoint( ThrowsExceptions, new ThrowsImpl(), "/throws" ) )
+    using( server ) {
+      try {
+        ThrowsExceptions.deepException(10)
+        fail("Should have thrown an exception")
+      } catch( e ) {
+        //pass
+      }
+    }
+ }
+
+ function testNpeException() {
+    var server = new RPCServer()
+    server.addEndPoint( new RPCEndPoint( ThrowsExceptions, new ThrowsImpl(), "/throws" ) )
+    using( server ) {
+      try {
+        ThrowsExceptions.npeException()
+        fail("Should have thrown an NPE")
+      } catch (npe : java.lang.NullPointerException) {
+        //pass
+      }
+    }
+ }
+
+ class ThrowsImpl {
+   function exception() {
+     throw "Good times, good times"
+   }
+
+   function deepException( depth : int ) {
+     if(depth <= 0) {
+       throw "Good times, good times"
+     } else {
+       deepException( depth - 1 )
+     }
+   }
+
+   function npeException() {
+     var x : String = null
+     print( x.length() )
+   }
+ }
 
 }

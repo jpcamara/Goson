@@ -10,6 +10,7 @@ import org.jschema.util.JSchemaUtils;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,20 +59,19 @@ public class RPCServer implements IReentrant {
   private class JSchemaHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
-      String path = httpExchange.getRequestURI().getPath();
       for (RPCEndPoint endPoint : _endPoints) {
-        if (endPoint.handles(path)) {
+        if (endPoint.handles(httpExchange.getRequestURI())) {
           if (httpExchange.getRequestMethod().equals("GET")) {
-            handleRequest(httpExchange, path, endPoint, httpExchange.getRequestURI().getQuery());
+            handleRequest(httpExchange, httpExchange.getRequestURI(), endPoint, httpExchange.getRequestURI().getQuery());
           } else if (httpExchange.getRequestMethod().equals("POST")) {
-            handleRequest(httpExchange, path, endPoint, new String(StreamUtil.getContent(httpExchange.getRequestBody())));
+            handleRequest(httpExchange, httpExchange.getRequestURI(), endPoint, new String(StreamUtil.getContent(httpExchange.getRequestBody())));
           }
         }
       }
-      writeResponse(httpExchange, 404, JSchemaUtils.createExceptionJSON("No JSchema end point was found at '" + path + "'"));
+      writeResponse(httpExchange, 404, JSchemaUtils.createExceptionJSON("No JSchema end point was found at '" + httpExchange.getRequestURI().toASCIIString() + "'"));
     }
 
-    private void handleRequest(HttpExchange httpExchange, String path, RPCEndPoint endPoint, String data) throws IOException {
+    private void handleRequest(HttpExchange httpExchange, URI uri, RPCEndPoint endPoint, String data) throws IOException {
       Map<String, String> args = new HashMap<String, String>();
       String[] argArray = data.split("&");
       for (String arg : argArray) {
@@ -82,7 +82,7 @@ public class RPCServer implements IReentrant {
           args.put(URLDecoder.decode(pair[0]), null);
         }
       }
-      writeResponse(httpExchange, 200, endPoint.handle(path, args));
+      writeResponse(httpExchange, 200, endPoint.handle(uri, args));
     }
 
     private void writeResponse(HttpExchange httpExchange, int responseCode, String message) throws IOException {
