@@ -7,7 +7,6 @@ import gw.util.GosuStringUtil;
 import org.jschema.rpc.JSchemaRPCException;
 import org.jschema.typeloader.JSchemaTypeInfo;
 import org.jschema.util.JSchemaUtils;
-import sun.jvm.hotspot.debugger.posix.elf.ELFSectionHeader;
 
 import java.lang.reflect.Constructor;
 import java.text.StringCharacterIterator;

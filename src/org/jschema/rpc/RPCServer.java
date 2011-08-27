@@ -7,6 +7,8 @@ import gw.lang.IReentrant;
 import gw.util.GosuExceptionUtil;
 import gw.util.StreamUtil;
 import org.jschema.util.JSchemaUtils;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;

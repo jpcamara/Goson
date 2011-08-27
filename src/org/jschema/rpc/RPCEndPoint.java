@@ -9,7 +9,6 @@ import gw.lang.reflect.java.IJavaType;
 import gw.util.GosuExceptionUtil;
 import org.jschema.typeloader.rpc.IJSchemaRPCType;
 import org.jschema.util.JSchemaUtils;
-import sun.jvm.hotspot.debugger.remote.RemoteThread;
 
 import java.net.URI;
 import java.util.List;
