@@ -4,7 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class JSONTokenizer {
-    private String _currentStringValue;
+
+  private String _currentStringValue;
+  private boolean _unescape;
   private String _contents;
   private int _line;
   private int _col;
@@ -30,6 +32,8 @@ public class JSONTokenizer {
   }
 
   private boolean moveToNextToken() {
+    _unescape = false;
+
     eatWhitespace();
 
     if (atEndOfInput()) {
@@ -142,6 +146,9 @@ public class JSONTokenizer {
       incrementOffset();
       while (!atEndOfInput() && currentChar() != '\n') {
         char current = currentChar();
+        if (current == '\\') {
+          _unescape = true;
+        }
         if (current == initial && previous != '\\') {
           incrementOffset();
           break;

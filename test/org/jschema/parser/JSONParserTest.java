@@ -126,4 +126,27 @@ public class JSONParserTest extends TestCase {
     map.put("int_key", 123123123123l);
     assertEquals("{\"int_key\" : 123123123123}", JSONParser.serializeJSON(map));
   }
+
+  public void testStrings() {
+    assertEquals("blah\"blah", JSONParser.parseJSON("\"blah\\\"blah\""));
+    assertEquals("blah\\blah", JSONParser.parseJSON("\"blah\\\\blah\""));
+    assertEquals("blah/blah", JSONParser.parseJSON("\"blah\\/blah\""));
+    assertEquals("blah\bblah", JSONParser.parseJSON("\"blah\\bblah\""));
+    assertEquals("blah\fblah", JSONParser.parseJSON("\"blah\\fblah\""));
+    assertEquals("blah\nblah", JSONParser.parseJSON("\"blah\\nblah\""));
+    assertEquals("blah\rblah", JSONParser.parseJSON("\"blah\\rblah\""));
+    assertEquals("blah\tblah", JSONParser.parseJSON("\"blah\\tblah\""));
+    assertEquals("blah\u1234blah", JSONParser.parseJSON("\"blah\\u1234blah\""));
+  }
+
+  public void testSerializeStrings() {
+    assertEquals("\"blah\\\"blah\"", JSONParser.serializeJSON("blah\"blah"));
+    assertEquals("\"blah\\\\blah\"", JSONParser.serializeJSON("blah\\blah"));
+    assertEquals("\"blah\\bblah\"", JSONParser.serializeJSON("blah\bblah"));
+    assertEquals("\"blah\\fblah\"", JSONParser.serializeJSON("blah\fblah"));
+    assertEquals("\"blah\\nblah\"", JSONParser.serializeJSON("blah\nblah"));
+    assertEquals("\"blah\\rblah\"", JSONParser.serializeJSON("blah\rblah"));
+    assertEquals("\"blah\\tblah\"", JSONParser.serializeJSON("blah\tblah"));
+    assertEquals("\"blah\\u1234blah\"", JSONParser.serializeJSON("blah\u1234blah"));
+  }
 }

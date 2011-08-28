@@ -23,7 +23,9 @@ public class JSONParser {
 
   private static StringBuilder buildJSON(StringBuilder stringBuilder, Object json) {
     if (json instanceof String) {
-      return stringBuilder.append("\"").append(json).append('\"');
+      stringBuilder.append("\"");
+      appendCharacters(stringBuilder, (String) json);
+      return stringBuilder.append('\"');
     } else if (json instanceof Integer ||
       json instanceof Double ||
       json instanceof Long ||
@@ -151,12 +153,81 @@ public class JSONParser {
 
   private String parseString() {
     if (_currentToken.isString()) {
-      String value = _currentToken.getValue();
+      JSONToken value = _currentToken;
       consumeToken();
-      return value.substring(1, value.length() - 1);
+      return unescapeStringLiteral(value);
     } else {
       return  null;
     }
+  }
+
+  private String unescapeStringLiteral(JSONToken token) {
+    String value = token.getValue();
+    StringBuilder result = new StringBuilder();
+    for (int i = 1; i < value.length() - 1; i++) {
+      char c = value.charAt(i);
+      if (c == '\\') {
+        c = value.charAt(++i);
+        if (c == '"') {
+          result.append('"');
+        } else if (c == '\\') {
+          result.append('\\');
+        } else if (c == '/') {
+          result.append('/');
+        } else if (c == 'b') {
+          result.append('\b');
+        } else if (c == 'f') {
+          result.append('\f');
+        } else if (c == 'n') {
+          result.append('\n');
+        } else if (c == 'r') {
+          result.append('\r');
+        } else if (c == 't') {
+          result.append('\t');
+        } else if (c == 'u') {
+          if (i + 4 < value.length()) {
+            String hexValue = "" + value.charAt(++i) + value.charAt(++i) + value.charAt(++i) + value.charAt(++i);
+            result.append((char) Integer.parseInt(hexValue, 16));
+          }
+        }
+      } else {
+        result.append(c);
+      }
+    }
+    return result.toString();
+  }
+
+  private static void appendCharacters(StringBuilder result, String value) {
+    for (int i = 0; i < value.length(); i++) {
+      char c = value.charAt(i);
+      if (c == '\"') {
+        result.append("\\\"");
+      } else if (c == '\\') {
+        result.append("\\\\");
+      } else if (c == '\b') {
+        result.append("\\b");
+      } else if (c == '\f') {
+        result.append("\\f");
+      } else if (c == '\n') {
+        result.append("\\n");
+      } else if (c == '\r') {
+        result.append("\\r");
+      } else if (c == '\t') {
+        result.append("\\t");
+      } else if (c > 0xfff) {
+        result.append("\\u" + hex(c));
+      } else if (c > 0xff) {
+        result.append("\\u0" + hex(c));
+      } else if (c > 0x7f) {
+        result.append("\\u00" + hex(c));
+      } else {
+        result.append(c);
+      }
+    }
+  }
+
+  private static String hex(char c) {
+    return Integer.toHexString(c).toUpperCase();
   }
 
   private List parseArray() {
