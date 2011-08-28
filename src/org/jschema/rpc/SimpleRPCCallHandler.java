@@ -19,7 +19,7 @@ public class SimpleRPCCallHandler implements RPCCallHandler {
     }
   }
 
-  private String doPost(String url, Map<String, String> args) {
+  public static String doPost(String url, Map<String, String> args) {
     StringBuilder sb = new StringBuilder();
     sb = urlEncodeValues(args, sb);
     try {
@@ -42,7 +42,7 @@ public class SimpleRPCCallHandler implements RPCCallHandler {
     }
   }
 
-  private String doGet(String url, Map<String, String> args) {
+  public static String doGet(String url, Map<String, String> args) {
     StringBuilder sb = new StringBuilder(url).append("?");
     sb = urlEncodeValues(args, sb);
     try {
@@ -53,7 +53,7 @@ public class SimpleRPCCallHandler implements RPCCallHandler {
     }
   }
 
-  private StringBuilder urlEncodeValues(Map<String, String> args, StringBuilder sb) {
+  private static StringBuilder urlEncodeValues(Map<String, String> args, StringBuilder sb) {
     for (Map.Entry<String, String> entry : args.entrySet()) {
       sb.append(URLEncoder.encode(entry.getKey()));
       sb.append("=");
@@ -62,7 +62,7 @@ public class SimpleRPCCallHandler implements RPCCallHandler {
     return sb;
   }
 
-  private String readResponse(InputStream inputStream) throws IOException {
+  private static String readResponse(InputStream inputStream) throws IOException {
     StringBuilder result;
     try {
       BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
