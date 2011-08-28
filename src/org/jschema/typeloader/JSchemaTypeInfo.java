@@ -1,5 +1,6 @@
 package org.jschema.typeloader;
 
+import gw.lang.parser.ISymbol;
 import gw.lang.reflect.ConstructorInfoBuilder;
 import gw.lang.reflect.IAnnotationInfo;
 import gw.lang.reflect.IConstructorHandler;
@@ -18,19 +19,17 @@ import gw.lang.reflect.IRelativeTypeInfo.Accessibility;
 import gw.lang.reflect.java.IJavaType;
 import gw.util.concurrent.LazyVar;
 import gw.lang.reflect.IEnumValue;
+import org.jschema.rpc.SimpleRPCCallHandler;
 import org.jschema.util.JSchemaUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 
 import java.io.BufferedReader; 
 import java.io.InputStreamReader;
 
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.StreamHandler;
 
 public class JSchemaTypeInfo extends TypeInfoBase {
   private static final String ENUM_KEY = "enum";
@@ -119,6 +118,48 @@ public class JSchemaTypeInfo extends TypeInfoBase {
     			}
     		})
     		.build(JSchemaTypeInfo.this));
+      typeMethods.add(new MethodInfoBuilder()
+        .withName("get")
+        .withParameters(new ParameterInfoBuilder()
+          .withType(IJavaType.STRING)
+          .withName("url"),
+          new ParameterInfoBuilder()
+            .withType(IJavaType.MAP.getParameterizedType(IJavaType.STRING, IJavaType.OBJECT))
+            .withDefValue(ISymbol.NULL_DEFAULT_VALUE)
+            .withName("args")
+        )
+        .withReturnType(getOwnersType())
+        .withStatic(true)
+        .withCallHandler(new IMethodCallHandler() {
+          @Override
+          public Object handleCall(Object ctx, Object... args) {
+            Map<String, String> fixedArgs = fixArgs((Map) args[1]);
+            return new Json(SimpleRPCCallHandler.doGet((String) args[0], fixedArgs), JSchemaTypeInfo.this);
+          }
+        })
+        .build(JSchemaTypeInfo.this));
+
+      typeMethods.add(new MethodInfoBuilder()
+        .withName("post")
+        .withParameters(new ParameterInfoBuilder()
+          .withType(IJavaType.STRING)
+          .withName("url"),
+          new ParameterInfoBuilder()
+            .withType(IJavaType.MAP.getParameterizedType(IJavaType.STRING, IJavaType.OBJECT))
+            .withDefValue(ISymbol.NULL_DEFAULT_VALUE)
+            .withName("args")
+        )
+        .withReturnType(getOwnersType())
+        .withStatic(true)
+        .withCallHandler(new IMethodCallHandler() {
+          @Override
+          public Object handleCall(Object ctx, Object... args) {
+            Map<String, String> fixedArgs = fixArgs((Map) args[1]);
+            return new Json(SimpleRPCCallHandler.doPost((String) args[0], fixedArgs), JSchemaTypeInfo.this);
+          }
+        })
+        .build(JSchemaTypeInfo.this));
+
     	return typeMethods;
     }
     
@@ -129,7 +170,27 @@ public class JSchemaTypeInfo extends TypeInfoBase {
         .withStatic(true);
     }
   };
-    
+
+  private static Map<String, String> fixArgs(Map arg) {
+    if (arg == null) {
+      return Collections.emptyMap();
+    }
+    else {
+      HashMap<String, String> fixedArgs = new HashMap(arg.size());
+      for (Object key : arg.keySet()) {
+        Object value = arg.get(key);
+        if (!(key instanceof String)) {
+          key = "" + key;
+        }
+        if (!(value instanceof String)) {
+          value = "" + value;
+        }
+        fixedArgs.put((String) key, (String) value);
+      }
+      return fixedArgs;
+    }
+  }
+
   public JSchemaTypeInfo(JSchemaType owner, Object object) {
     this.owner = owner;
     this.json = (Map)object;
