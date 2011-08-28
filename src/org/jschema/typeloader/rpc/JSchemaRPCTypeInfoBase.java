@@ -221,7 +221,7 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
     }
 
     private void addRemoteTrace(String trace, List<StackTraceElement> stackTrace) {
-      String[] traceElements = trace.split("\\\\n");
+      String[] traceElements = trace.split("\n");
       for (int i = 0, traceElementsLength = traceElements.length; i < traceElementsLength; i++) {
         String traceElement = traceElements[traceElements.length - 1 - i];
         if (GosuStringUtil.isNotEmpty(traceElement)) {
