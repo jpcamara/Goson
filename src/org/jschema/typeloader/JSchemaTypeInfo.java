@@ -19,6 +19,7 @@ import gw.lang.reflect.IRelativeTypeInfo.Accessibility;
 import gw.lang.reflect.java.IJavaType;
 import gw.util.concurrent.LazyVar;
 import gw.lang.reflect.IEnumValue;
+import org.jschema.model.JsonMap;
 import org.jschema.rpc.SimpleRPCCallHandler;
 import org.jschema.util.JSchemaUtils;
 
@@ -304,15 +305,32 @@ public class JSchemaTypeInfo extends TypeInfoBase {
 	
 	private void createProperties() {
     properties = new ArrayList<IPropertyInfo>();
+    properties.add(new PropertyInfoBuilder()
+      .withName("Descendents")
+      .withType(Iterable.class)
+      .withWritable(false)
+      .withAccessor(new IPropertyAccessor() {
+        @Override
+        public Object getValue(Object ctx) {
+          Json jsonCtx = (Json) ctx;
+          JsonMap jsonMap = jsonCtx.getMap();
+          return jsonMap.getDescendents();
+        }
+
+        @Override
+        public void setValue(Object ctx, Object value) {
+          throw new IllegalAccessError("Descendents Is Read Only");
+        }
+      }).build(this));
     for (Object k : json.keySet()) {
-      String key = (String)k;
+      String key = (String) k;
       Object value = json.get(key);
       if (key.equals(ENUM_KEY)) {
-        createEnumProperties(key, (java.util.List)value);
+        createEnumProperties(key, (java.util.List) value);
         continue;
       }
       if (value instanceof Map) {
-        Map val = (Map)value;
+        Map val = (Map) value;
         if (val.get("map_of") != null) {
           Object o = val.get("map_of");
           addMapProperty(key, o);
@@ -322,24 +340,24 @@ public class JSchemaTypeInfo extends TypeInfoBase {
         properties.add(createWithType(key, propertyType));
         continue;
       } else if (value instanceof List) {
-    		Object firstEntry = ((List)value).get(0);
-    		if (firstEntry instanceof Map) {
-    			IType propertyType = findIType(key);
-    			if (propertyType == null) {
-    				throw new RuntimeException("No type found for " + key + " with owner of " + getOwnersType());
-    			}
-    			properties.add(createWithListType(key, propertyType));
+        Object firstEntry = ((List) value).get(0);
+        if (firstEntry instanceof Map) {
+          IType propertyType = findIType(key);
+          if (propertyType == null) {
+            throw new RuntimeException("No type found for " + key + " with owner of " + getOwnersType());
+          }
+          properties.add(createWithListType(key, propertyType));
         } else {
           properties.add(createWithListType(key, findNamedType((String) firstEntry)));
         }
-    	  continue;
-    	}
-      
+        continue;
+      }
+
       if (!(value instanceof String)) {
         throw new RuntimeException("Unless a JSON Object or a JSON Array, the value should be" +
           " a string name of the desired type");
       }
-      
+
       IType type = findNamedType((String) value);
       if (type != null) {
         properties.add(createWithType(key, type));
@@ -347,11 +365,11 @@ public class JSchemaTypeInfo extends TypeInfoBase {
       if (type == IJavaType.ENUM) {
         continue; //no properties for the enum, they're at the type level?
       } else if (json.get(key) == null) {
-    		Logger.getLogger(getClass().getName()).log(Level.FINE, 
-    		  "Cannot handle NULL values. No property created.");
-    	}
+        Logger.getLogger(getClass().getName()).log(Level.FINE,
+          "Cannot handle NULL values. No property created.");
+      }
     }
-	}
+  }
 	
 	private IType findIType(String key) {
     return TypeSystem.getByFullName(getOwnersType().getName() + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(key));

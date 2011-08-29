@@ -213,4 +213,18 @@ class JSchemaTypesTest extends GosonTest {
                          .prettyPrint())
   }
 
+  function testDescendentsProperty() {
+    var people = new Peeps() {
+      :People = {
+        new People() { :Name = "Joe", :Age = 42 },
+        new People() { :Name = "Paul", :Age = 28 },
+        new People() { :Name = "Mack", :Age = 55 }
+      }
+    }
+    assertEquals(11, people.Descendents.Count)
+    assertEquals(3, people.Descendents.whereTypeIs(String).Count)
+    assertEquals(2, people.Descendents.whereTypeIs(String).where( \ s -> s.length() > 3 ).Count)
+    // TODO cgross - gosu generics bug prevents this from compiling
+    // assertEquals(2, people.Descendents.whereTypeIs(People).where( \ p -> p.Age > 30 ).Count )
+  }
 }

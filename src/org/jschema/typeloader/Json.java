@@ -10,12 +10,14 @@ import java.util.Date;
 import java.math.BigInteger;
 import java.math.BigDecimal;
 
+import com.sun.org.apache.bcel.internal.generic.RETURN;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.IPropertyInfo;
 import gw.lang.reflect.gs.IGosuObject;
 import gw.lang.reflect.java.IJavaType;
 import gw.lang.reflect.IEnumType;
 
+import org.jschema.model.JsonMap;
 import org.jschema.parser.JSONParser;
 
 public class Json implements IGosuObject {
@@ -24,7 +26,7 @@ public class Json implements IGosuObject {
 
   public Json(IType type) {
     this.type = type;
-    this.json = new HashMap();
+    this.json = new JsonMap();
   }
 
   public Json(Object json, IType type) {
@@ -277,7 +279,11 @@ public class Json implements IGosuObject {
   public IType getIntrinsicType() {
     return type;
   }
-  
+
+  public JsonMap getMap() {
+    return (JsonMap) json;
+  }
+
   private static interface Parse<T> {
     T parse(Object parsable);
   }
