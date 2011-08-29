@@ -3,6 +3,12 @@ package org.jschema.model;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.gs.IGosuObject;
+import org.jschema.typeloader.Json;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class JsonObject implements IGosuObject{
 
@@ -75,6 +81,42 @@ public class JsonObject implements IGosuObject{
     if (jsonObj instanceof JsonObject) {
       ((JsonObject) jsonObj)._parent = _realOwner;
     }
+  }
+
+  public Iterable getDescendents() {
+    return findDescendents(this, new LinkedList(), null);
+  }
+
+  public Iterable getDescendentMaps() {
+    return findDescendents(this, new LinkedList(), Map.class);
+  }
+
+  private static Iterable findDescendents(Object obj, List ll, Class rawClass) {
+    if (rawClass != null) {
+      if (rawClass.isAssignableFrom(obj.getClass())) {
+        ll.add(obj);
+      }
+    } else {
+      ll.add(obj);
+    }
+    if (obj instanceof List) {
+      for (Object o : ((List) obj)) {
+        findDescendents(o, ll, rawClass);
+      }
+    }
+    else if (obj instanceof Map)
+    {
+      for (Object o : ((Map) obj).values()) {
+        findDescendents(o, ll, rawClass);
+      }
+    }
+    else if (obj instanceof Json) //TODO remove this
+    {
+      for (Object o : ((Json) obj).getMap().values()) {
+        findDescendents(o, ll, rawClass);
+      }
+    }
+    return ll;
   }
 
   protected interface ValueConverter {
