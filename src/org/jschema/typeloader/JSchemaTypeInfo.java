@@ -5,32 +5,33 @@ import gw.lang.reflect.ConstructorInfoBuilder;
 import gw.lang.reflect.IAnnotationInfo;
 import gw.lang.reflect.IConstructorHandler;
 import gw.lang.reflect.IConstructorInfo;
+import gw.lang.reflect.IEnumValue;
 import gw.lang.reflect.IMethodCallHandler;
 import gw.lang.reflect.IMethodInfo;
 import gw.lang.reflect.IPropertyAccessor;
 import gw.lang.reflect.IPropertyInfo;
+import gw.lang.reflect.IRelativeTypeInfo.Accessibility;
 import gw.lang.reflect.IType;
-import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.MethodInfoBuilder;
 import gw.lang.reflect.ParameterInfoBuilder;
 import gw.lang.reflect.PropertyInfoBuilder;
 import gw.lang.reflect.TypeInfoBase;
-import gw.lang.reflect.IRelativeTypeInfo.Accessibility;
+import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.java.IJavaType;
 import gw.util.concurrent.LazyVar;
-import gw.lang.reflect.IEnumValue;
 import org.jschema.model.JsonMap;
 import org.jschema.rpc.SimpleRPCCallHandler;
 import org.jschema.util.JSchemaUtils;
 
-import java.util.*;
-
-import java.io.BufferedReader; 
+import java.io.BufferedReader;
 import java.io.InputStreamReader;
-
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.StreamHandler;
+import java.util.logging.Logger;
 
 public class JSchemaTypeInfo extends TypeInfoBase {
   private static final String ENUM_KEY = "enum";
@@ -46,6 +47,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
     TYPES.put("boolean", IJavaType.BOOLEAN);
     TYPES.put("enum", IJavaType.ENUM);
     TYPES.put("map_of", IJavaType.MAP);
+    TYPES.put("object", IJavaType.OBJECT);
   }
 
   private JSchemaType owner;

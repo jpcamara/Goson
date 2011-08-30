@@ -214,6 +214,25 @@ class JSchemaRPCTypesTest extends GosonTest {
     }
   }
 
+  function testObjectTypeImplementation() {
+    var server = new RPCServer()
+    server.addEndPoint( new RPCEndPoint( Defaults, new DefaultsImpl(), "/defaults" ) )
+    using( server ) {
+      assertEquals( "foo", Defaults.identityObject( "foo" ) )
+      assertEquals( "foo", Defaults.identityObject( :obj = "foo" ) )
+      assertEquals( 1, Defaults.identityObject( 1 ) )
+      assertEquals( 1, Defaults.identityObject( :obj = 1 ) )
+      assertEquals( true, Defaults.identityObject( true ) )
+      assertEquals( true, Defaults.identityObject( :obj = true ) )
+      assertEquals( {1, 2, 3}, Defaults.identityObject( {1, 2, 3} ) )
+      assertEquals( {1, 2, 3}, Defaults.identityObject( :obj = {1, 2, 3} ) )
+      assertEquals( {"a" -> 1, "b" -> 2, "c" -> 3}, Defaults.identityObject( {"a" -> 1, "b" -> 2, "c" -> 3} ) )
+      assertEquals( {"a" -> 1, "b" -> 2, "c" -> 3}, Defaults.identityObject( :obj = {"a" -> 1, "b" -> 2, "c" -> 3} ) )
+      assertEquals( null, Defaults.identityObject( null ) )
+      assertEquals( null, Defaults.identityObject( :obj = null ) )
+    }
+  }
+
   class DefaultsImpl {
 
     function identityString(s : String) : String {
@@ -226,6 +245,10 @@ class JSchemaRPCTypesTest extends GosonTest {
 
     function identityInteger(i : Integer) : Integer {
       return i
+    }
+
+    function identityObject(o : Object) : Object {
+      return o
     }
 
     function identityIntegerWithDefault(i : Integer) : Integer {

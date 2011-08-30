@@ -20,6 +20,10 @@
     { "name" : "twoArgsWithDefaults",
       "args" : [ {"arg1" : "string", "default" : "joe" }, {"arg2" : "string", "default" : "blow" } ],
       "returns" : "string"
+    },
+    { "name" : "identityObject",
+      "args" : [ {"obj" : "object" } ],
+      "returns" : "object"
     }
   ]
 }
