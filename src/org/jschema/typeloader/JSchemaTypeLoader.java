@@ -1,9 +1,7 @@
 package org.jschema.typeloader;
 
 import gw.fs.IFile;
-import gw.lang.parser.IHasInnerClass;
 import gw.lang.reflect.IType;
-import gw.lang.reflect.ITypeRef;
 import gw.lang.reflect.TypeLoaderBase;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.module.IModule;
@@ -16,8 +14,16 @@ import org.jschema.typeloader.rpc.JSchemaCustomizedRPCType;
 import org.jschema.typeloader.rpc.JSchemaRPCType;
 import org.jschema.util.JSchemaUtils;
 
-import java.io.*;
-import java.util.*;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
+import java.util.Stack;
 
 public class JSchemaTypeLoader extends TypeLoaderBase {
 
@@ -139,6 +145,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
   private void addRpcTypes(Map<String, IType> types, String name, Object o) {
     Stack<Map<String, String>> typeDefs = new Stack<Map<String, String>>();
     typeDefs.push(new HashMap<String, String>());
+    Map<String, Map<String, Object>> defaultValues = new HashMap<String, Map<String, Object>>();
     if (o instanceof Map) {
       processTypeDefs(types, typeDefs, name, (Map) o);
       Object functions = ((Map) o).get("functions");
@@ -146,8 +153,8 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
         for (Object function : (List) functions) {
           if (function instanceof Map) {
             Map functionMap = (Map) function;
-            Object str = functionMap.get("name");
-            String functionTypeName =  name + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(str.toString());
+            String str = functionMap.get("name").toString();
+            String functionTypeName =  name + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(str);
 
             // add parameter names
             Object args = functionMap.get("args");
@@ -156,8 +163,15 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
                 if (arg instanceof Map) {
                   Set argSpecKeys = ((Map) arg).keySet();
                   for (Object key : argSpecKeys) {
-                    if (key.equals("default") || key.equals("description")) {
-                      continue;
+                    if (key.equals("default")) {
+                      Map<String, Object> argsMap = defaultValues.get(str);
+                      if (argsMap == null) {
+                        argsMap = new HashMap<String, Object>();
+                        defaultValues.put(str, argsMap);
+                      }
+                      argsMap.put(((Map) arg).keySet().iterator().next().toString(), ((Map) arg).get("default"));
+                    } else if (key.equals("description")) {
+                      //ignore
                     } else {
                       addTypes(types,
                         typeDefs, functionTypeName + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(key.toString()),
@@ -173,7 +187,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
           }
         }
       }
-      types.put(name, new JSchemaRPCType(name, this, o, typeDefs.peek()));
+      types.put(name, new JSchemaRPCType(name, this, o, typeDefs.peek(), defaultValues));
       types.put(name + JSchemaCustomizedRPCType.TYPE_SUFFIX, new JSchemaCustomizedRPCType(name + JSchemaCustomizedRPCType.TYPE_SUFFIX, this, o, typeDefs.peek()));
     }
   }

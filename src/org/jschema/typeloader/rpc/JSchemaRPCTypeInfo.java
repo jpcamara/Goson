@@ -21,6 +21,11 @@ public class JSchemaRPCTypeInfo extends JSchemaRPCTypeInfoBase
   }
 
   @Override
+  protected boolean includeNulls(Object ctx) {
+    return false;
+  }
+
+  @Override
   protected List<IMethodInfo> buildMethods() {
     List<IMethodInfo> methods = super.buildMethods();
     methods.add(new MethodInfoBuilder()
@@ -38,13 +43,17 @@ public class JSchemaRPCTypeInfo extends JSchemaRPCTypeInfoBase
         new ParameterInfoBuilder()
           .withName("method")
           .withType(TypeSystem.get(HttpMethod.class))
+          .withDefValue(ISymbol.NULL_DEFAULT_VALUE),
+        new ParameterInfoBuilder()
+          .withName("includeNulls")
+          .withType(TypeSystem.get(Boolean.class))
           .withDefValue(ISymbol.NULL_DEFAULT_VALUE)
       )
       .withReturnType(TypeSystem.getByFullName(getOwnersType().getName() + JSchemaCustomizedRPCType.TYPE_SUFFIX))
       .withCallHandler(new IMethodCallHandler() {
         @Override
         public Object handleCall(Object ctx, Object... args) {
-          return new CustomRPCInstance(getOwnersType(), (RPCCallHandler) args[0], (String) args[1], (HttpMethod) args[2]);
+          return new CustomRPCInstance(getOwnersType(), (RPCCallHandler) args[0], (String) args[1], (HttpMethod) args[2], (Boolean) args[3]);
         }
       })
       .build(this));

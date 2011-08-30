@@ -4,4 +4,6 @@ import gw.lang.reflect.IType;
 
 public interface IJSchemaRPCType extends IType {
 
+  Object getDefaultValue(String method, String name);
+
 }

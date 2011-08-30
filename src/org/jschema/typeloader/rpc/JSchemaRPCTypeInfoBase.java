@@ -1,6 +1,16 @@
 package org.jschema.typeloader.rpc;
 
-import gw.lang.reflect.*;
+import gw.lang.parser.ISymbol;
+import gw.lang.reflect.IAnnotationInfo;
+import gw.lang.reflect.IConstructorInfo;
+import gw.lang.reflect.IMethodCallHandler;
+import gw.lang.reflect.IMethodInfo;
+import gw.lang.reflect.IPropertyInfo;
+import gw.lang.reflect.IType;
+import gw.lang.reflect.MethodInfoBuilder;
+import gw.lang.reflect.ParameterInfoBuilder;
+import gw.lang.reflect.TypeInfoBase;
+import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.java.IJavaType;
 import gw.util.GosuExceptionUtil;
 import gw.util.GosuStringUtil;
@@ -9,8 +19,12 @@ import org.jschema.typeloader.JSchemaTypeInfo;
 import org.jschema.util.JSchemaUtils;
 
 import java.lang.reflect.Constructor;
-import java.text.StringCharacterIterator;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
   private JSchemaRPCTypeBase _owner;
@@ -41,12 +55,15 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
         argNames.add(argName);
         Object type = arg.get(argName);
         String argDescription = (String) arg.get("description");
-        String defaultValue = (String) arg.get("default");
+        Object defaultValue = arg.get("default");
         ParameterInfoBuilder pib = new ParameterInfoBuilder()
           .withName(argName)
           .withType(getType(functionTypeName + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(argName), type));
         if (argDescription != null) {
           pib.withDescription(argDescription);
+        }
+        if (defaultValue != null) {
+          pib.withDefValue(ISymbol.NULL_DEFAULT_VALUE);
         }
         argBuilders.add(pib);
       }
@@ -154,8 +171,10 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
       for (int i = 0; i < args.length; i++) {
         Object value = args[i];
         String name = _argNames.get(i);
-        String valueString = JSchemaUtils.serializeJson(value);
-        argsMap.put(name, valueString);
+        if (value != null || includeNulls(ctx)) {
+          String valueString = JSchemaUtils.serializeJson(value);
+          argsMap.put(name, valueString);
+        }
       }
 
       String json = handleRPCMethodInvocation(ctx, _name, argsMap);
@@ -289,4 +308,6 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
       return sb.toString();
     }
   }
+
+  protected abstract boolean includeNulls(Object ctx);
 }

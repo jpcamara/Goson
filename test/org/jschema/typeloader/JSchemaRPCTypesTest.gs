@@ -4,6 +4,7 @@ uses java.util.*
 uses java.lang.*
 uses org.jschema.test.*
 uses org.jschema.rpc.*
+uses org.jschema.examples.rpc.Defaults
 uses org.jschema.examples.rpc.Sample1
 uses org.jschema.examples.rpc.ThrowsExceptions
 uses org.jschema.examples.rpc.Sample1.GetEmployee
@@ -170,5 +171,70 @@ class JSchemaRPCTypesTest extends GosonTest {
      print( x.length() )
    }
  }
+
+  function testDefaultsImplementation() {
+    var server = new RPCServer()
+    server.addEndPoint( new RPCEndPoint( Defaults, new DefaultsImpl(), "/defaults" ) )
+    using( server ) {
+      assertEquals( "foo", Defaults.identityString( "foo" ) )
+      assertEquals( "foo", Defaults.identityString( :s = "foo" ) )
+      assertEquals( null, Defaults.identityString( null ) )
+      assertEquals( null, Defaults.identityString( :s = null ) )
+
+      assertEquals( "foo", Defaults.identityStringWithDefault( "foo" ) )
+      assertEquals( "foo", Defaults.identityStringWithDefault( :s = "foo" ) )
+      assertEquals( "this is the default", Defaults.identityStringWithDefault() )
+      assertEquals( "this is the default", Defaults.identityStringWithDefault( null ) )
+      assertEquals( "this is the default", Defaults.identityStringWithDefault( :s = null ) )
+      assertEquals( null, Defaults.with( :includeNulls = true ).identityStringWithDefault() )
+      assertEquals( null, Defaults.with( :includeNulls = true ).identityStringWithDefault( null ) )
+      assertEquals( null, Defaults.with( :includeNulls = true ).identityStringWithDefault( :s = null ) )
+
+      assertEquals( 123421, Defaults.identityInteger( 123421 ) )
+      assertEquals( 123421, Defaults.identityInteger( :i = 123421 ) )
+      assertEquals( null, Defaults.identityInteger( null ) )
+      assertEquals( null, Defaults.identityInteger( :i = null ) )
+
+      assertEquals( 123421, Defaults.identityIntegerWithDefault( 123421 ) )
+      assertEquals( 123421, Defaults.identityIntegerWithDefault( :i = 123421 ) )
+      assertEquals( 42, Defaults.identityIntegerWithDefault( null ) )
+      assertEquals( 42, Defaults.identityIntegerWithDefault() )
+      assertEquals( 42, Defaults.identityIntegerWithDefault( :i = null ) )
+      assertEquals( null, Defaults.with( :includeNulls = true ).identityIntegerWithDefault() )
+      assertEquals( null, Defaults.with( :includeNulls = true ).identityIntegerWithDefault( null ) )
+      assertEquals( null, Defaults.with( :includeNulls = true ).identityIntegerWithDefault( :i = null ) )
+
+      assertEquals( "foobar", Defaults.twoArgsWithDefaults( "foo", "bar" ) )
+      assertEquals( "barblow", Defaults.twoArgsWithDefaults( :arg1 = "bar" ) )
+      assertEquals( "joebar", Defaults.twoArgsWithDefaults( :arg2 = "bar" ) )
+      assertEquals( "joeblow", Defaults.twoArgsWithDefaults() )
+      assertEquals( "barnull", Defaults.with( :includeNulls = true ).twoArgsWithDefaults( :arg1 = "bar" ) )
+      assertEquals( "nullbar", Defaults.with( :includeNulls = true ).twoArgsWithDefaults( :arg2 = "bar" ) )
+      assertEquals( "nullnull", Defaults.with( :includeNulls = true ).twoArgsWithDefaults() )
+    }
+  }
+
+  class DefaultsImpl {
+
+    function identityString(s : String) : String {
+      return s
+    }
+
+    function identityStringWithDefault(s : String) : String {
+      return s
+    }
+
+    function identityInteger(i : Integer) : Integer {
+      return i
+    }
+
+    function identityIntegerWithDefault(i : Integer) : Integer {
+      return i
+    }
+
+    function twoArgsWithDefaults(a : String, b : String ) : String {
+      return a + b
+    }
+  }
 
 }

@@ -8,8 +8,9 @@ public class CustomRPCInstance implements IGosuObject {
   private IType _ownersType;
   private RPCConfig _config;
   private String _url;
+  private boolean _includeNulls;
 
-  public CustomRPCInstance(IType ownersType, RPCCallHandler handler, String url, HttpMethod method) {
+  public CustomRPCInstance(IType ownersType, RPCCallHandler handler, String url, HttpMethod method, Boolean includeNulls) {
     _ownersType = ownersType;
     _config = new RPCConfig();
     if (handler != null) {
@@ -19,6 +20,7 @@ public class CustomRPCInstance implements IGosuObject {
       _config.setMethod(method);
     }
     _url = url;
+    _includeNulls = Boolean.TRUE.equals(includeNulls);
   }
 
   @Override
@@ -32,5 +34,9 @@ public class CustomRPCInstance implements IGosuObject {
 
   public String getUrl() {
     return _url;
+  }
+
+  public boolean shouldIncludeNulls() {
+    return _includeNulls;
   }
 }

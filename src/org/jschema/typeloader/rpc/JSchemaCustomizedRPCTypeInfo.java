@@ -22,6 +22,12 @@ public class JSchemaCustomizedRPCTypeInfo extends JSchemaRPCTypeInfoBase
   }
 
   @Override
+  protected boolean includeNulls(Object ctx) {
+    CustomRPCInstance customRPCInstance = (CustomRPCInstance) ctx;
+    return customRPCInstance.shouldIncludeNulls();
+  }
+
+  @Override
   protected String handleRPCMethodInvocation(Object ctx, String method, Map<String, String> argsMap) {
     CustomRPCInstance customRPCInstance = (CustomRPCInstance) ctx;
     RPCConfig config = customRPCInstance.getConfig();

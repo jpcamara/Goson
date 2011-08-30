@@ -1,0 +1,25 @@
+{ "description" : "Test methods for defaults functionality",
+  "url" : "http://localhost:12321/defaults",
+  "functions" : [
+    { "name" : "identityString",
+      "args" : [ {"s" : "string" } ],
+      "returns" : "string"
+    },
+    { "name" : "identityStringWithDefault",
+      "args" : [ {"s" : "string", "default" : "this is the default" } ],
+      "returns" : "string"
+    },
+    { "name" : "identityInteger",
+      "args" : [ {"i" : "integer" } ],
+      "returns" : "integer"
+    },
+    { "name" : "identityIntegerWithDefault",
+      "args" : [ {"i" : "integer", "default" : 42 } ],
+      "returns" : "integer"
+    },
+    { "name" : "twoArgsWithDefaults",
+      "args" : [ {"arg1" : "string", "default" : "joe" }, {"arg2" : "string", "default" : "blow" } ],
+      "returns" : "string"
+    }
+  ]
+}
