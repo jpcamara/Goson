@@ -58,6 +58,7 @@ public class SimpleRPCCallHandler implements RPCCallHandler {
       sb.append(URLEncoder.encode(entry.getKey()));
       sb.append("=");
       sb.append(URLEncoder.encode(entry.getValue()));
+      sb.append("&");
     }
     return sb;
   }

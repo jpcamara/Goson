@@ -202,7 +202,7 @@ public class JSONTokenizer {
 
 
   private boolean atEndOfInput() {
-    return _offset >= _contents.length();
+    return _contents == null || _offset >= _contents.length();
   }
 
   private void eatWhitespace() {
