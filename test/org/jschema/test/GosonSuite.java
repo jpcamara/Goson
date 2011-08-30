@@ -34,10 +34,13 @@ public class GosonSuite extends TestSuite {
     String[] testNames = getTests();
     List<Class> tests = new ArrayList<Class>();
     for (String test : testNames) {
-      IHasJavaClass byFullName = (IHasJavaClass) TypeSystem.getByFullName(test);
-      Class backingClass = byFullName.getBackingClass();
-      if (!Modifier.isAbstract(backingClass.getModifiers())) {
-        tests.add(backingClass);
+      IType type = TypeSystem.getByFullName(test);
+      if (type instanceof IHasJavaClass) {
+        IHasJavaClass byFullName = (IHasJavaClass) type;
+        Class backingClass = byFullName.getBackingClass();
+        if (!Modifier.isAbstract(backingClass.getModifiers())) {
+          tests.add(backingClass);
+        }
       }
     }
     return tests.toArray(new Class[tests.size()]);
