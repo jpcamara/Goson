@@ -20,6 +20,10 @@
                     }
                   } ],
       "returns" : "boolean"
+    },
+    { "name" : "add",
+      "args" : [ {"i1" : "integer" }, {"i2" : "integer" } ],
+      "returns" : "integer"
     }
   ]
 }

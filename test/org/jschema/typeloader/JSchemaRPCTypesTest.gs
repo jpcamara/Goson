@@ -24,6 +24,16 @@ class JSchemaRPCTypesTest extends GosonTest {
 //   assertEquals( 42, emp.Id )
  }
 
+ function testBootstrapAdd() {
+   var server = new RPCServer()
+   server.addEndPoint( new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) )
+   using( server ) {
+     assertEquals( 2, Sample1.add(1, 1) )
+     assertEquals( 0, Sample1.add(1, -1) )
+     assertEquals( -1, Sample1.add(0, -1) )
+   }
+ }
+
  function testBootstrapFile2() {
    var emp = new Employee() {
                   :FirstName = "Joe",
@@ -77,6 +87,10 @@ class JSchemaRPCTypesTest extends GosonTest {
        :LastName = "Blow",
        :Age = 21
      }
+   }
+
+   function add( i1 : int , i2 : int ) : int {
+     return i1 + i2
    }
  }
 
