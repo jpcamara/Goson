@@ -1,5 +1,6 @@
 package org.jschema.typeloader;
 
+import gw.lang.parser.IHasInnerClass;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.ITypeInfo;
 import gw.lang.reflect.ITypeLoader;
@@ -9,10 +10,12 @@ import gw.util.GosuClassUtil;
 import gw.util.concurrent.LazyVar;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
-public abstract class JSchemaTypeBase extends TypeBase {
+public abstract class JSchemaTypeBase extends TypeBase implements IJSchemaType {
   private static final long serialVersionUID = -8034222055932240161L;
 
   private String relativeName;
@@ -21,6 +24,7 @@ public abstract class JSchemaTypeBase extends TypeBase {
   private ITypeLoader loader;
   private LazyVar<ITypeInfo> typeInfo;
   private Logger logger = Logger.getLogger(getClass().getName());
+  private Map<String, IType> _innerClasses;
 
   public JSchemaTypeBase(String name, ITypeLoader typeloader, final Object object) {
     this.relativeName = GosuClassUtil.getShortClassName(name);
@@ -33,9 +37,19 @@ public abstract class JSchemaTypeBase extends TypeBase {
         return initTypeInfo(object);
       }
     };
+    _innerClasses = new HashMap<String, IType>();
   }
 
   protected abstract ITypeInfo initTypeInfo(Object object);
+
+  @Override
+  public IType getInnerClass(CharSequence strTypeName) {
+    return _innerClasses.get(strTypeName.toString());
+  }
+
+  public void addInnerClass(IType innerClass) {
+    _innerClasses.put(innerClass.getRelativeName(), innerClass);
+  }
 
   @Override
   public String getName() {
