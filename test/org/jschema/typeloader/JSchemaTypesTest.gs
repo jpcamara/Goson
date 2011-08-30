@@ -25,6 +25,7 @@ uses org.jschema.examples.PeopleId
 uses org.jschema.examples.PeopleId.IdToPeople
 uses org.jschema.examples.PeopleId.IdToPeople.EyeColor
 uses org.jschema.examples.NameAndAge
+uses org.jschema.examples.SelfTest
 
 uses org.jschema.examples.people1.Peeps
 uses org.jschema.examples.people1.Peeps.People
@@ -226,4 +227,30 @@ class JSchemaTypesTest extends GosonTest {
     assertEquals(2, peeps.Descendents.whereTypeIs(String).where( \ s -> s.length() > 3 ).Count)
     assertEquals(2, peeps.Descendents.whereTypeIs(People).where( \ p -> p.Age > 30 ).Count )
   }
+
+  function testSelfProperties() {
+    var slf = new SelfTest() {
+      :Name = "Parent",
+      :Children = {
+        new SelfTest() { :Name = "Child1" },
+        new SelfTest() { :Name = "Child2" },
+        new SelfTest() { :Name = "Child3",
+                         :Children = {
+                          new SelfTest() { :Name = "Child31" },
+                          new SelfTest() { :Name = "Child32" },
+                          new SelfTest() { :Name = "Child33" }
+                          }
+        }
+      }
+    }
+    assertEquals( "Parent", slf.Name )
+    assertEquals( "Child1", slf.Children[0].Name )
+    assertEquals( "Child2", slf.Children[1].Name )
+    assertEquals( "Child3", slf.Children[2].Name )
+    assertEquals( "Child31", slf.Children[2].Children[0].Name )
+    assertEquals( "Child32", slf.Children[2].Children[1].Name )
+    assertEquals( "Child33", slf.Children[2].Children[2].Name )
+    assertNull( slf.Children[0].Children )
+  }
+
 }

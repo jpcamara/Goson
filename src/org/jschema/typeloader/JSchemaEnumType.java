@@ -1,15 +1,16 @@
 package org.jschema.typeloader;
 
-import gw.lang.reflect.IType;
-import gw.lang.reflect.ITypeLoader;
 import gw.lang.reflect.IEnumType;
 import gw.lang.reflect.IEnumValue;
-
-import java.util.*;
-
+import gw.lang.reflect.IType;
+import gw.lang.reflect.ITypeLoader;
 import gw.lang.reflect.gs.IGosuObject;
-
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class JSchemaEnumType extends JSchemaType implements IEnumType {
   private List<IEnumValue> values = new ArrayList<IEnumValue>();

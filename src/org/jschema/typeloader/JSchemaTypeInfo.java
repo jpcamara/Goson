@@ -245,7 +245,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
 
   public IType findNamedType(String typeName) {
     if (typeName.equals("self")) {
-      return getOwnersType();
+      return getOwnersType().getSelfType();
     }
     IJavaType javaType = findJavaType(typeName);
     if (javaType != null) {

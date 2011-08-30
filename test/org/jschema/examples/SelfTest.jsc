@@ -1,0 +1,4 @@
+{ "name" : "string",
+  "children" : [ "self" ],
+  "reference" : "self"
+}
