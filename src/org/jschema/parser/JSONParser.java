@@ -291,7 +291,7 @@ public class JSONParser {
   }
 
   private void badToken() {
-    throw new IllegalStateException("Unexpected token '" + _currentToken.getValue() + "' at line " + _currentToken.getLine() + ", column " + _currentToken.getColumn());
+    throw new JsonParseException("Unexpected token '" + _currentToken.getValue() + "' at line " + _currentToken.getLine() + ", column " + _currentToken.getColumn());
   }
 
 }

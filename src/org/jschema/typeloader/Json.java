@@ -19,6 +19,7 @@ import gw.lang.reflect.IEnumType;
 
 import org.jschema.model.JsonMap;
 import org.jschema.parser.JSONParser;
+import org.jschema.parser.JsonParseException;
 
 public class Json implements IGosuObject {
   private Map json;
@@ -31,7 +32,7 @@ public class Json implements IGosuObject {
 
   public Json(Object json, IType type) {
     if ((json instanceof Map) == false) {
-      throw new JSONParserException("Must be a Map");
+      throw new JsonParseException("Must be a Map");
     }
     this.type = type;
     this.json = (Map)json;
@@ -126,7 +127,7 @@ public class Json implements IGosuObject {
 
   public Json(Object json) {
     if ((json instanceof Map) == false) {
-      throw new JSONParserException("Must be a Map");
+      throw new JsonParseException("Must be a Map");
     }
     this.json = (Map)json;
   }

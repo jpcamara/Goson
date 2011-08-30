@@ -11,6 +11,7 @@ import gw.util.GosuExceptionUtil;
 import gw.util.Pair;
 import gw.util.concurrent.LazyVar;
 import org.jschema.parser.JSONParser;
+import org.jschema.parser.JsonParseException;
 import org.jschema.typeloader.rpc.JSchemaCustomizedRPCType;
 import org.jschema.typeloader.rpc.JSchemaRPCType;
 import org.jschema.util.JSchemaUtils;
@@ -241,12 +242,15 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
           jsonString.append(s.nextLine());
         }
         current.content = JSONParser.parseJSON(jsonString.toString());
+        init.add(current);
       } catch (FileNotFoundException e) {
         throw new RuntimeException(e);
+      } catch (JsonParseException e) {
+        System.out.println("Unable to parse JSON file " + pair.getSecond().toJavaFile().getAbsolutePath());
+        System.out.println(e.getMessage());
       } finally {
         if (s != null) { s.close(); }
       }
-      init.add(current);
     }
     return init;
   }
