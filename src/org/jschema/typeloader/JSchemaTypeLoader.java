@@ -1,7 +1,9 @@
 package org.jschema.typeloader;
 
 import gw.fs.IFile;
+import gw.lang.parser.IHasInnerClass;
 import gw.lang.reflect.IType;
+import gw.lang.reflect.ITypeRef;
 import gw.lang.reflect.TypeLoaderBase;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.module.IModule;
@@ -62,6 +64,17 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
           throw GosuExceptionUtil.forceThrow(e);
         }
       }
+      initInnerClasses(types);
+    }
+  }
+
+  private void initInnerClasses(Map<String, IType> types) {
+    for (String name : types.keySet()) {
+      IType iType = types.get(name);
+      IType outerType = types.get(iType.getNamespace());
+      if (outerType instanceof IJSchemaType) {
+        ((IJSchemaType) outerType).addInnerClass(iType);
+      }
     }
   }
 
@@ -72,7 +85,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
     if (o instanceof Map) {
       Map<Object, Object> jsonMap = (Map<Object, Object>)o;
       if (jsonMap.get("enum") != null) {
-        types.put(name, new JSchemaEnumType(name, this, o));
+        putType(types, name, new JSchemaEnumType(name, this, o));
       } else if (jsonMap.get("map_of") != null) {
         addTypes(types, typeDefs, name, jsonMap.get("map_of"));
       } else {
@@ -83,12 +96,16 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
             addTypes(types, typeDefs, name + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(key.toString()),
               jsonMap.get(key));
           }
-          types.put(name, new JSchemaType(name, this, o, copyTypeDefs(typeDefs)));
+          putType(types, name, new JSchemaType(name, this, o, copyTypeDefs(typeDefs)));
         } finally {
           typeDefs.pop();
         }
       }
     }
+  }
+
+  private void putType(Map<String, IType> types, String name, IType type) {
+    types.put(name, TypeSystem.getOrCreateTypeReference(type));
   }
 
   private Map<String, String> copyTypeDefs(Stack<Map<String, String>> typeDefs) {
@@ -103,17 +120,17 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
     Object currentTypeDefs = o.get(JSchemaUtils.JSCHEMA_TYPEDEFS_KEY);
     if (currentTypeDefs instanceof Map) {
       Set set = ((Map) currentTypeDefs).keySet();
-      List<JSchemaType> previousTypeDefs = new ArrayList<JSchemaType>();
+      List<IJSchemaType> previousTypeDefs = new ArrayList<IJSchemaType>();
       for (Object typeDefTypeName : set) {
         String rawName = typeDefTypeName.toString();
         String relativeName = JSchemaUtils.convertJSONStringToGosuIdentifier(rawName);
         String fullyQualifiedName = name + "." + relativeName;
         typeDefs.peek().put(rawName, fullyQualifiedName);
         addTypes(types, typeDefs, fullyQualifiedName, ((Map) currentTypeDefs).get(typeDefTypeName));
-        for (JSchemaType previousTypeDef : previousTypeDefs) {
+        for (IJSchemaType previousTypeDef : previousTypeDefs) {
           previousTypeDef.getTypeDefs().put(rawName, fullyQualifiedName);
         }
-        previousTypeDefs.add((JSchemaType) types.get(fullyQualifiedName));
+        previousTypeDefs.add((IJSchemaType) types.get(fullyQualifiedName));
       }
     }
   }
