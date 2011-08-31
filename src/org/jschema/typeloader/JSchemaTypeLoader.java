@@ -58,7 +58,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
       }
       for (JsonFile jshRpcFile : jscRpcFiles.get()) {
         try {
-          addRpcTypes(types, jshRpcFile.rootTypeName, jshRpcFile.content);
+          addRpcTypes(types, jshRpcFile.rootTypeName, jshRpcFile.content, jshRpcFile.stringContent);
         } catch (Exception e) {
           throw GosuExceptionUtil.forceThrow(e);
         }
@@ -142,7 +142,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
     }
   }
 
-  private void addRpcTypes(Map<String, IType> types, String name, Object o) {
+  private void addRpcTypes(Map<String, IType> types, String name, Object o, String stringContent) {
     Stack<Map<String, String>> typeDefs = new Stack<Map<String, String>>();
     typeDefs.push(new HashMap<String, String>());
     Map<String, Map<String, Object>> defaultValues = new HashMap<String, Map<String, Object>>();
@@ -187,8 +187,9 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
           }
         }
       }
-      types.put(name, new JSchemaRPCType(name, this, o, typeDefs.peek(), defaultValues));
-      types.put(name + JSchemaCustomizedRPCType.TYPE_SUFFIX, new JSchemaCustomizedRPCType(name + JSchemaCustomizedRPCType.TYPE_SUFFIX, this, o, typeDefs.peek()));
+      types.put(name, new JSchemaRPCType(name, this, o, typeDefs.peek(), defaultValues, stringContent));
+      String customizedTypeName = name + JSchemaCustomizedRPCType.TYPE_SUFFIX;
+      types.put(customizedTypeName, new JSchemaCustomizedRPCType(customizedTypeName, this, o, typeDefs.peek(), defaultValues, stringContent));
     }
   }
 
@@ -255,7 +256,8 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
         while (s.hasNextLine()) {
           jsonString.append(s.nextLine());
         }
-        current.content = JSONParser.parseJSON(jsonString.toString());
+        current.stringContent = jsonString.toString();
+        current.content = JSONParser.parseJSON(current.stringContent);
         init.add(current);
       } catch (FileNotFoundException e) {
         throw new RuntimeException(e);
@@ -271,6 +273,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
 
   private static class JsonFile {
     private Object content;
+    private String stringContent;
     private String rootTypeName;
   }
 }

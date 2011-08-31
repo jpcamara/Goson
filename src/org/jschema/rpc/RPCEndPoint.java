@@ -35,6 +35,9 @@ public class RPCEndPoint {
 
   public String handle(URI uri, Map<String, String> args) {
     try {
+      if (args.size() == 1 && args.containsKey("JSchema-RPC")) {
+        return _rpcType.getSchemaContent();
+      }
       String method = uri.getPath().substring(_rootPath.length() + 1);
       //TODO cache methods by name
       IMethodInfo decl = findMethodNamed(method, _rpcType);

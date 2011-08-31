@@ -5,10 +5,12 @@ import gw.lang.reflect.IAnnotationInfo;
 import gw.lang.reflect.IConstructorInfo;
 import gw.lang.reflect.IMethodCallHandler;
 import gw.lang.reflect.IMethodInfo;
+import gw.lang.reflect.IPropertyAccessor;
 import gw.lang.reflect.IPropertyInfo;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.MethodInfoBuilder;
 import gw.lang.reflect.ParameterInfoBuilder;
+import gw.lang.reflect.PropertyInfoBuilder;
 import gw.lang.reflect.TypeInfoBase;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.java.IJavaType;
@@ -29,10 +31,36 @@ import java.util.Map;
 public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
   private JSchemaRPCTypeBase _owner;
   private List<? extends IMethodInfo> _methods;
+  private List<? extends IPropertyInfo> _properties;
+  private Map<String, IPropertyInfo> _propertiesMap;
 
   public JSchemaRPCTypeInfoBase(JSchemaRPCTypeBase owner) {
     _owner = owner;
     _methods = buildMethods();
+    _propertiesMap = buildProperties();
+    _properties = new ArrayList(_propertiesMap.values());
+  }
+
+  private Map<String, IPropertyInfo> buildProperties() {
+    HashMap<String, IPropertyInfo> props = new HashMap<String, IPropertyInfo>();
+    props.put("Schema", new PropertyInfoBuilder()
+            .withName("Schema")
+            .withStatic(true)
+            .withType(String.class)
+            .withReadable(true)
+            .withWritable(false)
+            .withAccessor(new IPropertyAccessor() {
+              @Override
+              public Object getValue(Object o) {
+                return getOwnersType().getSchemaContent();
+              }
+
+              @Override
+              public void setValue(Object o, Object o1) {
+                throw new IllegalStateException("Scheam Property isn't writable");
+              }
+            }).build(this));
+    return props;
   }
 
   protected List<IMethodInfo> buildMethods() {
@@ -119,12 +147,12 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
 
   @Override
   public List<? extends IPropertyInfo> getProperties() {
-    return Collections.emptyList();
+    return _properties;
   }
 
   @Override
   public IPropertyInfo getProperty(CharSequence propName) {
-    return null;
+    return _propertiesMap.get(propName.toString());
   }
 
   @Override

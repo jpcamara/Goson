@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.util.Collections;
 import java.util.Map;
 
 public class SimpleRPCCallHandler implements RPCCallHandler {
@@ -42,9 +43,16 @@ public class SimpleRPCCallHandler implements RPCCallHandler {
     }
   }
 
+  public static String doGet(String url) {
+    return doGet(url, Collections.<String, String>emptyMap());
+  }
+
   public static String doGet(String url, Map<String, String> args) {
-    StringBuilder sb = new StringBuilder(url).append("?");
-    sb = urlEncodeValues(args, sb);
+    StringBuilder sb = new StringBuilder(url);
+    if (args.size() > 0) {
+      sb.append("?");
+      sb = urlEncodeValues(args, sb);
+    }
     try {
       URL urlObj = new URL(sb.toString());
       return readResponse(urlObj.openStream());

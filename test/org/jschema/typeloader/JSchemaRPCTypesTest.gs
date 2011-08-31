@@ -294,4 +294,12 @@ class JSchemaRPCTypesTest extends GosonTest {
     }
   }
 
+ function testSchemaPublishesCorrectly() {
+    var server = new RPCServer()
+    server.addEndPoint( new RPCEndPoint( ThrowsExceptions, new ThrowsImpl(), "/throws" ) )
+    using( server ) {
+      assertEquals(ThrowsExceptions.Schema, SimpleRPCCallHandler.doGet("http://localhost:12321/throws?JSchema-RPC"))
+    }
+ }
+
 }
