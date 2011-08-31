@@ -4,7 +4,6 @@ import junit.framework.TestCase;
 import org.jschema.parser.JSONParser;
 
 import java.io.InputStreamReader;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -21,7 +20,7 @@ public class JSchemaUtilTest extends TestCase {
     String content = null;
     Scanner scan = null;
     try {
-      InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/org/jschema/examples/RegularJson.json-type"));
+      InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/org/jschema/examples/RegularJson.json"));
       scan = new Scanner(reader);
       scan.useDelimiter("\\Z");
       content = scan.next();

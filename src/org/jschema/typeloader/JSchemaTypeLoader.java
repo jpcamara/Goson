@@ -31,7 +31,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
 
   private static final String JSC_RPC_EXT = "jsc-rpc";
   private static final String JSC_EXT = "jsc";
-  private static final String JSON_EXT = "json-type";
+  private static final String JSON_EXT = "json";
 
   public JSchemaTypeLoader(IModule env) {
     super(env);
