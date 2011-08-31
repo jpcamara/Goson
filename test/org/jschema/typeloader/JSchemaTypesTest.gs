@@ -253,4 +253,15 @@ class JSchemaTypesTest extends GosonTest {
     assertNull( slf.Children[0].Children )
   }
 
+  function testAsJsonMap() {
+    var slf = new SelfTest() {
+      :Name = "Parent",
+      :Children = {}
+    }
+    var slfMap = slf.asJsonMap()
+    assertEquals( "Parent", slfMap["name"] )
+    assertEquals( {}, slfMap["children"] )
+    assertNull( slfMap["reference"] )
+  }
+
 }

@@ -1,22 +1,8 @@
 package org.jschema.typeloader;
 
 import gw.lang.parser.ISymbol;
-import gw.lang.reflect.ConstructorInfoBuilder;
-import gw.lang.reflect.IAnnotationInfo;
-import gw.lang.reflect.IConstructorHandler;
-import gw.lang.reflect.IConstructorInfo;
-import gw.lang.reflect.IEnumValue;
-import gw.lang.reflect.IMethodCallHandler;
-import gw.lang.reflect.IMethodInfo;
-import gw.lang.reflect.IPropertyAccessor;
-import gw.lang.reflect.IPropertyInfo;
+import gw.lang.reflect.*;
 import gw.lang.reflect.IRelativeTypeInfo.Accessibility;
-import gw.lang.reflect.IType;
-import gw.lang.reflect.MethodInfoBuilder;
-import gw.lang.reflect.ParameterInfoBuilder;
-import gw.lang.reflect.PropertyInfoBuilder;
-import gw.lang.reflect.TypeInfoBase;
-import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.java.IJavaType;
 import gw.util.concurrent.LazyVar;
 import org.jschema.model.JsonMap;
@@ -162,6 +148,19 @@ public class JSchemaTypeInfo extends TypeInfoBase {
           }
         })
         .build(JSchemaTypeInfo.this));
+
+      if (!(getOwnersType() instanceof IEnumType)) {
+        typeMethods.add(new MethodInfoBuilder()
+          .withName("asJsonMap")
+          .withReturnType(TypeSystem.get(JsonMap.class))
+          .withCallHandler(new IMethodCallHandler() {
+            @Override
+            public Object handleCall(Object ctx, Object... args) {
+              return ((Json) ctx).getMap();
+            }
+          })
+          .build(JSchemaTypeInfo.this));
+      }
 
     	return typeMethods;
     }
