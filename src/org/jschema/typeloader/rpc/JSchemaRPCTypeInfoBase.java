@@ -15,6 +15,7 @@ import java.util.*;
 public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
   private JSchemaRPCTypeBase _owner;
   private List<? extends IMethodInfo> _methods;
+  private List<? extends IMethodInfo> _jsonDeclaredMethods;
 
   public JSchemaRPCTypeInfoBase(JSchemaRPCTypeBase owner) {
     _owner = owner;
@@ -24,6 +25,7 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
   protected List<IMethodInfo> buildMethods() {
     ArrayList<IMethodInfo> methods = new ArrayList<IMethodInfo>();
     buildFunctionMethods(methods);
+    _jsonDeclaredMethods = new ArrayList<IMethodInfo>(methods);
     return methods;
   }
 
@@ -118,6 +120,11 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
   @Override
   public List<? extends IMethodInfo> getMethods() {
     return _methods;
+  }
+
+  public List<? extends IMethodInfo> getJSONDeclaredMethods()
+  {
+    return(_jsonDeclaredMethods);
   }
 
   @Override

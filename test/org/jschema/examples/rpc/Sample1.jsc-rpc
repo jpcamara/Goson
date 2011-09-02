@@ -3,11 +3,11 @@
   "functions" : [
     { "name" : "getEmployee",
       "description" : "Returns the employee of the given name",
-      "args" : [ {"id" : "biginteger"} ],
+      "args" : [ {"id" : "integer"} ],
       "returns" : { "first_name" : "string",
                     "last_name" : "string",
                     "age" : "integer",
-                    "id" : "biginteger"
+                    "id" : "integer"
                   }
     },
     { "name" : "updateEmployee",
@@ -16,7 +16,7 @@
                         "first_name" : "string",
                         "last_name" : "string",
                         "age" : "integer",
-                        "id" : "biginteger"
+                        "id" : "integer"
                     }
                   } ],
       "returns" : "boolean"
