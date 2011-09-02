@@ -3,12 +3,15 @@ package org.jschema.rpc;
 import gw.lang.reflect.IMethodInfo;
 import gw.lang.reflect.IParameterInfo;
 import gw.lang.reflect.IType;
+import gw.lang.reflect.ITypeInfo;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.java.IJavaType;
 import org.jschema.typeloader.rpc.IJSchemaRPCType;
+import org.jschema.typeloader.rpc.JSchemaRPCTypeInfoBase;
 import org.jschema.util.JSchemaUtils;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 public class RPCEndPoint {
@@ -23,10 +26,52 @@ public class RPCEndPoint {
     _impl = impl;
     _implType = TypeSystem.getFromObject(impl);
     _rootPath = rootPath;
+    validate();
+    return;
   }
 
-  public void validate() {
-    //TODO validate the the impl satisfies the schema
+  public void validate()
+  {
+    JSchemaRPCTypeInfoBase jsonTypeInfo = (JSchemaRPCTypeInfoBase) _rpcType.getTypeInfo();
+    ITypeInfo implTypeInfo = _implType.getTypeInfo();
+    IType[] paramTypes;
+    for(IMethodInfo jsonMethodInfo : jsonTypeInfo.getJSONDeclaredMethods()){
+      IParameterInfo[] jsonImplParameters = jsonMethodInfo.getParameters();
+      paramTypes = new IType[jsonImplParameters.length];
+      for(int cntr = 0; cntr < jsonImplParameters.length; cntr++){
+        paramTypes[cntr] = jsonImplParameters[cntr].getOwnersType();
+      }
+      List<? extends IMethodInfo> methods = implTypeInfo.getMethods();
+      boolean matched = false;
+      for(IMethodInfo implMethodInfo : methods){
+        if(implMethodInfo.getDisplayName().compareTo(jsonMethodInfo.getDisplayName()) == 0){
+          matched = true;
+          IParameterInfo[] implParameters = implMethodInfo.getParameters();
+          matched = compareImplParameters(jsonImplParameters, implParameters);
+        }
+      }
+      if(matched == false){
+        throw(new IllegalArgumentException("Method " + jsonMethodInfo.getName() + " declared on type " + _rpcType.getName() + " does not exist on impl type " + _implType.getName()));
+      }
+    }
+    return;
+  }
+
+  private boolean compareImplParameters(IParameterInfo[] jsonImplParameters, IParameterInfo[] implParameters)
+  {
+    boolean retVal = false;
+    if(implParameters.length == jsonImplParameters.length){
+      retVal = true;
+      for(int cntr = 0; cntr < implParameters.length; cntr++){
+        IType jsonParamType = jsonImplParameters[cntr].getFeatureType();
+        IType implParamType = implParameters[cntr].getFeatureType();
+        if(implParamType.equals(jsonParamType) == false){
+          retVal = false;
+          break;
+        }
+      }
+    }
+    return(retVal);
   }
 
   public boolean handles(URI uri) {

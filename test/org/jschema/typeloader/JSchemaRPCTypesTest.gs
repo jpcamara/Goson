@@ -11,6 +11,7 @@ uses org.jschema.examples.rpc.ThrowsExceptions
 uses org.jschema.examples.rpc.Sample1.GetEmployee
 uses org.jschema.examples.rpc.Sample1.UpdateEmployee.Employee
 uses org.jschema.examples.rpc.Sample2
+uses org.jschema.examples.rpc.ValidationBasis
 
 class JSchemaRPCTypesTest extends GosonTest {
 
@@ -22,7 +23,7 @@ class JSchemaRPCTypesTest extends GosonTest {
    assertEquals( "Joe", emp.FirstName )
    assertEquals( "Blow", emp.LastName )
    assertEquals( 21, emp.Age )
-   assertEquals( 42bi, emp.Id )
+   assertEquals( 42, emp.Id )
  }
 
  function testBootstrapAdd() {
@@ -62,7 +63,7 @@ class JSchemaRPCTypesTest extends GosonTest {
      assertEquals( "Joe", emp.FirstName )
      assertEquals( "Blow", emp.LastName )
      assertEquals( 21, emp.Age )
-     assertEquals( 42bi, emp.Id )
+     assertEquals( 42, emp.Id )
    }
  }
 
@@ -75,7 +76,7 @@ class JSchemaRPCTypesTest extends GosonTest {
      assertEquals( "Joe", emp.FirstName )
      assertEquals( "Blow", emp.LastName )
      assertEquals( 21, emp.Age )
-     assertEquals( 42bi, emp.Id )
+     assertEquals( 42, emp.Id )
    }
  }
 
@@ -91,7 +92,7 @@ class JSchemaRPCTypesTest extends GosonTest {
      assertEquals( "Joe", emp.FirstName )
      assertEquals( "Blow", emp.LastName )
      assertEquals( 21, emp.Age )
-     assertEquals( 42bi, emp.Id )
+     assertEquals( 42, emp.Id )
    }
  }
 
@@ -107,21 +108,26 @@ class JSchemaRPCTypesTest extends GosonTest {
      assertEquals( "Joe", emp.FirstName )
      assertEquals( "Blow", emp.LastName )
      assertEquals( 21, emp.Age )
-     assertEquals( 42bi, emp.Id )
+     assertEquals( 42, emp.Id )
    }
  }
 
  class Impl1 {
-   function getEmployee( id : BigInteger ) : GetEmployee {
+   function getEmployee( id : Integer ) : GetEmployee {
      return new GetEmployee() {
        :FirstName = "Joe",
        :LastName = "Blow",
        :Age = 21,
-       :Id = 42bi
+       :Id = 42
      }
    }
 
-   function add( i1 : int , i2 : int ) : int {
+   function updateEmployee(emp : Employee) : boolean
+   {
+     return(true)
+   }
+
+   function add( i1 : Integer , i2 : Integer ) : Integer {
      return i1 + i2
    }
  }
@@ -184,16 +190,108 @@ class JSchemaRPCTypesTest extends GosonTest {
     }
  }
 
+ // RPCEndPoint.validate() tests.
+
+ function testValidateThrowsForIncompleteImpl()
+ {
+    try{
+        var endPoint = new RPCEndPoint(ValidationBasis, new IncompleteValidation(), "/validation")
+        fail("Exception not thrown")
+    }
+    catch(iae : java.lang.IllegalArgumentException) {
+        // Gulp
+    }
+ }
+
+ function testValidateThrowsForIncorrectArgType()
+ {
+     try{
+         var endPoint = new RPCEndPoint(ValidationBasis, new IncorrectArgTypeValidation(), "/validation")
+         fail("Exception not thrown")
+     }
+     catch(iae : java.lang.IllegalArgumentException) {
+         // Gulp
+     }
+ }
+
+ function testValidateThrowsForIncorrectArgCount()
+ {
+     try{
+         var endPoint = new RPCEndPoint(ValidationBasis, new IncorrectArgCountValidation(), "/validation")
+         fail("Exception not thrown")
+     }
+     catch(iae : java.lang.IllegalArgumentException) {
+         // Gulp
+     }
+ }
+
+ function testValidateThrowsForIncorrectReturnType()
+ {
+    try{
+        var endPoint = new RPCEndPoint(ValidationBasis, new IncorrectReturnValidation(), "/validation")
+        fail("Exception not thrown")
+    }
+    catch(iae : java.lang.IllegalArgumentException) {
+        // Gulp
+    }
+ }
+
+ class IncompleteValidation {
+    function intArgVoidReturn(arg1 : Integer)
+    {
+        return;
+    }
+    // Missing intArgBoolArgBooleanReturn
+ }
+
+ class IncorrectArgTypeValidation{
+    function intArgVoidReturn(arg1 : Integer)
+    {
+        return;
+    }
+
+    function intArgBoolArgBooleanReturn(arg1 : String, arg2 : boolean) : boolean
+    {
+        return(true)
+    }
+ }
+
+ class IncorrectArgCountValidation{
+    function intArgVoidReturn(arg1 : Integer)
+    {
+        return;
+    }
+
+    function intArgBoolArgBooleanReturn(arg1 : Integer) : boolean
+    {
+        return(true)
+    }
+ }
+
+
+
+  class IncorrectReturnValidation{
+     function intArgVoidReturn(arg1 : Integer)
+     {
+         return;
+     }
+
+     function intArgBoolArgBooleanReturn(arg1 : Integer, arg2 : boolean) : Integer
+     {
+         return(new Integer(1))
+     }
+  }
+
  class ThrowsImpl {
    function exception() {
      throw "Good times, good times"
    }
 
-   function deepException( depth : int ) {
-     if(depth <= 0) {
+   function deepException( depth : Integer ) {
+     if(depth.intValue() <= 0) {
        throw "Good times, good times"
      } else {
-       deepException( depth - 1 )
+       deepException( new Integer(depth.intValue() - 1) )
      }
    }
 

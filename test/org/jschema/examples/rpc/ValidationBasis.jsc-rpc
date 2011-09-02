@@ -1,0 +1,12 @@
+{
+  "url" : "http://localhost:12321/validation",
+
+  "functions" : [
+    { "name" : "intArgVoidReturn",
+      "args" : [ {"arg1" : "integer"} ]
+    },
+    { "name" : "intArgBoolArgBooleanReturn",
+      "args" : [ {"arg1" : "integer"}, { "arg2" : "boolean" } ],
+      "returns" : "boolean" }
+  ]
+}
