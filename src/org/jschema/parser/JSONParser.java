@@ -1,7 +1,12 @@
 package org.jschema.parser;
 
+import gw.internal.gosu.parser.TypeLord;
 import gw.lang.reflect.IType;
+import gw.lang.reflect.java.IJavaType;
+import org.jschema.model.JsonList;
 import org.jschema.model.JsonMap;
+import org.jschema.typeloader.IJSchemaType;
+import org.jschema.util.JSchemaUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -10,13 +15,15 @@ import java.util.*;
 public class JSONParser {
 
   private JSONToken _currentToken;
+  private IType _currentType;
 
-  public JSONParser(String json) {
+  public JSONParser(String json, IType rootType) {
     _currentToken = JSONToken.tokenize(json).removeTokens(JSONTokenType.COMMENT);
+    _currentType = rootType;
   }
 
   public static Object parseJSON(String json, IType rootType) {
-    JSONParser jsonParser = new JSONParser(json);
+    JSONParser jsonParser = new JSONParser(json, rootType);
     return jsonParser.parseValue();
   }
 
@@ -26,10 +33,15 @@ public class JSONParser {
 
   public Object parseValue() {
 
+    Date date = parseDate();
+    if (date != null ) {
+      return date;
+    } 
+
     String str = parseString();
     if (str != null ) {
       return str;
-    } 
+    }
 
     Number number = parseNumber();
     if (number != null) {
@@ -62,6 +74,16 @@ public class JSONParser {
     return null;
   }
 
+  private Date parseDate() {
+    if (IJavaType.DATE.equals(_currentType)) {
+      String s = parseString();
+      if (s != null) {
+        return JSchemaUtils.parseDate(s);
+      }
+    }
+    return null;
+  }
+
   private Number parseNumber() {
     boolean leadingNegative = false;
     if (match("-")) {
@@ -71,33 +93,59 @@ public class JSONParser {
       String value = _currentToken.getValue();
       consumeToken();
       if (value.contains(".") || value.contains("e") || value.contains("E")) {
-        if (leadingNegative) {
-          return Double.parseDouble("-" + value);
+        if (IJavaType.BIGDECIMAL.equals(_currentType)) {
+          if (leadingNegative) {
+            return new BigDecimal("-" + value);
+          } else {
+            return new BigDecimal(value);
+          }
         } else {
-          return Double.parseDouble(value);
+          if (leadingNegative) {
+            return Double.parseDouble("-" + value);
+          } else {
+            return Double.parseDouble(value);
+          }
         }
       } else {
-        try {
+        if (IJavaType.INTEGER.equals(_currentType)) {
           if (leadingNegative) {
             return Integer.parseInt("-" + value);
           } else {
             return Integer.parseInt(value);
           }
-        } catch (NumberFormatException e) {
-          try {
-            if (leadingNegative) {
-              return Long.parseLong("-" + value);
-            } else {
-              return Long.parseLong(value);
-            }
-          } catch (NumberFormatException e1) {
-            if (leadingNegative) {
-              return new BigInteger("-" + value);
-            } else {
-              return new BigInteger(value);
-            }
+        } else if (IJavaType.BIGINTEGER.equals(_currentType)) {
+          if (leadingNegative) {
+            return new BigInteger("-" + value);
+          } else {
+            return new BigInteger(value);
           }
-        }
+        } else if (IJavaType.DOUBLE.equals(_currentType)) {
+          if (leadingNegative) {
+            return Double.parseDouble("-" + value);
+          } else {
+            return Double.parseDouble(value);
+          }
+        } else if (IJavaType.BIGDECIMAL.equals(_currentType)) {
+          if (leadingNegative) {
+            return new BigDecimal("-" + value);
+          } else {
+            return new BigDecimal(value);
+          }
+        } else {
+          try {
+             if (leadingNegative) {
+               return Integer.parseInt("-" + value);
+             } else {
+               return Integer.parseInt(value);
+             }
+           } catch (NumberFormatException e) {
+             if (leadingNegative) {
+               return new BigInteger("-" + value);
+             } else {
+               return new BigInteger(value);
+             }
+           }
+         }
       }
     } else if (leadingNegative) {
       badToken();
@@ -156,10 +204,21 @@ public class JSONParser {
       if (match("]")) {
         return Collections.EMPTY_LIST;
       } else {
-        List lst = new ArrayList();
-        do {
-          lst.add(parseValue());
-        } while (match(","));
+        List lst = new JsonList(_currentType);
+        IType lstType = _currentType;
+        try {
+          if (lstType != null) {
+            IType parameterizedType = TypeLord.findParameterizedType(lstType, IJavaType.LIST.getGenericType());
+            if (parameterizedType != null) {
+             _currentType = parameterizedType.getTypeParameters()[0];
+            }
+          }
+          do {
+            lst.add(parseValue());
+          } while (match(","));
+        } finally {
+          _currentType = lstType;
+        }
         if (!match("]")) {
           badToken();
         }
@@ -174,20 +233,29 @@ public class JSONParser {
       if (match("}")) {
         return Collections.EMPTY_MAP;
       } else {
-        Map map = new JsonMap();
-        do {
-          String key = parseString();
+        JsonMap map = new JsonMap(_currentType);
+        IType jschemaType = _currentType;
+        try {
+          do {
+            String key = parseString();
 
-          if (key == null) {
-            badToken();
-          }
+            if (key == null) {
+              badToken();
+            }
 
-          if (!match(":")) {
-            badToken();
-          }
+            if (!match(":")) {
+              badToken();
+            }
 
-          map.put(key, parseValue());
-        } while (match(","));
+            if (jschemaType instanceof IJSchemaType) {
+              _currentType = ((IJSchemaType) jschemaType).getTypeForJsonSlot(key);
+            }
+            map.put(key, parseValue());
+          } while (match(","));
+        } finally {
+          _currentType = jschemaType;
+        }
+
         if (!match("}")) {
           badToken();
         }

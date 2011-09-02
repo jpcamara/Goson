@@ -1,6 +1,7 @@
 package org.jschema.typeloader;
 
 import gw.lang.reflect.IType;
+import gw.lang.reflect.ITypeInfo;
 import gw.lang.reflect.ITypeLoader;
 import gw.lang.reflect.TypeSystem;
 
@@ -21,6 +22,16 @@ public class JSchemaType extends JSchemaTypeBase implements IJsonType {
 
   protected JSchemaTypeInfo initTypeInfo(Object object) {
     return new JSchemaTypeInfo(JSchemaType.this, object);
+  }
+
+  @Override
+  public IType getTypeForJsonSlot(String key) {
+    return getTypeInfo().getTypeForJsonSlot(key);
+  }
+
+  @Override
+  public JSchemaTypeInfo getTypeInfo() {
+    return (JSchemaTypeInfo) super.getTypeInfo();
   }
 
   public IType getSelfType() {

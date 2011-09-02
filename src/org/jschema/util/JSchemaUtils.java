@@ -132,7 +132,6 @@ public class JSchemaUtils {
           stringBuilder.append(", ");
           if (indent >= 0) {
             stringBuilder.append("\n");
-            addWhitespace(stringBuilder, indent, depth - 1);
           }
         }
       }
@@ -215,5 +214,9 @@ public class JSchemaUtils {
       }
     }
     return json;
+  }
+
+  public static Date parseDate(String s) {
+    return new Date(s);
   }
 }

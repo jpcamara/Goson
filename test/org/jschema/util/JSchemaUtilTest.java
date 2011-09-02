@@ -78,7 +78,7 @@ public class JSchemaUtilTest extends TestCase {
       "  \"empty_map\" : {}, \n" +
       "  \"map\" : {\n" +
       "    \"empty_map\" : {}, \n" +
-      "      \"map\" : {\n" +
+      "    \"map\" : {\n" +
       "      \"foo\" : \"bar\"\n" +
       "    }\n" +
       "  }\n" +

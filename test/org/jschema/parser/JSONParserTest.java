@@ -1,5 +1,6 @@
 package org.jschema.parser;
 
+import gw.lang.reflect.java.IJavaType;
 import junit.framework.TestCase;
 
 import java.math.BigDecimal;
@@ -52,10 +53,10 @@ public class JSONParserTest extends TestCase {
 
   public void testLongBigDecimalBigIntegers() {
     Long maxLong = Long.MAX_VALUE;
-    assertEquals(maxLong, JSONParser.parseJSON(maxLong.toString()));
+    assertEquals(new BigInteger(maxLong + ""), JSONParser.parseJSON(maxLong.toString()));
 
     Long minLong = Long.MIN_VALUE;
-    assertEquals(minLong, JSONParser.parseJSON(minLong.toString()));
+    assertEquals(new BigInteger(minLong + ""), JSONParser.parseJSON(minLong.toString()));
 
     BigInteger bigInt = new BigInteger(Long.MAX_VALUE + "" + Long.MAX_VALUE);
     assertEquals(bigInt, JSONParser.parseJSON(bigInt.toString()));
@@ -69,12 +70,11 @@ public class JSONParserTest extends TestCase {
     BigInteger minLongMinus1 = new BigInteger(Long.MIN_VALUE + "").add(BigInteger.ONE.negate());
     assertEquals(minLongMinus1, JSONParser.parseJSON(minLongMinus1.toString()));
 
-// TODO - need type-aware parsing to make this work
-//    BigDecimal bigDecimal = new BigDecimal(Double.MAX_VALUE).add(new BigDecimal(".1"));
-//    assertEquals(bigDecimal, JSONParser.parseJSON(bigDecimal.toString()));
-//
-//    BigDecimal negativeBigDecimal = new BigDecimal(Double.MIN_VALUE).add(new BigDecimal("-.1"));
-//    assertEquals(negativeBigDecimal, JSONParser.parseJSON(negativeBigDecimal.toString()));
+    BigDecimal bigDecimal = new BigDecimal(Double.MAX_VALUE).add(new BigDecimal(".1"));
+    assertEquals(bigDecimal, JSONParser.parseJSON(bigDecimal.toString(), IJavaType.BIGDECIMAL));
+
+    BigDecimal negativeBigDecimal = new BigDecimal(Double.MIN_VALUE).add(new BigDecimal("-.1"));
+    assertEquals(negativeBigDecimal, JSONParser.parseJSON(negativeBigDecimal.toString(), IJavaType.BIGDECIMAL));
   }
 
   public void testComments() {
@@ -118,7 +118,7 @@ public class JSONParserTest extends TestCase {
   }
 
   public void testLongParse() {
-    assertEquals(12314235134l, JSONParser.parseJSON("12314235134")); //broken
+    assertEquals(new BigInteger("12314235134"), JSONParser.parseJSON("12314235134")); //broken
   }
 
   public void testStrings() {

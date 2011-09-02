@@ -2,6 +2,7 @@ package org.jschema.typeloader
 
 uses java.util.*
 uses java.lang.*
+uses java.math.*
 uses org.jschema.test.*
 uses org.jschema.rpc.*
 uses org.jschema.examples.rpc.Defaults
@@ -21,8 +22,7 @@ class JSchemaRPCTypesTest extends GosonTest {
    assertEquals( "Joe", emp.FirstName )
    assertEquals( "Blow", emp.LastName )
    assertEquals( 21, emp.Age )
-   //TODO cgross - need to do context sensitive parsing and produce an actual BigInteger
-//   assertEquals( 42, emp.Id )
+   assertEquals( 42bi, emp.Id )
  }
 
  function testBootstrapAdd() {
@@ -62,8 +62,7 @@ class JSchemaRPCTypesTest extends GosonTest {
      assertEquals( "Joe", emp.FirstName )
      assertEquals( "Blow", emp.LastName )
      assertEquals( 21, emp.Age )
-     //TODO cgross - need to do context sensitive parsing and produce an actual BigInteger
-  //   assertEquals( 42, emp.Id )
+     assertEquals( 42bi, emp.Id )
    }
  }
 
@@ -76,8 +75,7 @@ class JSchemaRPCTypesTest extends GosonTest {
      assertEquals( "Joe", emp.FirstName )
      assertEquals( "Blow", emp.LastName )
      assertEquals( 21, emp.Age )
-     //TODO cgross - need to do context sensitive parsing and produce an actual BigInteger
-  //   assertEquals( 42, emp.Id )
+     assertEquals( 42bi, emp.Id )
    }
  }
 
@@ -93,8 +91,7 @@ class JSchemaRPCTypesTest extends GosonTest {
      assertEquals( "Joe", emp.FirstName )
      assertEquals( "Blow", emp.LastName )
      assertEquals( 21, emp.Age )
-     //TODO cgross - need to do context sensitive parsing and produce an actual BigInteger
-  //   assertEquals( 42, emp.Id )
+     assertEquals( 42bi, emp.Id )
    }
  }
 
@@ -110,17 +107,17 @@ class JSchemaRPCTypesTest extends GosonTest {
      assertEquals( "Joe", emp.FirstName )
      assertEquals( "Blow", emp.LastName )
      assertEquals( 21, emp.Age )
-     //TODO cgross - need to do context sensitive parsing and produce an actual BigInteger
-  //   assertEquals( 42, emp.Id )
+     assertEquals( 42bi, emp.Id )
    }
  }
 
  class Impl1 {
-   function getEmployee( id : int ) : GetEmployee {
+   function getEmployee( id : BigInteger ) : GetEmployee {
      return new GetEmployee() {
        :FirstName = "Joe",
        :LastName = "Blow",
-       :Age = 21
+       :Age = 21,
+       :Id = 42bi
      }
    }
 

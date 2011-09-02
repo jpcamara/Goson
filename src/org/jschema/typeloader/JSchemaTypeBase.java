@@ -63,7 +63,7 @@ public abstract class JSchemaTypeBase extends TypeBase implements IJSchemaType {
   }
 
   @Override
-  public IType resolveInnerType(String name, Object value) {
+  public IType resolveInnerType(String fqn, Object value) {
     if (value instanceof String) {
       if ("self".equals(value)) {
         return getSelfType();
@@ -79,15 +79,20 @@ public abstract class JSchemaTypeBase extends TypeBase implements IJSchemaType {
     } else if (value instanceof Map) {
       Map map = (Map) value;
       if (map.size() == 1 && map.containsKey(JSchemaUtils.JSCHEMA_MAP_KEY)) {
-        return IJavaType.MAP.getParameterizedType(IJavaType.STRING, resolveInnerType(name, map.get("map_of")));
+        return IJavaType.MAP.getParameterizedType(IJavaType.STRING, resolveInnerType(fqn, map.get("map_of")));
       } else {
-        return TypeSystem.getByFullName(name);
+        return TypeSystem.getByFullName(fqn);
       }
     } else if (value instanceof List) {
-      return IJavaType.LIST.getParameterizedType(resolveInnerType(name, ((List) value).get(0)));
+      return IJavaType.LIST.getParameterizedType(resolveInnerType(fqn, ((List) value).get(0)));
     }
     //TODO cgross - this should be a verification error
     return IJavaType.OBJECT;
+  }
+
+  @Override
+  public IType getTypeForJsonSlot(String key) {
+    return null;
   }
 
   @Override
