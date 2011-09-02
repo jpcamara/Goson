@@ -13,16 +13,17 @@ import java.util.List;
 import java.util.Map;
 
 public class JSchemaEnumType extends JSchemaType implements IEnumType {
+
   private List<IEnumValue> values = new ArrayList<IEnumValue>();
 
   public JSchemaEnumType(String name, ITypeLoader typeloader, final Object object) {
     super(name, typeloader, object, Collections.EMPTY_MAP);
-    List obj = (List)((Map)object).get("enum");
+    Object obj = ((Map)object).get("enum");
     if (obj == null || !(obj instanceof List)) {
       throw new RuntimeException("An enum must be an array of values.");
     }
-    for (int i = 0; i < obj.size(); i++) {
-      values.add(new JsonEnumValue((String)obj.get(i)));
+    for (Object o : (List) obj) {
+      values.add(new JsonEnumValue((String)o));
     }
   }
   
@@ -56,14 +57,9 @@ public class JSchemaEnumType extends JSchemaType implements IEnumType {
       displayName = code;
     }
     
-    public String getJsonCode() {
-      return originalValue;
-    }
-
-    //What is this for?
     @Override
     public Object getValue() {
-      throw new NotImplementedException();
+      return originalValue;
     }
 
     @Override

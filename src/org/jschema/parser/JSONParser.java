@@ -1,5 +1,6 @@
 package org.jschema.parser;
 
+import gw.lang.reflect.IType;
 import org.jschema.model.JsonMap;
 
 import java.math.BigDecimal;
@@ -14,62 +15,13 @@ public class JSONParser {
     _currentToken = JSONToken.tokenize(json).removeTokens(JSONTokenType.COMMENT);
   }
 
-  public static Object parseJSON(String json) {
+  public static Object parseJSON(String json, IType rootType) {
     JSONParser jsonParser = new JSONParser(json);
     return jsonParser.parseValue();
   }
 
-  public static String serializeJSON(Object json) {
-    return buildJSON(new StringBuilder(), json).toString();
-  }
-
-  private static StringBuilder buildJSON(StringBuilder stringBuilder, Object json) {
-    if (json instanceof String) {
-      stringBuilder.append("\"");
-      appendCharacters(stringBuilder, (String) json);
-      return stringBuilder.append('\"');
-    } else if (json instanceof Integer ||
-      json instanceof Double ||
-      json instanceof Long ||
-      json instanceof BigDecimal ||
-      json instanceof BigInteger) {
-      return stringBuilder.append(json.toString());
-    } else if (json instanceof Boolean) {
-      return stringBuilder.append(json.toString());
-    } else if (json == null) {
-      return stringBuilder.append("null");
-    } else if (json instanceof List) {
-      stringBuilder.append("[");
-      List lst = (List) json;
-      for (int i = 0, lstSize = lst.size(); i < lstSize; i++) {
-        if (i != 0) {
-          stringBuilder.append(", ");
-        }
-        Object listValue = lst.get(i);
-        buildJSON(stringBuilder, listValue);
-      }
-      return stringBuilder.append("]");
-    } else if (json instanceof Map) {
-      Map map = (Map) json;
-      Set<Map.Entry> set = map.entrySet();
-      stringBuilder.append("{");
-      for (Iterator<Map.Entry> iterator = set.iterator(); iterator.hasNext(); ) {
-        Map.Entry entry = iterator.next();
-        Object key = entry.getKey();
-        if (!(key instanceof String)) {
-          throw new IllegalArgumentException("All keys in a map must be of type string, but found : " + json);
-        }
-        buildJSON(stringBuilder, key.toString());
-        stringBuilder.append(" : ");
-        buildJSON(stringBuilder, entry.getValue());
-        if (iterator.hasNext()) {
-          stringBuilder.append(", ");
-        }
-      }
-      return stringBuilder.append("}");
-    } else {
-      throw new IllegalArgumentException("Do not know how to serialize object : " + json);
-    }
+  public static Object parseJSON(String json) {
+    return parseJSON(json, null);
   }
 
   public Object parseValue() {
@@ -197,39 +149,6 @@ public class JSONParser {
       }
     }
     return result.toString();
-  }
-
-  private static void appendCharacters(StringBuilder result, String value) {
-    for (int i = 0; i < value.length(); i++) {
-      char c = value.charAt(i);
-      if (c == '\"') {
-        result.append("\\\"");
-      } else if (c == '\\') {
-        result.append("\\\\");
-      } else if (c == '\b') {
-        result.append("\\b");
-      } else if (c == '\f') {
-        result.append("\\f");
-      } else if (c == '\n') {
-        result.append("\\n");
-      } else if (c == '\r') {
-        result.append("\\r");
-      } else if (c == '\t') {
-        result.append("\\t");
-      } else if (c > 0xfff) {
-        result.append("\\u" + hex(c));
-      } else if (c > 0xff) {
-        result.append("\\u0" + hex(c));
-      } else if (c > 0x7f) {
-        result.append("\\u00" + hex(c));
-      } else {
-        result.append(c);
-      }
-    }
-  }
-
-  private static String hex(char c) {
-    return Integer.toHexString(c).toUpperCase();
   }
 
   private List parseArray() {

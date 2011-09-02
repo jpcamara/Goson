@@ -1,5 +1,6 @@
 package org.jschema.typeloader.rpc;
 
+import gw.lang.reflect.IType;
 import gw.lang.reflect.ITypeLoader;
 
 import java.util.Map;

@@ -1,17 +1,14 @@
 package org.jschema.util;
 
+import gw.lang.reflect.IEnumValue;
 import gw.lang.reflect.IType;
 import gw.util.GosuEscapeUtil;
 import gw.util.GosuStringUtil;
 import org.jschema.parser.JSONParser;
-import org.jschema.typeloader.IJsonType;
-import org.jschema.typeloader.Json;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
+import java.util.*;
 
 public class JSchemaUtils {
 
@@ -19,6 +16,10 @@ public class JSchemaUtils {
   public static final String JSCHEMA_TRACE_KEY = "trace@";
   public static final String JSCHEMA_EXCEPTION_TYPE_KEY = "exception_type@";
   public static final String JSCHEMA_TYPEDEFS_KEY = "typedefs@";
+  public static final String JSCHEMA_REF_KEY = "ref@";
+  public static final String JSCHEMA_ENUM_KEY = "enum";
+  public static final String JSCHEMA_MAP_KEY = "map_of";
+
 
   //TODO use Character.isJavaIdentifierPart() to scrub bad characters?
   public static String convertJSONStringToGosuIdentifier(String name) {
@@ -60,19 +61,131 @@ public class JSchemaUtils {
   }
 
   public static Object parseJson(String json, IType rootType) {
-    if (rootType instanceof IJsonType) {
-      return new Json(JSONParser.parseJSON(json), rootType);
+    return JSONParser.parseJSON(json, rootType);
+  }
+
+  public static String serializeJson(Object json) {
+    return serializeJson(json, -1);
+  }
+
+  public static String serializeJson(Object json, int indent) {
+    return buildJSON(new StringBuilder(), json, indent, 0).toString();
+  }
+
+  private static StringBuilder buildJSON(StringBuilder stringBuilder, Object json, int indent, int depth) {
+    if (json instanceof String) {
+      stringBuilder.append("\"");
+      appendCharacters(stringBuilder, (String) json);
+      return stringBuilder.append('\"');
+    } else if (json instanceof Integer ||
+      json instanceof Double ||
+      json instanceof Long ||
+      json instanceof BigDecimal ||
+      json instanceof BigInteger) {
+      return stringBuilder.append(json.toString());
+    } else if (json instanceof Boolean) {
+      return stringBuilder.append(json.toString());
+    } else if (json instanceof Date) {
+      // TODO cgross - properly serialize dates
+      return buildJSON(stringBuilder, json.toString(), indent, depth);
+    } else if (json instanceof IEnumValue) {
+      return buildJSON(stringBuilder, ((IEnumValue) json).getValue(), indent, depth);
+    } else if (json == null) {
+      return stringBuilder.append("null");
+    } else if (json instanceof List) {
+      stringBuilder.append("[");
+      List lst = (List) json;
+      for (int i = 0, lstSize = lst.size(); i < lstSize; i++) {
+        if (i != 0) {
+          stringBuilder.append(", ");
+        }
+        Object listValue = lst.get(i);
+        if (listValue instanceof Map && indent >= 0 && ((Map) listValue).size() > 0) {
+          stringBuilder.append("\n");
+          addWhitespace(stringBuilder, indent, depth);
+        }
+        buildJSON(stringBuilder, listValue, indent, depth + 1);
+      }
+      if (indent >= 0 && lst.size() > 0 && lst.get(lst.size() - 1) instanceof Map && ((Map) lst.get(lst.size() - 1)).size() > 0) {
+        stringBuilder.append("\n");
+        addWhitespace(stringBuilder, indent, depth - 1);
+      }
+      return stringBuilder.append("]");
+    } else if (json instanceof Map) {
+      Map map = (Map) json;
+      Set<Map.Entry> set = map.entrySet();
+      stringBuilder.append("{");
+      if (map.size() > 0 && indent >= 0) {
+        stringBuilder.append("\n");
+      }
+      for (Iterator<Map.Entry> iterator = set.iterator(); iterator.hasNext(); ) {
+        Map.Entry entry = iterator.next();
+        Object key = entry.getKey();
+        if (!(key instanceof String)) {
+          throw new IllegalArgumentException("All keys in a map must be of type string, but found : " + json);
+        }
+        addWhitespace(stringBuilder, indent, depth);
+        buildJSON(stringBuilder, entry.getKey().toString(), indent, depth);
+        stringBuilder.append(" : ");
+        buildJSON(stringBuilder, entry.getValue(), indent, depth + 1);
+        if (iterator.hasNext()) {
+          stringBuilder.append(", ");
+          if (indent >= 0) {
+            stringBuilder.append("\n");
+            addWhitespace(stringBuilder, indent, depth - 1);
+          }
+        }
+      }
+      if (set.size() > 0 && indent >= 0) {
+        stringBuilder.append("\n");
+        addWhitespace(stringBuilder, indent, depth - 1);
+      }
+      return stringBuilder.append("}");
     } else {
-      return JSONParser.parseJSON(json);
+      throw new IllegalArgumentException("Do not know how to serialize object : " + json);
     }
   }
 
-  public static String serializeJson(Object value) {
-    if (value instanceof Json) {
-      return ((Json) value).serialize(0);
-    } else {
-      return JSONParser.serializeJSON(value);
+  private static void addWhitespace(StringBuilder stringBuilder, int indent, int depth) {
+    if (indent > 0) {
+      int fullindent = indent * (depth + 1);
+      while (fullindent-- > 0) {
+        stringBuilder.append(" ");
+      }
     }
+  }
+
+  private static void appendCharacters(StringBuilder result, String value) {
+    for (int i = 0; i < value.length(); i++) {
+      char c = value.charAt(i);
+      if (c == '\"') {
+        result.append("\\\"");
+      } else if (c == '\\') {
+        result.append("\\\\");
+      } else if (c == '\b') {
+        result.append("\\b");
+      } else if (c == '\f') {
+        result.append("\\f");
+      } else if (c == '\n') {
+        result.append("\\n");
+      } else if (c == '\r') {
+        result.append("\\r");
+      } else if (c == '\t') {
+        result.append("\\t");
+      } else if (c > 0xfff) {
+        result.append("\\u" + hex(c));
+      } else if (c > 0xff) {
+        result.append("\\u0" + hex(c));
+      } else if (c > 0x7f) {
+        result.append("\\u00" + hex(c));
+      } else {
+        result.append(c);
+      }
+    }
+  }
+
+  private static String hex(char c) {
+    return Integer.toHexString(c).toUpperCase();
   }
 
   public static Object convertJsonToJSchema(Object json) {

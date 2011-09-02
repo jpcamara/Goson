@@ -1,6 +1,8 @@
 package org.jschema.typeloader.rpc;
 
+import gw.lang.reflect.IType;
 import gw.lang.reflect.ITypeLoader;
+import gw.lang.reflect.java.IJavaType;
 import org.jschema.typeloader.JSchemaTypeBase;
 
 import java.util.List;
@@ -47,5 +49,11 @@ abstract class JSchemaRPCTypeBase extends JSchemaTypeBase implements IJSchemaRPC
     } else {
       return methodDefaults.get(parameterName);
     }
+  }
+
+  @Override
+  public IType getSelfType() {
+    //TODO this should be a parse error
+    return IJavaType.OBJECT;
   }
 }

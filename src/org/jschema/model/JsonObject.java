@@ -3,7 +3,6 @@ package org.jschema.model;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.gs.IGosuObject;
-import org.jschema.typeloader.Json;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -107,12 +106,6 @@ public class JsonObject implements IGosuObject{
     else if (obj instanceof Map)
     {
       for (Object o : ((Map) obj).values()) {
-        findDescendents(o, ll, rawClass);
-      }
-    }
-    else if (obj instanceof Json) //TODO remove this
-    {
-      for (Object o : ((Json) obj).getMap().values()) {
         findDescendents(o, ll, rawClass);
       }
     }

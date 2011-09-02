@@ -12,12 +12,10 @@ import gw.lang.reflect.MethodInfoBuilder;
 import gw.lang.reflect.ParameterInfoBuilder;
 import gw.lang.reflect.PropertyInfoBuilder;
 import gw.lang.reflect.TypeInfoBase;
-import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.java.IJavaType;
 import gw.util.GosuExceptionUtil;
 import gw.util.GosuStringUtil;
 import org.jschema.rpc.JSchemaRPCException;
-import org.jschema.typeloader.JSchemaTypeInfo;
 import org.jschema.util.JSchemaUtils;
 
 import java.lang.reflect.Constructor;
@@ -86,7 +84,7 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
         Object defaultValue = arg.get("default");
         ParameterInfoBuilder pib = new ParameterInfoBuilder()
           .withName(argName)
-          .withType(getType(functionTypeName + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(argName), type));
+          .withType(getOwnersType().resolveInnerType(functionTypeName + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(argName), type));
         if (argDescription != null) {
           pib.withDescription(argDescription);
         }
@@ -101,7 +99,7 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
       if (returnTypeSpec == null) {
         returnType = IJavaType.pVOID;
       } else {
-        returnType = getType(functionTypeName, returnTypeSpec);
+        returnType = getOwnersType().resolveInnerType(functionTypeName, returnTypeSpec);
       }
 
       methods.add(new MethodInfoBuilder()
@@ -121,29 +119,6 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
   protected abstract String handleRPCMethodInvocation(Object ctx, String method, Map<String, String> argsMap);
 
   protected abstract boolean areRPCMethodsStatic();
-
-  private IType getType(String s, Object type) {
-    if (type instanceof String) {
-      IJavaType javaType = JSchemaTypeInfo.findJavaType((String) type);
-      if (javaType != null) {
-        return javaType;
-      }
-
-      String name = getOwnersType().getTypeDefs().get((String) type);
-      if (name != null) {
-        return TypeSystem.getByFullName(name);
-      }
-    } else if (type instanceof List) {
-      return IJavaType.LIST.getParameterizedType(getType(s, ((List) type).get(0)));
-    } else if (type instanceof Map) {
-      if (((Map) type).get("map_of") != null) {
-        return IJavaType.MAP.getParameterizedType(IJavaType.STRING, getType(s, ((Map) type).get("map_of")));
-      } else {
-        return TypeSystem.getByFullName(s);
-      }
-    }
-    throw new IllegalArgumentException("Don't know how to create a type for " + type);
-  }
 
   @Override
   public List<? extends IPropertyInfo> getProperties() {

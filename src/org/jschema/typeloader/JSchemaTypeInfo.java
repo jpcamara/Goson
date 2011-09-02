@@ -16,97 +16,82 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class JSchemaTypeInfo extends TypeInfoBase {
-  private static final String ENUM_KEY = "enum";
-  
-  private static final Map<String, IJavaType> TYPES = new HashMap<String, IJavaType>();
-  static {
-    TYPES.put("bigdecimal", IJavaType.BIGDECIMAL);
-    TYPES.put("biginteger", IJavaType.BIGINTEGER);
-    TYPES.put("decimal", IJavaType.DOUBLE);
-    TYPES.put("integer", IJavaType.INTEGER);
-    TYPES.put("string", IJavaType.STRING);
-    TYPES.put("date", IJavaType.DATE);
-    TYPES.put("boolean", IJavaType.BOOLEAN);
-    TYPES.put("enum", IJavaType.ENUM);
-    TYPES.put("map_of", IJavaType.MAP);
-    TYPES.put("object", IJavaType.OBJECT);
-  }
 
-  private JSchemaType owner;
+  private IJSchemaType owner;
   private Map json;
-  private Map<String, String> propertyNames = new HashMap<String, String>();
+  private Map<String, String> jsonSlots = new HashMap<String, String>();
   private List<IPropertyInfo> properties;
+
   private LazyVar<List<IMethodInfo>> methods = new LazyVar<List<IMethodInfo>>() {
     @Override
     protected List<IMethodInfo> init() {
+      return buildMethods();
+    }
+  };
+
+  private List<IMethodInfo> buildMethods() {
+    if (isJsonEnum()) {
+      return (List) TypeSystem.get(JSchemaEnumType.JsonEnumValue.class).getTypeInfo().getMethods();
+    } else {
       List<IMethodInfo> typeMethods = new ArrayList<IMethodInfo>();
-    	typeMethods.add(new MethodInfoBuilder()
-    		.withName("write")
-    		.withReturnType(IJavaType.STRING)
-    		.withStatic(true)
-    		.withCallHandler(new IMethodCallHandler() {
-    			@Override
-    			public Object handleCall(Object ctx, Object... args) {
-    				Json me = (Json)ctx;
-    				return me.serialize(-1);
-    			}
-    		})
-    		.build(JSchemaTypeInfo.this));
-    	typeMethods.add(new MethodInfoBuilder()
-    		.withName("prettyPrint")
-    		.withReturnType(IJavaType.STRING)
-    		.withStatic(true)
-    		.withCallHandler(new IMethodCallHandler() {
-    			@Override
-    			public Object handleCall(Object ctx, Object... args) {
-    				Json me = (Json)ctx;
-    				return me.serialize(2);
-    			}
-    		})
-    		.build(JSchemaTypeInfo.this));
-    	typeMethods.add(parseMethod()
-    		.withParameters(new ParameterInfoBuilder()
-    			.withType(IJavaType.STRING)
-    			.withName("content"))
-    		.withCallHandler(new IMethodCallHandler() {
-    			@Override
-    			public Object handleCall(Object ctx, Object... args) {
-    				String content = (String)args[0];
-    				try {
-    					return new Json(content, JSchemaTypeInfo.this);
-    				} catch (Exception e) {
-    					throw new RuntimeException(e);
-    				}
-    			}
-    		})
-    		.build(JSchemaTypeInfo.this));
-    	typeMethods.add(parseMethod()
-    		.withParameters(new ParameterInfoBuilder()
-    			.withType(TypeSystem.get(java.net.URL.class))
-    			.withName("content"))
-    		.withCallHandler(new IMethodCallHandler() {
-    			@Override
-    			public Object handleCall(Object ctx, Object... args) {
-    				try {
-    				  java.net.URL content = (java.net.URL)args[0];
-      				BufferedReader reader = new BufferedReader(new InputStreamReader(content.openConnection().getInputStream()));
-      				StringBuilder builder = new StringBuilder();
-      				String line = reader.readLine();
-      				while (line != null) {
-      				  builder.append(line);
-      				  line = reader.readLine();
-      				}
-    					return new Json(builder.toString(), JSchemaTypeInfo.this);
-    				} catch (Exception e) {
-    					throw new RuntimeException(e);
-    				}
-    			}
-    		})
-    		.build(JSchemaTypeInfo.this));
+      typeMethods.add(new MethodInfoBuilder()
+        .withName("write")
+        .withReturnType(IJavaType.STRING)
+        .withStatic(true)
+        .withCallHandler(new IMethodCallHandler() {
+          @Override
+          public Object handleCall(Object ctx, Object... args) {
+            return JSchemaUtils.serializeJson(ctx);
+          }
+        })
+        .build(JSchemaTypeInfo.this));
+      typeMethods.add(new MethodInfoBuilder()
+        .withName("prettyPrint")
+        .withReturnType(IJavaType.STRING)
+        .withStatic(true)
+        .withCallHandler(new IMethodCallHandler() {
+          @Override
+          public Object handleCall(Object ctx, Object... args) {
+            return JSchemaUtils.serializeJson(ctx, 2);
+          }
+        })
+        .build(JSchemaTypeInfo.this));
+      typeMethods.add(parseMethod()
+        .withParameters(new ParameterInfoBuilder()
+          .withType(IJavaType.STRING)
+          .withName("content"))
+        .withCallHandler(new IMethodCallHandler() {
+          @Override
+          public Object handleCall(Object ctx, Object... args) {
+            return JSchemaUtils.parseJson((String) args[0], getOwnersType());
+          }
+        })
+        .build(JSchemaTypeInfo.this));
+      typeMethods.add(parseMethod()
+        .withParameters(new ParameterInfoBuilder()
+          .withType(TypeSystem.get(java.net.URL.class))
+          .withName("content"))
+        .withCallHandler(new IMethodCallHandler() {
+          @Override
+          public Object handleCall(Object ctx, Object... args) {
+            try {
+              java.net.URL content = (java.net.URL) args[0];
+              BufferedReader reader = new BufferedReader(new InputStreamReader(content.openConnection().getInputStream()));
+              StringBuilder builder = new StringBuilder();
+              String line = reader.readLine();
+              while (line != null) {
+                builder.append(line);
+                line = reader.readLine();
+              }
+              return JSchemaUtils.parseJson(builder.toString(), getOwnersType());
+            } catch (Exception e) {
+              throw new RuntimeException(e);
+            }
+          }
+        })
+        .build(JSchemaTypeInfo.this));
       typeMethods.add(new MethodInfoBuilder()
         .withName("get")
         .withParameters(new ParameterInfoBuilder()
@@ -123,7 +108,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
           @Override
           public Object handleCall(Object ctx, Object... args) {
             Map<String, String> fixedArgs = fixArgs((Map) args[1]);
-            return new Json(SimpleRPCCallHandler.doGet((String) args[0], fixedArgs), JSchemaTypeInfo.this);
+            return JSchemaUtils.parseJson(SimpleRPCCallHandler.doGet((String) args[0], fixedArgs), getOwnersType());
           }
         })
         .build(JSchemaTypeInfo.this));
@@ -144,34 +129,32 @@ public class JSchemaTypeInfo extends TypeInfoBase {
           @Override
           public Object handleCall(Object ctx, Object... args) {
             Map<String, String> fixedArgs = fixArgs((Map) args[1]);
-            return new Json(SimpleRPCCallHandler.doPost((String) args[0], fixedArgs), JSchemaTypeInfo.this);
+            return JSchemaUtils.parseJson(SimpleRPCCallHandler.doPost((String) args[0], fixedArgs), getOwnersType());
           }
         })
         .build(JSchemaTypeInfo.this));
 
-      if (!(getOwnersType() instanceof IEnumType)) {
-        typeMethods.add(new MethodInfoBuilder()
-          .withName("asJsonMap")
-          .withReturnType(TypeSystem.get(JsonMap.class))
-          .withCallHandler(new IMethodCallHandler() {
-            @Override
-            public Object handleCall(Object ctx, Object... args) {
-              return ((Json) ctx).getMap();
-            }
-          })
-          .build(JSchemaTypeInfo.this));
-      }
+      typeMethods.add(new MethodInfoBuilder()
+        .withName("asJsonMap")
+        .withReturnType(TypeSystem.get(JsonMap.class))
+        .withCallHandler(new IMethodCallHandler() {
+          @Override
+          public Object handleCall(Object ctx, Object... args) {
+            return ctx;
+          }
+        })
+        .build(JSchemaTypeInfo.this));
 
-    	return typeMethods;
+      return typeMethods;
     }
-    
-    private MethodInfoBuilder parseMethod() {
-      return new MethodInfoBuilder()
-        .withName("parse")
-        .withReturnType(getOwnersType())
-        .withStatic(true);
-    }
-  };
+  }
+
+  private MethodInfoBuilder parseMethod() {
+    return new MethodInfoBuilder()
+      .withName("parse")
+      .withReturnType(getOwnersType())
+      .withStatic(true);
+  }
 
   private static Map<String, String> fixArgs(Map arg) {
     if (arg == null) {
@@ -198,123 +181,55 @@ public class JSchemaTypeInfo extends TypeInfoBase {
     this.json = (Map)object;
     createProperties();
   }
-  
-  private PropertyInfoBuilder create(final String originalName) {
-    String propertyName = JSchemaUtils.convertJSONStringToGosuIdentifier(originalName);
-	  propertyNames.put(propertyName, originalName);
-    return new PropertyInfoBuilder()
-      .withName(propertyName).withWritable(true)
-      .withAccessor(new IPropertyAccessor() {
-      	@Override
-      	public void setValue(Object ctx, Object value) {
-      		Json json = (Json) ctx;
-      		try {
-      			json.put(originalName, value);
-      		} catch (Exception e) {
-      			throw new RuntimeException(e);
-      		}
-      	}
 
-      	@Override
-      	public Object getValue(Object ctx) {
-      		try {
-      		  Object o = ((Json) ctx).get(originalName);
-      		  if (o instanceof List) {
-      		  }
-      			return ((Json) ctx).get(originalName);
-      		} catch (Exception e) {
-      			throw new RuntimeException(e);
-      		}
-      	}
-      });
-  }
-
-	private IPropertyInfo createWithType(final String name, IType type) {
-	  PropertyInfoBuilder property = create(name);
-	  return property.withType(type).build(this);
-	}
-
-	private IPropertyInfo createWithListType(final String name, IType type) {
-	  PropertyInfoBuilder property = create(name);
-	  return property.withType(IJavaType.ARRAYLIST.getParameterizedType(new IType[] { type })).build(this);
-	}
-	
-	private IPropertyInfo createWithMapType(final String name, IType value) {
-	  PropertyInfoBuilder property = create(name);
-	  return property.withType(IJavaType.HASHMAP.getParameterizedType(IJavaType.STRING, value)).build(this);
-	}
-
-  public IType findNamedType(String typeName) {
-    if (typeName.equals("self")) {
-      return getOwnersType().getSelfType();
-    }
-    IJavaType javaType = findJavaType(typeName);
-    if (javaType != null) {
-      return javaType;
-    }
-
-    String typeDefType = getOwnersType().getTypeDefs().get(typeName);
-    if (typeDefType != null) {
-      return TypeSystem.getByFullName(typeDefType);
-    }
-
-    return null;
-  }
-
-	public static IJavaType findJavaType(String typeName) {
-	  IJavaType t = TYPES.get(typeName);
-	  if (t == null) {
-	    return null;
-	  }
-	  return t;
-	}
-	
-	private void createEnumProperties(final String key, List enumCodes) {
-	  JSchemaEnumType type = (JSchemaEnumType)getOwnersType();
-    try {
-      for (int i = 0; i < enumCodes.size(); i++) {
-        final String code = (String)enumCodes.get(i);
-        final String enumified = JSchemaEnumType.enumify(code);
-        final IEnumValue value = type.getEnumValue(enumified);
-        
-    	  propertyNames.put(enumified, code);
-        PropertyInfoBuilder property = new PropertyInfoBuilder()
-          .withName(enumified).withWritable(false)
-          .withAccessor(new IPropertyAccessor() {
-          	@Override
-          	public Object getValue(Object ctx) {
-          		try {
-          			return value;
-          		} catch (Exception e) {
-          			throw new RuntimeException(e);
-          		}
-          	}
-          	
-          	@Override
-          	public void setValue(Object ctx, Object value) {
-          		throw new UnsupportedOperationException("Cannot set an enum");
-          	}
-          });
-        
-        properties.add(property.withStatic(true)
-                .withType(type).build(this));
-      }
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-	}
-	
 	private void createProperties() {
-    properties = new ArrayList<IPropertyInfo>();
-    properties.add(new PropertyInfoBuilder()
+    if (isJsonEnum()) {
+      properties = createEnumProperties();
+    } else {
+      properties = createStructProperties();
+    }
+  }
+
+  private boolean isJsonEnum() {
+    return getOwnersType() instanceof IEnumType;
+  }
+
+  private List<IPropertyInfo> createEnumProperties() {
+    ArrayList<IPropertyInfo> props = new ArrayList<IPropertyInfo>();
+    IEnumType type = (IEnumType) getOwnersType();
+    for (final IEnumValue enumValue : type.getEnumValues()) {
+      PropertyInfoBuilder property = new PropertyInfoBuilder()
+        .withName(enumValue.getCode())
+        .withStatic()
+        .withType(type)
+        .withWritable(false)
+        .withAccessor(new IPropertyAccessor() {
+          @Override
+          public Object getValue(Object ctx) {
+            return enumValue;
+          }
+
+          @Override
+          public void setValue(Object ctx, Object value) {
+            throw new UnsupportedOperationException("Cannot set an enum");
+          }
+        });
+      props.add(property.build(this));
+    }
+    return props;
+  }
+
+  private List<IPropertyInfo> createStructProperties() {
+    ArrayList<IPropertyInfo> props = new ArrayList<IPropertyInfo>();
+
+    props.add(new PropertyInfoBuilder()
       .withName("Descendents")
       .withType(Iterable.class)
       .withWritable(false)
       .withAccessor(new IPropertyAccessor() {
         @Override
         public Object getValue(Object ctx) {
-          Json jsonCtx = (Json) ctx;
-          JsonMap jsonMap = jsonCtx.getMap();
+          JsonMap jsonMap = (JsonMap) ctx;
           return jsonMap.getDescendents();
         }
 
@@ -323,77 +238,60 @@ public class JSchemaTypeInfo extends TypeInfoBase {
           throw new IllegalAccessError("Descendents Is Read Only");
         }
       }).build(this));
+
     for (Object k : json.keySet()) {
-      String key = (String) k;
-      Object value = json.get(key);
-      if (key.equals(ENUM_KEY)) {
-        createEnumProperties(key, (java.util.List) value);
-        continue;
-      }
-      if (value instanceof Map) {
-        Map val = (Map) value;
-        if (val.get("map_of") != null) {
-          Object o = val.get("map_of");
-          addMapProperty(key, o);
-          continue;
-        }
-        IType propertyType = findIType(key);
-        properties.add(createWithType(key, propertyType));
-        continue;
-      } else if (value instanceof List) {
-        Object firstEntry = ((List) value).get(0);
-        if (firstEntry instanceof Map) {
-          IType propertyType = findIType(key);
-          if (propertyType == null) {
-            throw new RuntimeException("No type found for " + key + " with owner of " + getOwnersType());
+
+      final String jsonSlotName = (String) k;
+      String propertyName = JSchemaUtils.convertJSONStringToGosuIdentifier(jsonSlotName);
+      final Object value = json.get(jsonSlotName);
+
+      jsonSlots.put(propertyName, jsonSlotName);
+
+      final IType propType = getOwnersType().resolveInnerType(getOwnersType() + "."+ propertyName, value);
+
+      PropertyInfoBuilder pib = new PropertyInfoBuilder()
+        .withName(propertyName)
+        .withType(propType);
+
+      if (propType instanceof IEnumType) {
+        pib.withAccessor(new IPropertyAccessor() {
+          @Override
+          public Object getValue(Object ctx) {
+            JsonMap json = (JsonMap) ctx;
+            return ((IEnumType) propType).getEnumValue(json.get(jsonSlotName).toString());
           }
-          properties.add(createWithListType(key, propertyType));
-        } else {
-          properties.add(createWithListType(key, findNamedType((String) firstEntry)));
-        }
-        continue;
-      }
 
-      if (!(value instanceof String)) {
-        throw new RuntimeException("Unless a JSON Object or a JSON Array, the value should be" +
-          " a string name of the desired type");
-      }
+          @Override
+          public void setValue(Object ctx, Object value) {
+            json.put(jsonSlotName, ((IEnumValue) value).getValue());
+          }
+        });
+      } else {
+        pib.withAccessor(new IPropertyAccessor() {
+          @Override
+          public void setValue(Object ctx, Object value) {
+            JsonMap json = (JsonMap) ctx;
+            json.put(jsonSlotName, value);
+          }
 
-      IType type = findNamedType((String) value);
-      if (type != null) {
-        properties.add(createWithType(key, type));
+          @Override
+          public Object getValue(Object ctx) {
+            JsonMap json = (JsonMap) ctx;
+            return json.get(jsonSlotName);
+          }
+        });
       }
-      if (type == IJavaType.ENUM) {
-        continue; //no properties for the enum, they're at the type level?
-      } else if (json.get(key) == null) {
-        Logger.getLogger(getClass().getName()).log(Level.FINE,
-          "Cannot handle NULL values. No property created.");
-      }
+      props.add(pib.build(this));
     }
+    return props;
   }
-	
-	private IType findIType(String key) {
-    return TypeSystem.getByFullName(getOwnersType().getName() + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(key));
-  }
-	
-	private void addMapProperty(String key, Object o) {
-    IType valueType = null;
-    if (o instanceof Map) {
-      IType ownerType = getOwnersType();
-      valueType = findIType(key);
-    } else {
-      valueType = findNamedType((String) o);
-    }
-    properties.add(createWithMapType(key, valueType));
-	}
 
-	private IConstructorInfo defaultConstructor = new ConstructorInfoBuilder()
+  private IConstructorInfo defaultConstructor = new ConstructorInfoBuilder()
 			.withConstructorHandler(new IConstructorHandler() {
 				@Override
 				public Object newInstance(Object... args) {
-					Json j = new Json(JSchemaTypeInfo.this.getOwnersType());
-					return j;
-				}
+          return new JsonMap(getOwnersType());
+        }
 			}).withAccessibility(Accessibility.PUBLIC).build(this);
 
 	@Override
@@ -433,10 +331,6 @@ public class JSchemaTypeInfo extends TypeInfoBase {
 		return null;
 	}
 	
-	public String getJsonPropertyName(String propertyName) {
-	  return propertyNames.get(propertyName);
-	}
-
 	@Override
 	public List<IAnnotationInfo> getDeclaredAnnotations() {
 		return Collections.emptyList();
@@ -448,7 +342,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
 	}
 
 	@Override
-	public JSchemaType getOwnersType() {
+	public IJSchemaType getOwnersType() {
 		return owner;
 	}
 

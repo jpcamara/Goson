@@ -121,12 +121,6 @@ public class JSONParserTest extends TestCase {
     assertEquals(12314235134l, JSONParser.parseJSON("12314235134")); //broken
   }
 
-  public void testLongSerialize() {
-    Map map = new HashMap();
-    map.put("int_key", 123123123123l);
-    assertEquals("{\"int_key\" : 123123123123}", JSONParser.serializeJSON(map));
-  }
-
   public void testStrings() {
     assertEquals("blah\"blah", JSONParser.parseJSON("\"blah\\\"blah\""));
     assertEquals("blah\\blah", JSONParser.parseJSON("\"blah\\\\blah\""));
@@ -139,14 +133,4 @@ public class JSONParserTest extends TestCase {
     assertEquals("blah\u1234blah", JSONParser.parseJSON("\"blah\\u1234blah\""));
   }
 
-  public void testSerializeStrings() {
-    assertEquals("\"blah\\\"blah\"", JSONParser.serializeJSON("blah\"blah"));
-    assertEquals("\"blah\\\\blah\"", JSONParser.serializeJSON("blah\\blah"));
-    assertEquals("\"blah\\bblah\"", JSONParser.serializeJSON("blah\bblah"));
-    assertEquals("\"blah\\fblah\"", JSONParser.serializeJSON("blah\fblah"));
-    assertEquals("\"blah\\nblah\"", JSONParser.serializeJSON("blah\nblah"));
-    assertEquals("\"blah\\rblah\"", JSONParser.serializeJSON("blah\rblah"));
-    assertEquals("\"blah\\tblah\"", JSONParser.serializeJSON("blah\tblah"));
-    assertEquals("\"blah\\u1234blah\"", JSONParser.serializeJSON("blah\u1234blah"));
-  }
 }

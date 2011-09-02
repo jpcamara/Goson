@@ -12,4 +12,8 @@ public interface IJSchemaType extends IType, IHasInnerClass {
 
   Map<String, String> getTypeDefs();
 
+  IType getSelfType();
+
+  IType resolveInnerType(String relativeName, Object value);
+
 }
