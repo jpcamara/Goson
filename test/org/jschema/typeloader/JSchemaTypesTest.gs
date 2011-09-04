@@ -26,6 +26,7 @@ uses org.jschema.examples.PeopleId.IdToPeople
 uses org.jschema.examples.PeopleId.IdToPeople.EyeColor
 uses org.jschema.examples.NameAndAge
 uses org.jschema.examples.SelfTest
+uses org.jschema.examples.AutoCreateAndInsertTest
 
 uses org.jschema.examples.people1.Peeps
 uses org.jschema.examples.people1.Peeps.People
@@ -234,8 +235,29 @@ class JSchemaTypesTest extends GosonTest {
 
   function testAutoCreateWithJSchemaTypes() {
     var x = new SelfTest()
-    x.Reference.Name = "foo"
-    assertEquals( "foo", x.Reference.Name )
+    x.Reference.Reference.Reference.Name = "foo"
+    assertEquals( "foo", x.Reference.Reference.Reference.Name )
+    assertNull( x.Reference.Reference.Name )
+    assertNull( x.Reference.Name )
+  }
+
+  function testAutoCreateWithMaps() {
+  //TODO cgross - gosu bug, the map syntax doesn't play well with Autocreate
+  /*
+    assertNull( x.Map?["blah"] )
+    x.Map["blah"].Name = "test"
+    assertEquals( "test", x.Map["blah"].Name  )
+   */
+  }
+
+  function testAutoCreateWithLists() {
+    var x = new AutoCreateAndInsertTest()
+    x.Arr[0].Name = "foo"
+    assertEquals( "foo", x.Arr[0].Name )
+
+    var x2 = new AutoCreateAndInsertTest()
+    x2.Arr[0].Arr[0].Arr[0].Arr[0].Name = "foo"
+    assertEquals( "foo", x2.Arr[0].Arr[0].Arr[0].Arr[0].Name )
   }
 
   function testSelfProperties() {

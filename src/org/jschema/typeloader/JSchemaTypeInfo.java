@@ -1,15 +1,16 @@
 package org.jschema.typeloader;
 
 import gw.internal.gosu.parser.AnnotationInfo;
-import gw.lang.IAnnotation;
-import gw.lang.IAutocreate;
+import gw.lang.Autoinsert;
+import gw.lang.GosuShop;
+import gw.lang.annotation.Annotations;
 import gw.lang.function.Function0;
 import gw.lang.parser.ISymbol;
-import gw.lang.parser.coercers.FunctionFromInterfaceCoercer;
 import gw.lang.reflect.*;
 import gw.lang.reflect.IRelativeTypeInfo.Accessibility;
 import gw.lang.reflect.java.IJavaType;
 import gw.util.concurrent.LazyVar;
+import org.jschema.model.JsonList;
 import org.jschema.model.JsonMap;
 import org.jschema.model.JsonObject;
 import org.jschema.rpc.SimpleRPCCallHandler;
@@ -18,7 +19,6 @@ import org.jschema.util.JSchemaUtils;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.*;
-import java.util.concurrent.Callable;
 
 public class JSchemaTypeInfo extends TypeInfoBase {
 
@@ -279,6 +279,11 @@ public class JSchemaTypeInfo extends TypeInfoBase {
 
         if (propType instanceof IJSchemaType) {
           pib.withAnnotations(makeMapAutoCreateAnnotation(propType));
+        } else if (TypeSystem.get(JsonMap.class).equals(propType.getGenericType())) {
+          pib.withAnnotations(makeMapAutoCreateAnnotation(propType));
+        } else if (TypeSystem.get(JsonList.class).equals(propType.getGenericType())) {
+          pib.withAnnotations(makeListAutoCreateAnnotation(propType),
+            makeListAutoInsertAnnotation());
         }
 
       }
@@ -335,8 +340,38 @@ public class JSchemaTypeInfo extends TypeInfoBase {
   }
 
   private IAnnotationInfo makeMapAutoCreateAnnotation(final IType propType) {
-    return new AnnotationInfo(TypeSystem.get(JSchemaMapAutoCreate.class),
-      new JSchemaMapAutoCreate(propType), this);
+    return makeAutocreateAnnotation(new Function0() {
+      @Override
+      public Object invoke() {
+        return new JsonMap(propType);
+      }
+    });
+  }
+
+  private IAnnotationInfo makeListAutoCreateAnnotation(final IType propType) {
+    return makeAutocreateAnnotation(new Function0() {
+      @Override
+      public Object invoke() {
+        return new JsonList(propType);
+      }
+    });
+  }
+
+  private IAnnotationInfo makeListAutoInsertAnnotation() {
+    return new AnnotationInfo(TypeSystem.get(Autoinsert.class), Annotations.create(Autoinsert.class), this);
+  }
+
+  private IAnnotationInfo makeAutocreateAnnotation(Function0 function) {
+    IType autocreateType = TypeSystem.getByFullName("gw.lang.Autocreate");
+    List<? extends IConstructorInfo> constructors = autocreateType.getTypeInfo().getConstructors();
+    for (IConstructorInfo constructor : constructors) {
+      if (constructor.getParameters().length == 1) {
+        return new AnnotationInfo(
+          autocreateType,
+          constructor.getConstructor().newInstance(function), this);
+      }
+    }
+    throw new IllegalStateException("Could not find the block constructor for Autocreate");
   }
 
   private boolean isStronglyTypedMap(JsonObject parent) {
@@ -424,23 +459,5 @@ public class JSchemaTypeInfo extends TypeInfoBase {
       }
     }
     return null;
-  }
-
-  private static class JSchemaMapAutoCreate implements IAnnotation, IAutocreate {
-    private final IType _propType;
-
-    public JSchemaMapAutoCreate(IType propType) {
-      _propType = propType;
-    }
-
-    @Override
-    public Object getBlock() {
-      return new Function0() {
-        @Override
-        public Object invoke() {
-          return new JsonMap(_propType);
-        }
-      };
-    }
   }
 }
