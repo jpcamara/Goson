@@ -6,15 +6,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-public class JsonCollection extends JsonObject implements Collection<Object> {
+public class JsonCollection<T> extends JsonObject implements Collection<T> {
 
-  Collection<Object> _backingCollection;
+  Collection<T> _backingCollection;
 
   protected JsonCollection() {
-    this(null, new ArrayList<Object>());
+    this(null, new ArrayList<T>());
   }
 
-  protected JsonCollection(IType explicitType, Collection<Object> backingCollection) {
+  protected JsonCollection(IType explicitType, Collection<T> backingCollection) {
     super(explicitType);
     _backingCollection = backingCollection;
   }
@@ -35,8 +35,8 @@ public class JsonCollection extends JsonObject implements Collection<Object> {
   }
 
   @Override
-  public Iterator<Object> iterator() {
-    return (Iterator<Object>) new JsonIterator(_backingCollection.iterator()).withValueConverter(getValueConverter()).withRealOwner(getRealOwner());
+  public Iterator<T> iterator() {
+    return (Iterator<T>) new JsonIterator<T>(_backingCollection.iterator()).withValueConverter(getValueConverter()).withRealOwner(getRealOwner());
   }
 
   @Override
@@ -50,7 +50,7 @@ public class JsonCollection extends JsonObject implements Collection<Object> {
   }
 
   @Override
-  public boolean add(Object o) {
+  public boolean add(T o) {
     boolean add = _backingCollection.add(o);
     setThisAsParentFor(o);
     return add;
@@ -68,7 +68,7 @@ public class JsonCollection extends JsonObject implements Collection<Object> {
   }
 
   @Override
-  public boolean addAll(Collection<? extends Object> objects) {
+  public boolean addAll(Collection<? extends T> objects) {
     for (Object object : objects) {
       setThisAsParentFor(object);
     }

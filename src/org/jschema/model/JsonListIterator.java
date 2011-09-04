@@ -2,12 +2,12 @@ package org.jschema.model;
 
 import java.util.ListIterator;
 
-public class JsonListIterator extends JsonObject implements ListIterator<Object> {
+public class JsonListIterator<T> extends JsonObject implements ListIterator<T> {
 
-  private ListIterator<Object> _backingIterator;
-  private Object _current;
+  private ListIterator<T> _backingIterator;
+  private T _current;
 
-  public JsonListIterator(ListIterator<Object> backingIterator) {
+  public JsonListIterator(ListIterator<T> backingIterator) {
     super(null);
     _backingIterator = backingIterator;
   }
@@ -18,7 +18,7 @@ public class JsonListIterator extends JsonObject implements ListIterator<Object>
   }
 
   @Override
-  public Object next() {
+  public T next() {
     _current = _backingIterator.next();
     return _current;
   }
@@ -29,7 +29,7 @@ public class JsonListIterator extends JsonObject implements ListIterator<Object>
   }
 
   @Override
-  public Object previous() {
+  public T previous() {
     _current = _backingIterator.previous();
     return _current;
   }
@@ -51,14 +51,14 @@ public class JsonListIterator extends JsonObject implements ListIterator<Object>
   }
 
   @Override
-  public void set(Object o) {
+  public void set(T o) {
     setNullAsParentFor(_current);
     setThisAsParentFor(o);
     _backingIterator.set(o);
   }
 
   @Override
-  public void add(Object o) {
+  public void add(T o) {
     setThisAsParentFor(o);
     _backingIterator.add(o);
   }

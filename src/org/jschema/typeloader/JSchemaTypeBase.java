@@ -4,6 +4,8 @@ import gw.lang.reflect.*;
 import gw.lang.reflect.java.IJavaType;
 import gw.util.GosuClassUtil;
 import gw.util.concurrent.LazyVar;
+import org.jschema.model.JsonList;
+import org.jschema.model.JsonMap;
 import org.jschema.util.JSchemaUtils;
 
 import java.util.Collections;
@@ -79,12 +81,12 @@ public abstract class JSchemaTypeBase extends TypeBase implements IJSchemaType {
     } else if (value instanceof Map) {
       Map map = (Map) value;
       if (map.size() == 1 && map.containsKey(JSchemaUtils.JSCHEMA_MAP_KEY)) {
-        return IJavaType.MAP.getParameterizedType(IJavaType.STRING, resolveInnerType(fqn, map.get("map_of")));
+        return TypeSystem.get(JsonMap.class).getParameterizedType(resolveInnerType(fqn, map.get("map_of")));
       } else {
         return TypeSystem.getByFullName(fqn);
       }
     } else if (value instanceof List) {
-      return IJavaType.LIST.getParameterizedType(resolveInnerType(fqn, ((List) value).get(0)));
+      return TypeSystem.get(JsonList.class).getParameterizedType(resolveInnerType(fqn, ((List) value).get(0)));
     }
     //TODO cgross - this should be a verification error
     return IJavaType.OBJECT;

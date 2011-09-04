@@ -4,8 +4,8 @@ import gw.lang.reflect.IType;
 
 import java.util.*;
 
-public class JsonSet extends JsonCollection implements Set<Object> {
-  JsonSet(IType explicitType, Set backingSet) {
+public class JsonSet<T> extends JsonCollection<T> implements Set<T> {
+  JsonSet(IType explicitType, Set<T> backingSet) {
     super(explicitType, backingSet);
   }
 }

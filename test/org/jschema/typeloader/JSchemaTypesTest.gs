@@ -215,13 +215,13 @@ class JSchemaTypesTest extends GosonTest {
   }
 
   function testDescendentsProperty() {
-    var peeps = Peeps.parse( new Peeps() {
+    var peeps = new Peeps() {
       :People = {
         new People() { :Name = "Joe", :Age = 42 },
         new People() { :Name = "Paul", :Age = 28 },
         new People() { :Name = "Mack", :Age = 55 }
       }
-    }.write() )
+    }
 
     print( peeps.prettyPrint( 2 ) )
 

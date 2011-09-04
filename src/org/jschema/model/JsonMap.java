@@ -4,9 +4,9 @@ import gw.lang.reflect.IType;
 
 import java.util.*;
 
-public class JsonMap extends JsonObject implements Map<String, Object> {
+public class JsonMap<T> extends JsonObject implements Map<String, T> {
 
-  private Map<String, Object> _backingMap;
+  private Map<String, T> _backingMap;
 
   public JsonMap() {
     this(null);
@@ -14,7 +14,7 @@ public class JsonMap extends JsonObject implements Map<String, Object> {
 
   public JsonMap(IType explicitType) {
     super(explicitType);
-    _backingMap = new LinkedHashMap<String, Object>();
+    _backingMap = new LinkedHashMap<String, T>();
   }
 
   @Override
@@ -38,29 +38,29 @@ public class JsonMap extends JsonObject implements Map<String, Object> {
   }
 
   @Override
-  public Object get(Object o) {
+  public T get(Object o) {
     return _backingMap.get(o);
   }
 
   @Override
-  public Object put(String key, Object value) {
-    Object evicted = _backingMap.put(key, value);
+  public T put(String key, T value) {
+    T evicted = _backingMap.put(key, value);
     setThisAsParentFor(value);
     nullParentIfNotSame(value, evicted);
     return evicted;
   }
 
   @Override
-  public Object remove(Object o) {
-    Object remove = _backingMap.remove(o);
+  public T remove(Object o) {
+    T remove = _backingMap.remove(o);
     setNullAsParentFor(remove);
     return remove;
   }
 
   @Override
-  public void putAll(Map<? extends String, ? extends Object> map) {
-    Set<? extends Entry<? extends String, ? extends Object>> entries = map.entrySet();
-    for (Entry<? extends String, ? extends Object> entry : entries) {
+  public void putAll(Map<? extends String, ? extends T> map) {
+    Set<? extends Entry<? extends String, ? extends T>> entries = map.entrySet();
+    for (Entry<? extends String, ? extends T> entry : entries) {
       put(entry.getKey(), entry.getValue());
     }
   }
@@ -84,12 +84,12 @@ public class JsonMap extends JsonObject implements Map<String, Object> {
   }
 
   @Override
-  public Collection<Object> values() {
-    return (Collection<Object>) new JsonCollection(null, _backingMap.values()).withRealOwner(getRealOwner());
+  public Collection<T> values() {
+    return (Collection<T>) new JsonCollection(null, _backingMap.values()).withRealOwner(getRealOwner());
   }
 
   @Override
-  public Set<Entry<String, Object>> entrySet() {
+  public Set<Entry<String, T>> entrySet() {
     return (Set) new JsonSet(null, _backingMap.entrySet()).withValueConverter(new ValueConverter() {
       @Override
       public Object convert(Object value) {

@@ -2,11 +2,11 @@ package org.jschema.model;
 
 import java.util.Iterator;
 
-public class JsonIterator extends JsonObject implements Iterator<Object> {
-  private Iterator<Object> _backingIterator;
-  private Object _current;
+public class JsonIterator<T> extends JsonObject implements Iterator<T> {
+  private Iterator<T> _backingIterator;
+  private T _current;
 
-  public JsonIterator(Iterator<Object> iterator) {
+  public JsonIterator(Iterator<T> iterator) {
     super(null);
     _backingIterator = iterator;
   }
@@ -17,7 +17,7 @@ public class JsonIterator extends JsonObject implements Iterator<Object> {
   }
 
   @Override
-  public Object next() {
+  public T next() {
     _current = _backingIterator.next();
     return _current;
   }
