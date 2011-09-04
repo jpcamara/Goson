@@ -1,6 +1,11 @@
 package org.jschema.typeloader;
 
+import gw.internal.gosu.parser.AnnotationInfo;
+import gw.lang.IAnnotation;
+import gw.lang.IAutocreate;
+import gw.lang.function.Function0;
 import gw.lang.parser.ISymbol;
+import gw.lang.parser.coercers.FunctionFromInterfaceCoercer;
 import gw.lang.reflect.*;
 import gw.lang.reflect.IRelativeTypeInfo.Accessibility;
 import gw.lang.reflect.java.IJavaType;
@@ -13,6 +18,7 @@ import org.jschema.util.JSchemaUtils;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.concurrent.Callable;
 
 public class JSchemaTypeInfo extends TypeInfoBase {
 
@@ -270,6 +276,11 @@ public class JSchemaTypeInfo extends TypeInfoBase {
             return json.get(jsonSlotName);
           }
         });
+
+        if (propType instanceof IJSchemaType) {
+          pib.withAnnotations(makeMapAutoCreateAnnotation(propType));
+        }
+
       }
       props.add(pib.build(this));
     }
@@ -321,6 +332,11 @@ public class JSchemaTypeInfo extends TypeInfoBase {
       }).build(this));
 
     return props;
+  }
+
+  private IAnnotationInfo makeMapAutoCreateAnnotation(final IType propType) {
+    return new AnnotationInfo(TypeSystem.get(JSchemaMapAutoCreate.class),
+      new JSchemaMapAutoCreate(propType), this);
   }
 
   private boolean isStronglyTypedMap(JsonObject parent) {
@@ -408,5 +424,23 @@ public class JSchemaTypeInfo extends TypeInfoBase {
       }
     }
     return null;
+  }
+
+  private static class JSchemaMapAutoCreate implements IAnnotation, IAutocreate {
+    private final IType _propType;
+
+    public JSchemaMapAutoCreate(IType propType) {
+      _propType = propType;
+    }
+
+    @Override
+    public Object getBlock() {
+      return new Function0() {
+        @Override
+        public Object invoke() {
+          return new JsonMap(_propType);
+        }
+      };
+    }
   }
 }

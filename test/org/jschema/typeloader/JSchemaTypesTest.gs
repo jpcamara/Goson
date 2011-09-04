@@ -232,6 +232,12 @@ class JSchemaTypesTest extends GosonTest {
     assertEquals(3, peeps.Descendents.whereTypeIs(People).where( \ p -> p.Parent.People.Count == 3 ).Count )
   }
 
+  function testAutoCreateWithJSchemaTypes() {
+    var x = new SelfTest()
+    x.Reference.Name = "foo"
+    assertEquals( "foo", x.Reference.Name )
+  }
+
   function testSelfProperties() {
     var slf = new SelfTest() {
       :Name = "Parent",
