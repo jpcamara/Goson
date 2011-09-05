@@ -1,0 +1,10 @@
+{
+  "name" : "string",
+  "value" : "string",
+  "nested" : {
+    "name" : "string",
+    "value" : "string"
+  },
+  "arr" : [ { "name" : "string" } ],
+  "map" : { "map_of" : { "name" : "string" } }
+}

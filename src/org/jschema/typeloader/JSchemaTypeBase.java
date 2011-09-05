@@ -97,6 +97,10 @@ public abstract class JSchemaTypeBase extends TypeBase implements IJSchemaType {
     return null;
   }
 
+  public String getJsonSlotForPropertyName(String propName) {
+    return null;
+  }
+
   @Override
   public String getName() {
     return fullName;

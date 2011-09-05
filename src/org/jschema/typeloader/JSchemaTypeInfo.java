@@ -1,6 +1,8 @@
 package org.jschema.typeloader;
 
 import gw.internal.gosu.parser.AnnotationInfo;
+import gw.internal.gosu.parser.GenericTypeVariable;
+import gw.internal.gosu.parser.TypeSystemImpl;
 import gw.lang.Autoinsert;
 import gw.lang.GosuShop;
 import gw.lang.annotation.Annotations;
@@ -8,6 +10,8 @@ import gw.lang.function.Function0;
 import gw.lang.parser.ISymbol;
 import gw.lang.reflect.*;
 import gw.lang.reflect.IRelativeTypeInfo.Accessibility;
+import gw.lang.reflect.gs.IGenericTypeVariable;
+import gw.lang.reflect.java.IJavaArrayType;
 import gw.lang.reflect.java.IJavaType;
 import gw.util.concurrent.LazyVar;
 import org.jschema.model.JsonList;
@@ -25,6 +29,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
   private IJSchemaType owner;
   private Map json;
   private Map<String, String> jsonSlotToPropertyName = new HashMap<String, String>();
+  private Map<String, String> propertyNameToJsonSlot = new HashMap<String, String>();
   private List<IPropertyInfo> properties;
 
   private LazyVar<List<IMethodInfo>> methods = new LazyVar<List<IMethodInfo>>() {
@@ -33,6 +38,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
       return buildMethods();
     }
   };
+  private IMethodInfo _asMethod;
 
   private List<IMethodInfo> buildMethods() {
     if (isJsonEnum()) {
@@ -156,6 +162,30 @@ public class JSchemaTypeInfo extends TypeInfoBase {
         })
         .build(JSchemaTypeInfo.this));
 
+      ITypeVariableType typeVar = TypeSystem.getOrCreateTypeVariableType("T", IJavaType.OBJECT, getOwnersType());
+      IType typeVarType = TypeSystem.getTypeFromObject(typeVar);
+
+      _asMethod = new MethodInfoBuilder()
+        .withName("as")
+        .withTypeVars(typeVar.getTypeVarDef().getTypeVar())
+        .withParameters(new ParameterInfoBuilder()
+          .withName("type")
+          .withType(typeVarType))
+        .withReturnType(typeVar)
+        .withCallHandler(new IMethodCallHandler() {
+          @Override
+          public Object handleCall(Object ctx, Object... args) {
+            JsonMap ctxMap = (JsonMap) ctx;
+            IType targetType = (IType) args[0];
+            if (!(targetType instanceof IJSchemaType)) {
+              throw new IllegalArgumentException("Can only be converted to other JSchema types!");
+            }
+            return JSchemaUtils.cloneToType((IJSchemaType) targetType, ctxMap, getOwnersType());
+          }
+        })
+        .build(JSchemaTypeInfo.this);
+      typeMethods.add(_asMethod);
+
       return typeMethods;
     }
   }
@@ -241,6 +271,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
       final Object value = json.get(jsonSlotName);
 
       jsonSlotToPropertyName.put(jsonSlotName, propertyName);
+      propertyNameToJsonSlot.put(propertyName, jsonSlotName);
 
       final IType propType = getOwnersType().resolveInnerType(getOwnersType() + "."+ propertyName, value);
 
@@ -430,8 +461,18 @@ public class JSchemaTypeInfo extends TypeInfoBase {
 		}
 		return null;
 	}
-	
-	@Override
+
+  @Override
+  public IMethodInfo getMethod(CharSequence methodName, IType... params) {
+    //Not sure why I need to do this, seems like the generics system should work this out
+    if ("as".equals(methodName) && params.length == 1 && params[0] instanceof IMetaType) {
+      return _asMethod;
+    } else {
+      return super.getMethod(methodName, params);
+    }
+  }
+
+  @Override
 	public List<IAnnotationInfo> getDeclaredAnnotations() {
 		return Collections.emptyList();
 	}
@@ -459,5 +500,9 @@ public class JSchemaTypeInfo extends TypeInfoBase {
       }
     }
     return null;
+  }
+
+  public String getJsonSlotForPropertyName(String propName) {
+    return propertyNameToJsonSlot.get(propName);
   }
 }

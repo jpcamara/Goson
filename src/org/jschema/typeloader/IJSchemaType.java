@@ -17,4 +17,6 @@ public interface IJSchemaType extends IType, IHasInnerClass {
   IType resolveInnerType(String fqn, Object value);
 
   IType getTypeForJsonSlot(String key);
+
+  String getJsonSlotForPropertyName(String propName);
 }

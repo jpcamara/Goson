@@ -1,11 +1,19 @@
 package org.jschema.util;
 
 import gw.lang.reflect.IEnumValue;
+import gw.lang.reflect.IPropertyInfo;
 import gw.lang.reflect.IType;
+import gw.lang.reflect.TypeSystem;
+import gw.lang.reflect.gs.IGenericTypeVariable;
 import gw.util.GosuEscapeUtil;
 import gw.util.GosuStringUtil;
+import org.jschema.model.JsonList;
+import org.jschema.model.JsonMap;
 import org.jschema.parser.JSONParser;
+import org.jschema.typeloader.IJSchemaType;
+import org.jschema.typeloader.JSchemaType;
 
+import javax.swing.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
@@ -218,5 +226,96 @@ public class JSchemaUtils {
 
   public static Date parseDate(String s) {
     return new Date(s);
+  }
+
+  public static Object cloneToType(IJSchemaType targetType, JsonMap fromMap, IJSchemaType fromType) {
+    return deepCopy(new Stack<String>(), targetType, fromMap, fromType, new IdentityHashMap<Object, Object>());
+  }
+
+  private static Object deepCopy(Stack<String> propertyPath, IType toType, Object from, IType fromType, IdentityHashMap<Object, Object> serializationMap) {
+
+    if (from == null) {
+      return from;
+    }
+    
+    // if we've already copied it, just return it
+    Object previousValue = serializationMap.get(from);
+    if (previousValue != null) {
+      return previousValue;
+    }
+
+    if (toType instanceof IJSchemaType && fromType instanceof IJSchemaType) {
+      return deepCopyJSchemaObject(propertyPath, (IJSchemaType) toType, (JsonMap) from, (IJSchemaType) fromType, serializationMap);
+    } else if (TypeSystem.get(JsonList.class).isAssignableFrom(toType) &&
+      TypeSystem.get(JsonList.class).isAssignableFrom(fromType)) {
+      return deepCopyJsonList(propertyPath, toType, (JsonList) from, fromType, serializationMap);
+    } else if (TypeSystem.get(JsonMap.class).isAssignableFrom(toType) &&
+      TypeSystem.get(JsonMap.class).isAssignableFrom(fromType)) {
+      return deepCopyJsonMap(propertyPath, toType, (JsonMap) from, fromType, serializationMap);
+    } else {
+      if (toType.isAssignableFrom(TypeSystem.getFromObject(from))) {
+        return from;
+      } else {
+        throw new IllegalArgumentException("Type mismatch at path : \'" + makePath(propertyPath) + "\', Expected " + toType.getName() + " but found " + fromType.getName());
+      }
+    }
+  }
+
+  private static Object deepCopyJsonMap(Stack<String> propertyPath, IType toType, JsonMap from, IType fromType, IdentityHashMap<Object,Object> serializationMap) {
+    IType toComponent = toType.getTypeParameters()[0];
+    IType fromComponent = fromType.getTypeParameters()[0];
+    JsonMap copy = new JsonMap(toType);
+    serializationMap.put(from, copy);
+    for (Object o : from.keySet()) {
+      copy.put((String) o, deepCopy(propertyPath, toComponent, from.get(o), fromComponent, serializationMap));
+    }
+    return copy;
+  }
+
+  private static Object deepCopyJsonList(Stack<String> propertyPath, IType toType, JsonList from, IType fromType, IdentityHashMap<Object,Object> serializationMap) {
+    IType toComponent = toType.getTypeParameters()[0];
+    IType fromComponent = fromType.getTypeParameters()[0];
+    JsonList copy = new JsonList(toType);
+    serializationMap.put(from, copy);
+    for (Object o : from) {
+      copy.add(deepCopy(propertyPath, toComponent, o, fromComponent, serializationMap));
+    }
+    return copy;
+  }
+
+  private static Object deepCopyJSchemaObject(Stack<String> propertyPath, IJSchemaType toType, JsonMap from, IJSchemaType fromType, IdentityHashMap<Object, Object> serializationMap) {
+    JsonMap to = new JsonMap(toType);
+    serializationMap.put(from, to);
+    List<? extends IPropertyInfo> properties = toType.getTypeInfo().getProperties();
+    for (IPropertyInfo property : properties) {
+      if (property.isWritable()) {
+        String toSlotName = toType.getJsonSlotForPropertyName(property.getName());
+        String fromSlotName = fromType.getJsonSlotForPropertyName(property.getName());
+        IType fromPropertyType = fromType.getTypeForJsonSlot(fromSlotName);
+        if (toSlotName != null && fromSlotName != null) {
+          IType toPropertyType = toType.getTypeForJsonSlot(toSlotName);
+          Object fromSlotValue = from.get(fromSlotName);
+          propertyPath.push(property.getName());
+          try {
+            to.put(toSlotName, deepCopy(propertyPath, toPropertyType, fromSlotValue, fromPropertyType, serializationMap));
+          } finally {
+            propertyPath.pop();
+          }
+        }
+      }
+    }
+    return to;
+  }
+
+  private static String makePath(Stack<String> propertyPath) {
+    StringBuilder sb = new StringBuilder();
+    for (Iterator<String> iterator = propertyPath.iterator(); iterator.hasNext(); ) {
+      String s = iterator.next();
+      sb.append(s);
+      if (iterator.hasNext()) {
+        sb.append(".");
+      }
+    }
+    return sb.toString();
   }
 }

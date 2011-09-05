@@ -1,0 +1,8 @@
+{
+  "name" : "string",
+  "value" : "integer",
+  "nested" : {
+    "name" : "string",
+    "value" : "integer"
+  }
+}

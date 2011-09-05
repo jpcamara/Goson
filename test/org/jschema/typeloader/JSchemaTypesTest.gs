@@ -27,6 +27,7 @@ uses org.jschema.examples.PeopleId.IdToPeople.EyeColor
 uses org.jschema.examples.NameAndAge
 uses org.jschema.examples.SelfTest
 uses org.jschema.examples.AutoCreateAndInsertTest
+uses org.jschema.examples.cloning.*
 
 uses org.jschema.examples.people1.Peeps
 uses org.jschema.examples.people1.Peeps.People
@@ -258,6 +259,79 @@ class JSchemaTypesTest extends GosonTest {
     var x2 = new AutoCreateAndInsertTest()
     x2.Arr[0].Arr[0].Arr[0].Arr[0].Name = "foo"
     assertEquals( "foo", x2.Arr[0].Arr[0].Arr[0].Arr[0].Name )
+  }
+
+  function testAsMethod() {
+    var x1 =
+      new AsExample1() {
+        :Name = "foo",
+        :Value = "bar",
+        :Nested = new AsExample1.Nested() {
+          :Name = "foo",
+          :Value = "bar"
+        },
+        :Arr = { new AsExample1.Arr(){ :Name = "bar" } },
+        :Map = {
+          "foo" -> new AsExample1.Map(){ :Name = "bar" }
+        }
+      }
+
+    var x2 = x1.as(AsExample2)
+
+    assertEquals("foo", x2.Name)
+    assertEquals("bar", x2.Value)
+
+    assertEquals("foo", x2.Nested.Name)
+    assertEquals("bar", x2.Nested.Value)
+
+    assertEquals("bar", x2.Arr[0].Name)
+
+    assertEquals("bar", x2.Map["foo"].Name)
+
+    x1.Value = null
+    x1.Nested = null
+    var x3 = x1.as(AsExample3)
+    assertEquals("foo", x3.Name)
+    assertNull(x3.Value)
+    assertNull(x3.Nested)
+  }
+
+  function testAsMethodThrowsOnBadMismatch() {
+    var x1 =
+      new AsExample1() {
+        :Name = "foo",
+        :Value = "bar",
+        :Nested = new AsExample1.Nested() {
+          :Name = "foo",
+          :Value = "bar"
+        },
+        :Arr = { new AsExample1.Arr(){ :Name = "bar" } },
+        :Map = {
+          "foo" -> new AsExample1.Map(){ :Name = "bar" }
+        }
+      }
+
+    try {
+      var x2 = x1.as(AsExample3)
+    } catch( e ) {
+      print(e.Message)
+      assertTrue( e.Message.contains("Value"))
+    }
+  }
+
+  function testAsMethodThrowsOnBadMismatchDeep() {
+    var x1 =
+      new AsExample1() {
+        :Nested = new AsExample1.Nested() {
+          :Value = "bar"
+        }
+      }
+    try {
+      var x2 = x1.as(AsExample3)
+    } catch( e ) {
+      print(e.Message)
+      assertTrue( e.Message.contains("Nested.Value"))
+    }
   }
 
   function testSelfProperties() {

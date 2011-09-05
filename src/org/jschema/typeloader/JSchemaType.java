@@ -30,6 +30,11 @@ public class JSchemaType extends JSchemaTypeBase implements IJsonType {
   }
 
   @Override
+  public String getJsonSlotForPropertyName(String propName) {
+    return getTypeInfo().getJsonSlotForPropertyName(propName);
+  }
+
+  @Override
   public JSchemaTypeInfo getTypeInfo() {
     return (JSchemaTypeInfo) super.getTypeInfo();
   }
