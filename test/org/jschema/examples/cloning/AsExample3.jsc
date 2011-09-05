@@ -4,5 +4,6 @@
   "nested" : {
     "name" : "string",
     "value" : "integer"
-  }
+  },
+  "enum1" : { "enum" : [ "val2", "val3" ] }
 }

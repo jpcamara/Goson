@@ -6,5 +6,6 @@
     "value" : "string"
   },
   "arr" : [ { "name" : "string" } ],
-  "map" : { "map_of" : { "name" : "string" } }
+  "map" : { "map_of" : { "name" : "string" } },
+  "enum1" : { "enum" : [ "val1" ,  "val2" ] }
 }

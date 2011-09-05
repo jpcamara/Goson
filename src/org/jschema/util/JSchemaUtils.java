@@ -1,9 +1,6 @@
 package org.jschema.util;
 
-import gw.lang.reflect.IEnumValue;
-import gw.lang.reflect.IPropertyInfo;
-import gw.lang.reflect.IType;
-import gw.lang.reflect.TypeSystem;
+import gw.lang.reflect.*;
 import gw.lang.reflect.gs.IGenericTypeVariable;
 import gw.util.GosuEscapeUtil;
 import gw.util.GosuStringUtil;
@@ -244,7 +241,15 @@ public class JSchemaUtils {
       return previousValue;
     }
 
-    if (toType instanceof IJSchemaType && fromType instanceof IJSchemaType) {
+    if (toType instanceof IEnumType && fromType instanceof IEnumType) {
+      String code = ((IEnumValue) from).getCode();
+      IEnumValue enumValue = ((IEnumType) toType).getEnumValue(code);
+      if (enumValue != null) {
+        return enumValue;
+      } else {
+        throw new IllegalArgumentException("Enum mismatch at path : \'" + makePath(propertyPath) + "\', Didn't find Enum value '" + code + "' in Enum " + toType.getName());
+      }
+    } else if (toType instanceof IJSchemaType && fromType instanceof IJSchemaType) {
       return deepCopyJSchemaObject(propertyPath, (IJSchemaType) toType, (JsonMap) from, (IJSchemaType) fromType, serializationMap);
     } else if (TypeSystem.get(JsonList.class).isAssignableFrom(toType) &&
       TypeSystem.get(JsonList.class).isAssignableFrom(fromType)) {

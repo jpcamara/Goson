@@ -1,17 +1,12 @@
 package org.jschema.typeloader;
 
 import gw.internal.gosu.parser.AnnotationInfo;
-import gw.internal.gosu.parser.GenericTypeVariable;
-import gw.internal.gosu.parser.TypeSystemImpl;
 import gw.lang.Autoinsert;
-import gw.lang.GosuShop;
 import gw.lang.annotation.Annotations;
 import gw.lang.function.Function0;
 import gw.lang.parser.ISymbol;
 import gw.lang.reflect.*;
 import gw.lang.reflect.IRelativeTypeInfo.Accessibility;
-import gw.lang.reflect.gs.IGenericTypeVariable;
-import gw.lang.reflect.java.IJavaArrayType;
 import gw.lang.reflect.java.IJavaType;
 import gw.util.concurrent.LazyVar;
 import org.jschema.model.JsonList;
@@ -38,7 +33,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
       return buildMethods();
     }
   };
-  private IMethodInfo _asMethod;
+  private IMethodInfo _convertToMethod;
 
   private List<IMethodInfo> buildMethods() {
     if (isJsonEnum()) {
@@ -152,7 +147,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
         .build(JSchemaTypeInfo.this));
 
       typeMethods.add(new MethodInfoBuilder()
-        .withName("asJsonMap")
+        .withName("asJson")
         .withReturnType(TypeSystem.get(JsonMap.class))
         .withCallHandler(new IMethodCallHandler() {
           @Override
@@ -165,8 +160,8 @@ public class JSchemaTypeInfo extends TypeInfoBase {
       ITypeVariableType typeVar = TypeSystem.getOrCreateTypeVariableType("T", IJavaType.OBJECT, getOwnersType());
       IType typeVarType = TypeSystem.getTypeFromObject(typeVar);
 
-      _asMethod = new MethodInfoBuilder()
-        .withName("as")
+      _convertToMethod = new MethodInfoBuilder()
+        .withName("convertTo")
         .withTypeVars(typeVar.getTypeVarDef().getTypeVar())
         .withParameters(new ParameterInfoBuilder()
           .withName("type")
@@ -184,7 +179,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
           }
         })
         .build(JSchemaTypeInfo.this);
-      typeMethods.add(_asMethod);
+      typeMethods.add(_convertToMethod);
 
       return typeMethods;
     }
@@ -280,44 +275,31 @@ public class JSchemaTypeInfo extends TypeInfoBase {
         .withType(propType);
       propNames.add(propertyName);
 
-      if (propType instanceof IEnumType) {
-        pib.withAccessor(new IPropertyAccessor() {
-          @Override
-          public Object getValue(Object ctx) {
-            JsonMap json = (JsonMap) ctx;
-            return ((IEnumType) propType).getEnumValue(json.get(jsonSlotName).toString());
-          }
-
-          @Override
-          public void setValue(Object ctx, Object value) {
-            json.put(jsonSlotName, ((IEnumValue) value).getValue());
-          }
-        });
-      } else {
-        pib.withAccessor(new IPropertyAccessor() {
-          @Override
-          public void setValue(Object ctx, Object value) {
-            JsonMap json = (JsonMap) ctx;
-            json.put(jsonSlotName, value);
-          }
-
-          @Override
-          public Object getValue(Object ctx) {
-            JsonMap json = (JsonMap) ctx;
-            return json.get(jsonSlotName);
-          }
-        });
-
-        if (propType instanceof IJSchemaType) {
-          pib.withAnnotations(makeMapAutoCreateAnnotation(propType));
-        } else if (TypeSystem.get(JsonMap.class).equals(propType.getGenericType())) {
-          pib.withAnnotations(makeMapAutoCreateAnnotation(propType));
-        } else if (TypeSystem.get(JsonList.class).equals(propType.getGenericType())) {
-          pib.withAnnotations(makeListAutoCreateAnnotation(propType),
-            makeListAutoInsertAnnotation());
+      pib.withAccessor(new IPropertyAccessor() {
+        @Override
+        public void setValue(Object ctx, Object value) {
+          JsonMap json = (JsonMap) ctx;
+          json.put(jsonSlotName, value);
         }
 
+        @Override
+        public Object getValue(Object ctx) {
+          JsonMap json = (JsonMap) ctx;
+          return json.get(jsonSlotName);
+        }
+      });
+
+      if (propType instanceof IEnumType) {
+        //ignore
+      } else if (propType instanceof IJSchemaType) {
+        pib.withAnnotations(makeMapAutoCreateAnnotation(propType));
+      } else if (TypeSystem.get(JsonMap.class).equals(propType.getGenericType())) {
+        pib.withAnnotations(makeMapAutoCreateAnnotation(propType));
+      } else if (TypeSystem.get(JsonList.class).equals(propType.getGenericType())) {
+        pib.withAnnotations(makeListAutoCreateAnnotation(propType),
+          makeListAutoInsertAnnotation());
       }
+
       props.add(pib.build(this));
     }
 
@@ -465,8 +447,8 @@ public class JSchemaTypeInfo extends TypeInfoBase {
   @Override
   public IMethodInfo getMethod(CharSequence methodName, IType... params) {
     //Not sure why I need to do this, seems like the generics system should work this out
-    if ("as".equals(methodName) && params.length == 1 && params[0] instanceof IMetaType) {
-      return _asMethod;
+    if ("convertTo".equals(methodName) && params.length == 1 && params[0] instanceof IMetaType) {
+      return _convertToMethod;
     } else {
       return super.getMethod(methodName, params);
     }

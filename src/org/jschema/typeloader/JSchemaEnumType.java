@@ -26,7 +26,12 @@ public class JSchemaEnumType extends JSchemaType implements IEnumType {
       values.add(new JsonEnumValue((String)o));
     }
   }
-  
+
+  @Override
+  public boolean isEnum() {
+    return true;
+  }
+
   @Override
   public List<IEnumValue> getEnumValues() {
     return values;
@@ -35,13 +40,13 @@ public class JSchemaEnumType extends JSchemaType implements IEnumType {
   @Override
   public IEnumValue getEnumValue( String strName ) {
     for (IEnumValue value : values) {
-      if (value.getDisplayName().equals(strName)) {
+      if (value.getCode().equals(strName)) {
         return value;
       }
     }
     return null;
   }
-  
+
   public static String enumify(String original) {
     return original.replaceAll("\\s", "_").toUpperCase();
   }

@@ -261,7 +261,7 @@ class JSchemaTypesTest extends GosonTest {
     assertEquals( "foo", x2.Arr[0].Arr[0].Arr[0].Arr[0].Name )
   }
 
-  function testAsMethod() {
+  function testConvertToMethod() {
     var x1 =
       new AsExample1() {
         :Name = "foo",
@@ -276,7 +276,7 @@ class JSchemaTypesTest extends GosonTest {
         }
       }
 
-    var x2 = x1.as(AsExample2)
+    var x2 = x1.convertTo(AsExample2)
 
     assertEquals("foo", x2.Name)
     assertEquals("bar", x2.Value)
@@ -290,13 +290,13 @@ class JSchemaTypesTest extends GosonTest {
 
     x1.Value = null
     x1.Nested = null
-    var x3 = x1.as(AsExample3)
+    var x3 = x1.convertTo(AsExample3)
     assertEquals("foo", x3.Name)
     assertNull(x3.Value)
     assertNull(x3.Nested)
   }
 
-  function testAsMethodThrowsOnBadMismatch() {
+  function testConvertToMethodThrowsOnBadMismatch() {
     var x1 =
       new AsExample1() {
         :Name = "foo",
@@ -312,14 +312,14 @@ class JSchemaTypesTest extends GosonTest {
       }
 
     try {
-      var x2 = x1.as(AsExample3)
+      var x2 = x1.convertTo(AsExample3)
     } catch( e ) {
       print(e.Message)
       assertTrue( e.Message.contains("Value"))
     }
   }
 
-  function testAsMethodThrowsOnBadMismatchDeep() {
+  function testConvertToMethodThrowsOnBadMismatchDeep() {
     var x1 =
       new AsExample1() {
         :Nested = new AsExample1.Nested() {
@@ -327,11 +327,26 @@ class JSchemaTypesTest extends GosonTest {
         }
       }
     try {
-      var x2 = x1.as(AsExample3)
+      var x2 = x1.convertTo(AsExample3)
     } catch( e ) {
       print(e.Message)
       assertTrue( e.Message.contains("Nested.Value"))
     }
+  }
+
+  function testConvertToMethodWithEnums() {
+    var x1 = new AsExample1() { :Enum1 = VAL2 }
+    var x2 = x1.convertTo(AsExample3)
+    assertEquals(AsExample3.Enum1.VAL2, x2.Enum1)
+
+    try {
+      x1.Enum1 = VAL1
+      x2 = x1.convertTo(AsExample3)
+    } catch( e ) {
+      print(e.Message)
+      assertTrue( e.Message.contains("Didn't find Enum value 'VAL1' in Enum"))
+    }
+
   }
 
   function testSelfProperties() {
@@ -342,9 +357,9 @@ class JSchemaTypesTest extends GosonTest {
         new SelfTest() { :Name = "Child2" },
         new SelfTest() { :Name = "Child3",
                          :Children = {
-                          new SelfTest() { :Name = "Child31" },
-                          new SelfTest() { :Name = "Child32" },
-                          new SelfTest() { :Name = "Child33" }
+                            new SelfTest() { :Name = "Child31" },
+                            new SelfTest() { :Name = "Child32" },
+                            new SelfTest() { :Name = "Child33" }
                           }
         }
       }
@@ -364,7 +379,7 @@ class JSchemaTypesTest extends GosonTest {
       :Name = "Parent",
       :Children = {}
     }
-    var slfMap = slf.asJsonMap()
+    var slfMap = slf.asJson()
     assertEquals( "Parent", slfMap["name"] )
     assertEquals( {}, slfMap["children"] )
     assertNull( slfMap["reference"] )
