@@ -80,6 +80,30 @@ class JSchemaRPCTypesTest extends GosonTest {
    }
  }
 
+ function testBootstrapFileRemotelyWithGetOnJetty() {
+   using( JettyStarter.server( 12321, new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) ) ) {
+     var emp = Sample1
+                  .with( :method = GET )
+                  .getEmployee(22)
+
+     assertEquals( "Joe", emp.FirstName )
+     assertEquals( "Blow", emp.LastName )
+     assertEquals( 21, emp.Age )
+     assertEquals( 42, emp.Id )
+   }
+ }
+
+ function testBootstrapFileRemotelyWithPostOnJetty() {
+   using( JettyStarter.server( 12321, new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) ) ) {
+     var emp = Sample1
+                  .getEmployee(22)
+
+     assertEquals( "Joe", emp.FirstName )
+     assertEquals( "Blow", emp.LastName )
+     assertEquals( 21, emp.Age )
+     assertEquals( 42, emp.Id )
+   }
+ }
 
  function testBootstrapFileRemotelyWithGetUsingApacheHTTPClient() {
    var server = new RPCServer()
@@ -104,6 +128,33 @@ class JSchemaRPCTypesTest extends GosonTest {
                    .with( :handler = new ApacheHTTPClientCallHandler(),
                           :method = Post )
                    .getEmployee(22)
+
+     assertEquals( "Joe", emp.FirstName )
+     assertEquals( "Blow", emp.LastName )
+     assertEquals( 21, emp.Age )
+     assertEquals( 42, emp.Id )
+   }
+ }
+
+ function testBootstrapFileRemotelyWithGetUsingApacheHTTPClientOnJetty() {
+   using( JettyStarter.server( 12321, new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) ) ) {
+     var emp = Sample1
+                  .with( :handler = new ApacheHTTPClientCallHandler(),
+                         :method = GET )
+                  .getEmployee(22)
+
+     assertEquals( "Joe", emp.FirstName )
+     assertEquals( "Blow", emp.LastName )
+     assertEquals( 21, emp.Age )
+     assertEquals( 42, emp.Id )
+   }
+ }
+
+ function testBootstrapFileRemotelyWithPostUsingApacheHTTPClientOnJetty() {
+   using( JettyStarter.server( 12321, new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) ) ) {
+     var emp = Sample1
+                  .with(:handler = new ApacheHTTPClientCallHandler())
+                  .getEmployee(22)
 
      assertEquals( "Joe", emp.FirstName )
      assertEquals( "Blow", emp.LastName )
