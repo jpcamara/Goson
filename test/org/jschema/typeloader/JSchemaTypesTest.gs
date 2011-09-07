@@ -349,6 +349,20 @@ class JSchemaTypesTest extends GosonTest {
 
   }
 
+  function testCircularLoopIsCopiedCorrectly() {
+    var x1 = new SelfTest() { :Name = "Single" }
+    x1.Reference = x1
+
+    var x2 = x1.convertTo(SelfTest)
+
+    assertEquals( x1, x1.Reference )
+
+    assertEquals( x2, x2.Reference )
+
+    assertFalse( x1 === x2 )
+
+  }
+
   function testSelfProperties() {
     var slf = new SelfTest() {
       :Name = "Parent",
