@@ -34,6 +34,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
     }
   };
   private IMethodInfo _convertToMethod;
+  private IMethodInfo _findMethod;
 
   private List<IMethodInfo> buildMethods() {
     if (isJsonEnum()) {
@@ -181,6 +182,60 @@ public class JSchemaTypeInfo extends TypeInfoBase {
         .build(JSchemaTypeInfo.this);
       typeMethods.add(_convertToMethod);
 
+      IType outerParent = TypeSystem.getByFullNameIfValid(getOwnersType().getNamespace());
+      final IType parentType;
+      if (outerParent instanceof IJSchemaType && !thisIsTypedefFor((IJSchemaType) outerParent)) {
+        parentType = outerParent;
+      } else {
+        parentType = TypeSystem.get(JsonMap.class);
+      }
+
+      typeMethods.add(new MethodInfoBuilder()
+        .withName("parent")
+        .withReturnType(parentType)
+        .withCallHandler(new IMethodCallHandler() {
+
+          @Override
+          public Object handleCall(Object ctx, Object... args) {
+            JsonMap jsonMap = (JsonMap) ctx;
+            JsonObject parent = jsonMap.getParent();
+            while (parent != null && !isStronglyTypedMap(parent)) {
+              parent = parent.getParent();
+            }
+            return parent;
+          }
+        }).build(this));
+
+      typeMethods.add(new MethodInfoBuilder()
+        .withName("descendents")
+        .withReturnType(Iterable.class)
+        .withCallHandler(new IMethodCallHandler() {
+          @Override
+          public Object handleCall(Object ctx, Object... args) {
+            JsonMap jsonMap = (JsonMap) ctx;
+            return jsonMap.getDescendents();
+          }
+        }).build(this));
+
+      ITypeVariableType typeVar2 = TypeSystem.getOrCreateTypeVariableType("T", IJavaType.OBJECT, getOwnersType());
+      IType typeVarType2 = TypeSystem.getTypeFromObject(typeVar2);
+      _findMethod = new MethodInfoBuilder()
+        .withName("find")
+        .withTypeVars(typeVar2.getTypeVarDef().getTypeVar())
+        .withParameters(new ParameterInfoBuilder()
+          .withName("type")
+          .withType(typeVarType2))
+        .withReturnType(IJavaType.LIST.getParameterizedType(typeVar2))
+        .withCallHandler(new IMethodCallHandler() {
+          @Override
+          public Object handleCall(Object ctx, Object... args) {
+            JsonMap ctxMap = (JsonMap) ctx;
+            return ctxMap.findDescendents((IType) args[0]);
+          }
+        })
+        .build(JSchemaTypeInfo.this);
+      typeMethods.add(_findMethod);
+
       return typeMethods;
     }
   }
@@ -303,52 +358,6 @@ public class JSchemaTypeInfo extends TypeInfoBase {
       props.add(pib.build(this));
     }
 
-    props.add(new PropertyInfoBuilder()
-      .withName("Descendents" + (propNames.contains("Descendents") ? "$" : ""))
-      .withType(Iterable.class)
-      .withWritable(false)
-      .withAccessor(new IPropertyAccessor() {
-        @Override
-        public Object getValue(Object ctx) {
-          JsonMap jsonMap = (JsonMap) ctx;
-          return jsonMap.getDescendents();
-        }
-
-        @Override
-        public void setValue(Object ctx, Object value) {
-          throw new IllegalAccessError("Descendents Is Read Only");
-        }
-      }).build(this));
-
-    IType outerParent = TypeSystem.getByFullNameIfValid(getOwnersType().getNamespace());
-    final IType parentPropertyType;
-    if (outerParent instanceof IJSchemaType && !thisIsTypedefFor((IJSchemaType) outerParent)) {
-      parentPropertyType = outerParent;
-    } else {
-      parentPropertyType = TypeSystem.get(JsonMap.class);
-    }
-
-    props.add(new PropertyInfoBuilder()
-      .withName("Parent" + (propNames.contains("Parent") ? "$" : ""))
-      .withType(parentPropertyType)
-      .withWritable(false)
-      .withAccessor(new IPropertyAccessor() {
-        @Override
-        public Object getValue(Object ctx) {
-          JsonMap jsonMap = (JsonMap) ctx;
-          JsonObject parent = jsonMap.getParent();
-          while (parent != null && !isStronglyTypedMap(parent)) {
-            parent = parent.getParent();
-          }
-          return parent;
-        }
-
-        @Override
-        public void setValue(Object ctx, Object value) {
-          throw new IllegalAccessError("Parent Is Read Only");
-        }
-      }).build(this));
-
     return props;
   }
 
@@ -449,6 +458,8 @@ public class JSchemaTypeInfo extends TypeInfoBase {
     //Not sure why I need to do this, seems like the generics system should work this out
     if ("convertTo".equals(methodName) && params.length == 1 && params[0] instanceof IMetaType) {
       return _convertToMethod;
+    } else if ("find".equals(methodName) && params.length == 1 && params[0] instanceof IMetaType) {
+      return _findMethod;
     } else {
       return super.getMethod(methodName, params);
     }

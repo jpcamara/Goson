@@ -216,7 +216,7 @@ class JSchemaTypesTest extends GosonTest {
                          .prettyPrint())
   }
 
-  function testDescendentsProperty() {
+  function testDescendentsFunction() {
     var peeps = new Peeps() {
       :People = {
         new People() { :Name = "Joe", :Age = 42 },
@@ -227,11 +227,11 @@ class JSchemaTypesTest extends GosonTest {
 
     print( peeps.prettyPrint( 2 ) )
 
-    assertEquals(11, peeps.Descendents.Count)
-    assertEquals(3, peeps.Descendents.whereTypeIs(String).Count)
-    assertEquals(2, peeps.Descendents.whereTypeIs(String).where( \ s -> s.length() > 3 ).Count)
-    assertEquals(2, peeps.Descendents.whereTypeIs(People).where( \ p -> p.Age > 30 ).Count )
-    assertEquals(3, peeps.Descendents.whereTypeIs(People).where( \ p -> p.Parent.People.Count == 3 ).Count )
+    assertEquals(11, peeps.descendents().Count)
+    assertEquals(3, peeps.descendents().whereTypeIs(String).Count)
+    assertEquals(2, peeps.find(String).where( \ s -> s.length() > 3 ).Count)
+    assertEquals(2, peeps.find(People).where( \ p -> p.Age > 30 ).Count )
+    assertEquals(3, peeps.find(People).where( \ p -> p.parent().People.Count == 3 ).Count )
   }
 
   function testAutoCreateWithJSchemaTypes() {

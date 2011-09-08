@@ -86,13 +86,13 @@ public class JsonObject implements IGosuObject{
     return findDescendents(this, new LinkedList(), null);
   }
 
-  public Iterable getDescendentMaps() {
-    return findDescendents(this, new LinkedList(), Map.class);
+  public Iterable findDescendents(IType type) {
+    return findDescendents(this, new LinkedList(), type);
   }
 
-  private static Iterable findDescendents(Object obj, List ll, Class rawClass) {
-    if (rawClass != null) {
-      if (rawClass.isAssignableFrom(obj.getClass())) {
+  private static Iterable findDescendents(Object obj, List ll, IType type) {
+    if (type != null) {
+      if (type.isAssignableFrom(TypeSystem.getTypeFromObject(obj))) {
         ll.add(obj);
       }
     } else {
@@ -100,13 +100,13 @@ public class JsonObject implements IGosuObject{
     }
     if (obj instanceof List) {
       for (Object o : ((List) obj)) {
-        findDescendents(o, ll, rawClass);
+        findDescendents(o, ll, type);
       }
     }
     else if (obj instanceof Map)
     {
       for (Object o : ((Map) obj).values()) {
-        findDescendents(o, ll, rawClass);
+        findDescendents(o, ll, type);
       }
     }
     return ll;
