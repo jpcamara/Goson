@@ -202,10 +202,10 @@ public class JSchemaUtils {
     if (json instanceof Integer ||
         json instanceof Long ||
         json instanceof BigInteger) {
-      return "biginteger";
+      return "int";
     } else if (json instanceof Double ||
         json instanceof BigDecimal) {
-      return "bigdecimal";
+      return "number";
     } else if (json instanceof String) {
       return "string";
     } else if (json instanceof Boolean) {

@@ -27,7 +27,7 @@
   "members" : [
     { "first_name" : "string",
       "last_name" : " string",
-      "age" : "integer",
+      "age" : "int",
       "position" : {"enum" : [ "manager", "developer", "documentation" ] }
     }
   ]
@@ -50,7 +50,7 @@
     <p>For example, to parse a string conforming to the <code>Group</code> schema above you would say:</p>
 
     <pre>
-  var str = '{ "group_name" = "A Group", "members" = [ { "first_name" : "Joe", "last_name" : "blow", "age" : "integer", "position" : "developer" } ] }'
+  var str = '{ "group_name" = "A Group", "members" = [ { "first_name" : "Joe", "last_name" : "blow", "age" : "int", "position" : "developer" } ] }'
 
   var group = Group.parse( str )
 
@@ -71,7 +71,7 @@
     <p>JSchema objects can be serialized to JSON with the <code>write()</code> method:</p>
 
     <pre>
-  var str = '{ "group_name" = "A Group", "members" = [ { "first_name" : "Joe", "last_name" : "blow", "age" : "integer", "position" : "developer" } ] }'
+  var str = '{ "group_name" = "A Group", "members" = [ { "first_name" : "Joe", "last_name" : "blow", "age" : "int", "position" : "developer" } ] }'
   var group = Group.content( str )
 
   print( group.write() )
@@ -79,7 +79,7 @@
 
     <p>It can also be serialized with nice whitespace using the <code>prettyPrint()</code> method:</p>
     <pre>
-  var str = '{ "group_name" = "A Group", "members" = [ { "first_name" : "Joe", "last_name" : "blow", "age" : "integer", "position" : "developer" } ] }'
+  var str = '{ "group_name" = "A Group", "members" = [ { "first_name" : "Joe", "last_name" : "blow", "age" : "int", "position" : "developer" } ] }'
   var group = Group.parse( str )
 
   print( group.prettyPrint() )
@@ -142,14 +142,14 @@
       "Employee" : {
         "first_name" : "string",
         "last_name" : "string",
-        "age" : "integer",
-        "id" : "biginteger"
+        "age" : "int",
+        "id" : "int"
       }
     }
     "functions" : [
       { "name" : "getEmployee",
         "description" : "Returns the employee of the given name",
-        "args" : [ {"id" : "biginteger" } ],
+        "args" : [ {"id" : "int" } ],
         "return_type" : "Employee"
       },
       { "name" : "updateEmployee",

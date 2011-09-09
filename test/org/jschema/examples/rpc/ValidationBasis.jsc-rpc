@@ -3,10 +3,10 @@
 
   "functions" : [
     { "name" : "intArgVoidReturn",
-      "args" : [ {"arg1" : "integer"} ]
+      "args" : [ {"arg1" : "int"} ]
     },
     { "name" : "intArgBoolArgBooleanReturn",
-      "args" : [ {"arg1" : "integer"}, { "arg2" : "boolean" } ],
+      "args" : [ {"arg1" : "int"}, { "arg2" : "boolean" } ],
       "returns" : "boolean" }
   ]
 }

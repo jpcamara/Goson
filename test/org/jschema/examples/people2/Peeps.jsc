@@ -1,5 +1,5 @@
 { "people" : [ { "name" : "string", 
-                 "age" : "integer",
+                 "age" : "int",
                  "eye_color" : {"enum" : ["brown", 
                                           "blue", 
                                           "green"]}} ] }

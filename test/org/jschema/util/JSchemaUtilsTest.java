@@ -34,16 +34,16 @@ public class JSchemaUtilsTest extends TestCase {
     Map nested = (Map)someType.get("nested_type");
     Map nestedListEntry = (Map)((List)someType.get("type_in_array")).get(0);
 
-    assertEquals("biginteger", someType.get("big_int_ex"));
+    assertEquals("int", someType.get("int_ex"));
     assertEquals("string", someType.get("string_ex"));
     assertEquals("boolean", someType.get("boolean_ex"));
     assertEquals("string", nestedListEntry.get("content"));
     assertEquals("string", nested.get("nested_string_ex"));
     assertEquals("string", ((Map)((List)nested.get("nested_type_in_array")).get(0)).get("value"));
-    assertEquals("biginteger", ((List) nested.get("big_int_array_ex")).get(0));
+    assertEquals("int", ((List) nested.get("int_array_ex")).get(0));
     assertEquals("string", ((List)nested.get("string_array_ex")).get(0));
-    assertEquals("biginteger", nested.get("nested_big_int_ex"));
-    assertEquals("bigdecimal", nested.get("nested_big_decimal_ex"));
+    assertEquals("int", nested.get("nested_int_ex"));
+    assertEquals("number", nested.get("nested_number_ex"));
   }
 
   public void testSerializeStrings() {

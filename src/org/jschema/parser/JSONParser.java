@@ -93,17 +93,17 @@ public class JSONParser {
       String value = _currentToken.getValue();
       consumeToken();
       if (value.contains(".") || value.contains("e") || value.contains("E")) {
-        if (IJavaType.BIGDECIMAL.equals(_currentType)) {
-          if (leadingNegative) {
-            return new BigDecimal("-" + value);
-          } else {
-            return new BigDecimal(value);
-          }
-        } else {
+        if (IJavaType.DOUBLE.equals(_currentType)) {
           if (leadingNegative) {
             return Double.parseDouble("-" + value);
           } else {
             return Double.parseDouble(value);
+          }
+        } else {
+          if (leadingNegative) {
+            return new BigDecimal("-" + value);
+          } else {
+            return new BigDecimal(value);
           }
         }
       } else {
@@ -132,18 +132,10 @@ public class JSONParser {
             return new BigDecimal(value);
           }
         } else {
-          try {
-             if (leadingNegative) {
-               return Integer.parseInt("-" + value);
-             } else {
-               return Integer.parseInt(value);
-             }
-           } catch (NumberFormatException e) {
-             if (leadingNegative) {
-               return new BigInteger("-" + value);
-             } else {
-               return new BigInteger(value);
-             }
+           if (leadingNegative) {
+             return Long.parseLong("-" + value);
+           } else {
+             return Long.parseLong(value);
            }
          }
       }

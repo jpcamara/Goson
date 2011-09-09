@@ -117,12 +117,10 @@ class JSchemaTypesTest extends GosonTest {
   function testTwo() {
     var example = new Example() {
       :SomeType = new SomeType() {
-        :BigIntEx = 12312,
         :StringEx = "Example",
         :BooleanEx = true,
-        :BigDecimalEx = 20.1231,
+        :NumberEx = 20.1231,
         :IntEx = 1,
-        :DecimalEx = 1.2123,
         :TypeInArray = {
           new TypeInArray() {
             :Content = "Example Content"
@@ -138,10 +136,10 @@ class JSchemaTypesTest extends GosonTest {
               :ADate = new java.util.Date()
             }
           },
-          :BigIntArrayEx = { 312 },
+          :IntArrayEx = { 312 },
           :StringArrayEx = { "Oh Nice", "This", "Is", "An", "Array" },
-          :NestedBigIntEx = 12312,
-          :NestedBigDecimalEx = 123.1239141
+          :NestedIntEx = 12312,
+          :NestedNumberEx = 123.1239141
         }
       }
     }

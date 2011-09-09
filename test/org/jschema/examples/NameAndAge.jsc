@@ -1,1 +1,1 @@
-{ "name" : "string", "age" : "integer" }
+{ "name" : "string", "age" : "int" }

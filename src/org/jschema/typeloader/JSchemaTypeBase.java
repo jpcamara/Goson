@@ -19,10 +19,8 @@ public abstract class JSchemaTypeBase extends TypeBase implements IJSchemaType {
 
   private static final Map<String, IJavaType> TYPES = new HashMap<String, IJavaType>();
   static {
-    TYPES.put("bigdecimal", IJavaType.BIGDECIMAL);
-    TYPES.put("biginteger", IJavaType.BIGINTEGER);
-    TYPES.put("decimal", IJavaType.DOUBLE);
-    TYPES.put("integer", IJavaType.INTEGER);
+    TYPES.put("number", IJavaType.BIGDECIMAL);
+    TYPES.put("int", IJavaType.LONG);
     TYPES.put("string", IJavaType.STRING);
     TYPES.put("date", IJavaType.DATE);
     TYPES.put("boolean", IJavaType.BOOLEAN);
