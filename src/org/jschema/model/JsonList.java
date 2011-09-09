@@ -80,4 +80,9 @@ public class JsonList<T> extends JsonCollection<T> implements List<T> {
   public List<T> subList(int i, int i1) {
     return (List<T>) new JsonList<T>(getIntrinsicType(), _backingList.subList(i, i1)).withValueConverter(getValueConverter()).withRealOwner(getRealOwner());
   }
+
+  @Override
+  public String toString() {
+    return _backingList.toString();
+  }
 }

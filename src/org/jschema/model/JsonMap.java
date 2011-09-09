@@ -111,4 +111,9 @@ public class JsonMap<T> extends JsonObject implements Map<String, T> {
     if (_backingMap != null ? !_backingMap.equals(jsonMap._backingMap) : jsonMap._backingMap != null) return false;
     return true;
   }
+
+  @Override
+  public String toString() {
+    return _backingMap.toString();
+  }
 }
