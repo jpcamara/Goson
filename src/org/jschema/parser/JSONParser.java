@@ -2,6 +2,7 @@ package org.jschema.parser;
 
 import gw.internal.gosu.parser.TypeLord;
 import gw.lang.reflect.IType;
+import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.java.IJavaType;
 import org.jschema.model.JsonList;
 import org.jschema.model.JsonMap;
@@ -10,6 +11,8 @@ import org.jschema.util.JSchemaUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 
 public class JSONParser {
@@ -37,6 +40,11 @@ public class JSONParser {
     if (date != null ) {
       return date;
     } 
+
+    URI uri = parseURI();
+    if (uri != null ) {
+      return uri;
+    }
 
     String str = parseString();
     if (str != null ) {
@@ -79,6 +87,20 @@ public class JSONParser {
       String s = parseString();
       if (s != null) {
         return JSchemaUtils.parseDate(s);
+      }
+    }
+    return null;
+  }
+
+  private URI parseURI() {
+    if (TypeSystem.get(URI.class).equals(_currentType)) {
+      String s = parseString();
+      if (s != null) {
+        try {
+          return JSchemaUtils.parseURI(s);
+        } catch (URISyntaxException e) {
+          //TODO parse error
+        }
       }
     }
     return null;

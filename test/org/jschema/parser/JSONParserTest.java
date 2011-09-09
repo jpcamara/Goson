@@ -1,10 +1,14 @@
 package org.jschema.parser;
 
+import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.java.IJavaType;
 import junit.framework.TestCase;
+import org.jschema.util.JSchemaUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 public class JSONParserTest extends TestCase {
-  
+
   public void testBasics() {
     // null
     assertNull(JSONParser.parseJSON("null"));
@@ -117,6 +121,13 @@ public class JSONParserTest extends TestCase {
     assertEquals("blah\rblah", JSONParser.parseJSON("\"blah\\rblah\""));
     assertEquals("blah\tblah", JSONParser.parseJSON("\"blah\\tblah\""));
     assertEquals("blah\u1234blah", JSONParser.parseJSON("\"blah\\u1234blah\""));
+  }
+
+  public void testURIsParseCorrectly() throws URISyntaxException {
+    URI uri = new URI("http://example.com");
+    assertEquals(uri, JSONParser.parseJSON(JSchemaUtils.serializeJson(uri), TypeSystem.get(URI.class)));
+    URI email = new URI("mailto:test@test.com");
+    assertEquals(email, JSONParser.parseJSON(JSchemaUtils.serializeJson(email), TypeSystem.get(URI.class)));
   }
 
 }

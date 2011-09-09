@@ -10,6 +10,8 @@ import org.jschema.typeloader.IJSchemaType;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -91,6 +93,8 @@ public class JSchemaUtils {
       return stringBuilder.append(json.toString());
     } else if (json instanceof Date) {
       return buildJSON(stringBuilder, serializeDate((Date) json), indent, depth);
+    } else if (json instanceof URI) {
+      return buildJSON(stringBuilder, json.toString(), indent, depth);
     } else if (json instanceof IEnumValue) {
       return buildJSON(stringBuilder, ((IEnumValue) json).getValue(), indent, depth);
     } else if (json == null) {
@@ -431,5 +435,9 @@ public class JSchemaUtils {
       }
     }
     return sb.toString();
+  }
+
+  public static URI parseURI(String s) throws URISyntaxException {
+    return new URI(s);
   }
 }

@@ -2,6 +2,7 @@ package org.jschema.typeloader
 
 uses java.util.*
 uses java.lang.*
+uses java.net.*
 
 uses org.jschema.test.*
 
@@ -26,6 +27,7 @@ uses org.jschema.examples.PeopleId.IdToPeople
 uses org.jschema.examples.PeopleId.IdToPeople.EyeColor
 uses org.jschema.examples.NameAndAge
 uses org.jschema.examples.SelfTest
+uses org.jschema.examples.URITest
 uses org.jschema.examples.AutoCreateAndInsertTest
 uses org.jschema.examples.cloning.*
 
@@ -395,6 +397,12 @@ class JSchemaTypesTest extends GosonTest {
     assertEquals( "Parent", slfMap["name"] )
     assertEquals( {}, slfMap["children"] )
     assertNull( slfMap["reference"] )
+  }
+
+  function testURISupport() {
+    var test = URITest.parse( '{ "link" : "http://example.com" }' )
+    assertEquals(URI, statictypeof test.Link )
+    assertEquals(new URI("http://example.com"), test.Link )
   }
 
 }

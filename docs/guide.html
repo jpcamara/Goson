@@ -72,7 +72,7 @@
 
     <pre>
   var str = '{ "group_name" = "A Group", "members" = [ { "first_name" : "Joe", "last_name" : "blow", "age" : "int", "position" : "developer" } ] }'
-  var group = Group.content( str )
+  var group = Group.parse( str )
 
   print( group.write() )
     </pre>
