@@ -1,0 +1,230 @@
+<html>
+  <head>
+    <title>Goson Documentation</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+    <h1>Introduction</h1>
+    <p>Goson is a Gosu implementation of the <a href="http://jschema.org">JSchema</a> and <a href="http://jschema.org">JSchema-RPC</a>
+      specifications.  It consists of:</p>
+    <ul>
+      <li>A Typeloader For JSchema (.jsc) and JSchema-RPC (.jsc-rpc) documents</li>
+      <li>Tools for working with JSON</li>
+      <li>A servlet filter that can be used to publish JSchema-RPC end points</li>
+      <li>A simple HTTP server that can be used to publish JSchema-RPC end points</li>
+    </ul>
+    <p>As with other Gosu Type Loaders, you need only to add this jar to your project's classpath to start using the JSchema-based
+    types.</p>
+
+    <h1>JSchema Types</h1>
+    <p>
+      A set of JSchema types will be created for each <code>.jsc</code> file found in the classpath.
+      Given a <code>.jsc</code> file at <code>/src/schemas/Group.jsc</code> with the following content:
+    </p>
+    <pre>
+{
+  "group_name" : "string",
+  "members" : [
+    { "first_name" : "string",
+      "last_name" : " string",
+      "age" : "integer",
+      "position" : {"enum" : [ "manager", "developer", "documentation" ] }
+    }
+  ]
+}
+    </pre>
+    <p>
+      The following types are created:
+    </p>
+
+    <ul>
+      <li><code>schemas.Group</code> - Represents the Group root object.</li>
+      <li><code>schemas.Group.Members</code> - Represents the Members.</li>
+      <li><code>schemas.Group.Members.Position</code> - An Enum Type.</li>
+    </ul>
+
+    <h2>Parsing JSON</h2>
+
+    <p>All JSchema types have a set of static <code>parse()</code> methods for working with various kinds of input.</p>
+
+    <p>For example, to parse a string conforming to the <code>Group</code> schema above you would say:</p>
+
+    <pre>
+  var str = '{ "group_name" = "A Group", "members" = [ { "first_name" : "Joe", "last_name" : "blow", "age" : "integer", "position" : "developer" } ] }'
+
+  var group = Group.parse( str )
+
+  print( "The group name is ${group.GroupName}" )
+
+  print( "The first members age is ${group.Members.first().Age}" )
+    </pre>
+
+    <h2>Schema Properties</h2>
+
+    <p>JSchema types have properties available on them corresponding to their definition in the <code>jsc</code> file.</p>
+
+    <p>These properties will have their names transformed to conform to Gosu naming conventions, and all properties are
+    both readable and writable, as you can see in the example above.</p>
+
+    <h2>Serializing to JSON</h2>
+
+    <p>JSchema objects can be serialized to JSON with the <code>write()</code> method:</p>
+
+    <pre>
+  var str = '{ "group_name" = "A Group", "members" = [ { "first_name" : "Joe", "last_name" : "blow", "age" : "integer", "position" : "developer" } ] }'
+  var group = Group.content( str )
+
+  print( group.write() )
+    </pre>
+
+    <p>It can also be serialized with nice whitespace using the <code>prettyPrint()</code> method:</p>
+    <pre>
+  var str = '{ "group_name" = "A Group", "members" = [ { "first_name" : "Joe", "last_name" : "blow", "age" : "integer", "position" : "developer" } ] }'
+  var group = Group.parse( str )
+
+  print( group.prettyPrint() )
+    </pre>
+    <p><code>prettyPrint()</code> takes an optional parameter for the indent spacing to use.</p>
+
+    <h2>Other Methods</h2>
+
+    <p>JSchema types have some other useful methods on them:</p>
+
+    <h3><code>descendents()</code></h3>
+    <p>Returns an <code>Iterable</code> of all descendents of given JSchema node. As an example, here is how to print out
+    all strings found in a group:</p>
+    <pre>
+  group.descendents().whereTypeIs(String).each( \ s -> print( "String found : ${s}" ) )
+    </pre>
+
+    <h3><code>find(Type)</code></h3>
+    <p>Returns an <code>Iterable</code> of all descendents of the given type, so we could simplify the above to:</p>
+    <pre>
+  group.find(String).each( \ s -> print( "String found : ${s}" ) )
+    </pre>
+    <p>Or, to find all group members with an age over 21:</p>
+    <pre>
+  group.find(Members).where( \ m -> m.Age > 21 )
+    </pre>
+
+    <h3><code>parent()</code></h3>
+    <p>Returns the parent of the given node.  This will be strongly typed if possible.  (It might not be possible in the
+    case of things like JSchema typedefs, which can have multiple different parents.)</p>
+    <p>For example, you could print the name of the group above out like so:</p>
+    <pre>
+  print( group.Members.first().parent().GroupName )
+    </pre>
+    <p>That's a convoluted way to do it, but it demonstrates the concept.</p>
+
+    <h3><code>get(String, Map) &amp; post(String, Map)</code></h3>
+    <p>You can make simple HTTP requests to JSON end points using JSchema types:</p>
+    <pre>
+  var group = Group.get( "http://myserver/myendpoint", { "id" -> 42 } )
+  print( group.write() )
+    </pre>
+    <p>The second argument is a map of values that will be passed as parameters to the JSON end point, either as query
+      parameters or as POST paramters, depending on the method you use.</p>
+
+    <h3><code>asJson()</code></h3>
+    <p>Returns the node as a raw <code>JsonMap</code> object</p>
+
+    <h3><code>convertTo(Type)</code></h3>
+    <p>Creates a copy of the object, converted to the type given.  This only works if the type being converted to is a
+    subset of the type being converted.</p>
+
+    <h1>JSchema RPC Types</h1>
+
+    <p>JSchema RPC types are defined in <code>jsc-rpc</code> files.  Given this JSchema RPC file at <code>src/rpc/EmployeeService</code>:</p>
+    <pre>
+  { "url" : "http://myserver:8080/employees",
+    "description" : "Methods for manipulating employees",
+    "typedefs@" : {
+      "Employee" : {
+        "first_name" : "string",
+        "last_name" : "string",
+        "age" : "integer",
+        "id" : "biginteger"
+      }
+    }
+    "functions" : [
+      { "name" : "getEmployee",
+        "description" : "Returns the employee of the given name",
+        "args" : [ {"id" : "biginteger" } ],
+        "return_type" : "Employee"
+      },
+      { "name" : "updateEmployee",
+        "description" : "Updates the given employee",
+        "args" : [ { "employee", "Employee" } ],
+        "return_type" : "boolean"
+      }
+    ]
+  }
+    </pre>
+    <p>the following types are created</p>
+    <ul>
+      <li><code>rpc.EmployeeService</code> - The RPC type that you can invoke methods on.</li>
+      <li><code>rpc.EmployeeService.CustomInstance</code> - A customized version of the endpoint (Can be used to change the URL hit, for example.)</li>
+      <li><code>rpc.EmployeeService.Employee</code> - A JSchema type for the typedef.</li>
+    </ul>
+    <p>Given the JSchema RPC file above, you can write code like this:</p>
+    <pre>
+  var myEmp = EmployeeController.getEmployee(42)
+
+  myEmp.Age++
+
+  if( EmployeeController.updateEmployee(myEmp) ) {
+    print( "Updated the age of ${myEmp.FirstName}")
+  }
+    </pre>
+    <p>Where <code>emp</code> is the <code>Employee</code> JSchema type.</p>
+
+    <h2>Customized Instances</h2>
+
+    <p>If you want to change the behavior of an end point in the code, you can use the <code>with()</code> method.  As
+    an example, if you wanted to change the URL that an RPC invocation will be done against, you could write this:</p>
+
+    <pre>
+  var customizedRPCService = EmployeeController.with( :url = "http://someotherserver/employees" )
+
+  var myEmp = customizedRPCService.getEmployee(42)
+
+  myEmp.Age++
+
+  if( customizedRPCService.updateEmployee(myEmp) ) {
+    print( "Updated the age of ${myEmp.FirstName}")
+  }
+    </pre>
+
+    <h2>Global Defaults</h2>
+    <p>You can set the Global Defaults for the RPC system using the <code>org.jschema.rpc.RPCDefaults</code> class.
+    For example, to set the default request hander to be based on Apache HTTPClient (to enable HTTPS support, for example) you would do this:</p>
+
+    <pre>
+  org.jschema.rpc.RPCDefaults.setDefaultHandler(new org.jschema.rpc.ApacheHTTPClientCallHandler())
+    </pre>
+    <p>Note that the Apache HTTPClient jar does not come with the Goson library and will need to be included separately.</p>
+
+    <h2>Publishing JSchema RPC Endpoints</h2>
+
+    <p>You can easily publish JSchema RPC end points using the build in RPC server:</p>
+    <pre>
+  var server = new RPCServer()
+
+  server.addEndPoint( new RPCEndPoint( EmployeeService, new EmployeeServiceImpl(), "/employees" ) )
+
+  server.start()
+    </pre>
+    <p><code>EmployeeServiceImpl</code> is a Gosu class that implements the methods specified in the JSchema RPC file.
+      Note that the methods are defined in terms of the JSchema RPC types, so both sides of the wire are using the same types.
+    Thus there is no mapping or object serialization layer: that responsibility falls on the API publisher.</p>
+
+    <h2>Publishing JSchema RPC Endpoints in Jetty/Tomcat</h2>
+
+    <p>You can use <code>org.jschema.rpc.RPCFilter</code> to publish JSchema RPC Endpoints in a Servlet environment.</p>
+    
+    <p>The filter takes a single config parameter, <code>config</code>, which should be the neame of a class that implements
+    <code>org.jschema.rpc.RPCFilter.Config</code> and has a default constructor.  This config object supplies the list
+    of endpoints to the filter.</p>
+
+  </body>
+</html>
