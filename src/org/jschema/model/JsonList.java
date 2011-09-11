@@ -2,6 +2,7 @@ package org.jschema.model;
 
 import gw.lang.reflect.IType;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 public class JsonList<T> extends JsonCollection<T> implements List<T> {
@@ -33,6 +34,30 @@ public class JsonList<T> extends JsonCollection<T> implements List<T> {
   @Override
   public T get(int i) {
     return _backingList.get(i);
+  }
+
+  public JsonMap getMap(int i) {
+    return (JsonMap) get(i);
+  }
+
+  public JsonList getList(int i) {
+    return (JsonList) get(i);
+  }
+
+  public String getString(int i) {
+    return (String) get(i);
+  }
+
+  public BigDecimal getDecimal(int i) {
+    return (BigDecimal) get(i);
+  }
+
+  public Long getInt(int i) {
+    return (Long) get(i);
+  }
+
+  public Boolean getBoolean(int i) {
+    return (Boolean) get(i);
   }
 
   @Override
