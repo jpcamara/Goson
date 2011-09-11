@@ -1,6 +1,5 @@
 package org.jschema.typeloader;
 
-import gw.internal.ext.org.mortbay.jetty.HttpFields;
 import gw.lang.parser.IHasInnerClass;
 import gw.lang.reflect.IType;
 
