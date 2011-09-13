@@ -5,6 +5,7 @@ import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeLoaderBase;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.module.IModule;
+import gw.lang.reflect.module.IResourceAccess;
 import gw.util.GosuExceptionUtil;
 import gw.util.Pair;
 import gw.util.concurrent.LazyVar;
@@ -35,6 +36,10 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
 
   public JSchemaTypeLoader(IModule env) {
     super(env);
+  }
+
+  public JSchemaTypeLoader(IModule env, IResourceAccess resourceAccess) {
+    this(env);
   }
 
   @Override

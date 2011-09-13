@@ -27,11 +27,12 @@ function compile() {
   Ant.javac(:srcdir = path(srcDir),
             :debug = true,
             :classpath = classpath()
-              .withFileset(gosuDir.fileset()),
+              .withFileset(gosuDir.fileset())
+              .withFileset(libDir.fileset()),
             :destdir = classesDir,
             :includeantruntime = false)
   classesDir.file("META-INF").mkdir()
-  classesDir.file("META-INF/MANIFEST.MF").write("Gosu-Typeloaders: com.jpcamara.gosu.json.JsonTypeLoader\n\n")
+  classesDir.file("META-INF/MANIFEST.MF").write("Gosu-Typeloaders: org.jschema.typeloader.JSchemaTypeLoader\n\n")
 }
 
 @Depends("compile")

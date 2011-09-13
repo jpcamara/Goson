@@ -1,0 +1,21 @@
+body {
+  font-family : Verdana;
+  padding : 16px;
+}
+
+p {
+  padding : 4px;
+}
+
+pre {
+  margin : 16px;
+  padding : 16px;
+  background-color : #f5f5f5;
+  border : solid;
+  border-width : 1px;
+  border-color : gray;
+}
+
+li {
+  padding : 4px;
+}

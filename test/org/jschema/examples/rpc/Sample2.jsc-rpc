@@ -6,15 +6,15 @@
   "typedefs@" : {
     "Employee" : { "first_name" : "string",
                     "last_name" : "string",
-                    "age" : "integer",
-                    "id" : "biginteger"
+                    "age" : "int",
+                    "id" : "number"
                  }
   },
 
   "functions" : [
     { "name" : "getEmployee",
       "description" : "Returns the employee of the given name",
-      "args" : [ {"id" : "biginteger"} ],
+      "args" : [ {"id" : "int"} ],
       "returns" : "Employee"
     },
     { "name" : "updateEmployee",

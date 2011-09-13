@@ -2,6 +2,7 @@ package org.jschema.typeloader
 
 uses java.util.*
 uses java.lang.*
+uses java.net.*
 
 uses org.jschema.test.*
 
@@ -26,6 +27,7 @@ uses org.jschema.examples.PeopleId.IdToPeople
 uses org.jschema.examples.PeopleId.IdToPeople.EyeColor
 uses org.jschema.examples.NameAndAge
 uses org.jschema.examples.SelfTest
+uses org.jschema.examples.URITest
 uses org.jschema.examples.AutoCreateAndInsertTest
 uses org.jschema.examples.cloning.*
 
@@ -117,12 +119,10 @@ class JSchemaTypesTest extends GosonTest {
   function testTwo() {
     var example = new Example() {
       :SomeType = new SomeType() {
-        :BigIntEx = 12312,
         :StringEx = "Example",
         :BooleanEx = true,
-        :BigDecimalEx = 20.1231,
+        :NumberEx = 20.1231,
         :IntEx = 1,
-        :DecimalEx = 1.2123,
         :TypeInArray = {
           new TypeInArray() {
             :Content = "Example Content"
@@ -138,10 +138,10 @@ class JSchemaTypesTest extends GosonTest {
               :ADate = new java.util.Date()
             }
           },
-          :BigIntArrayEx = { 312 },
+          :IntArrayEx = { 312 },
           :StringArrayEx = { "Oh Nice", "This", "Is", "An", "Array" },
-          :NestedBigIntEx = 12312,
-          :NestedBigDecimalEx = 123.1239141
+          :NestedIntEx = 12312,
+          :NestedNumberEx = 123.1239141
         }
       }
     }
@@ -216,7 +216,7 @@ class JSchemaTypesTest extends GosonTest {
                          .prettyPrint())
   }
 
-  function testDescendentsProperty() {
+  function testDescendentsFunction() {
     var peeps = new Peeps() {
       :People = {
         new People() { :Name = "Joe", :Age = 42 },
@@ -227,11 +227,11 @@ class JSchemaTypesTest extends GosonTest {
 
     print( peeps.prettyPrint( 2 ) )
 
-    assertEquals(11, peeps.Descendents.Count)
-    assertEquals(3, peeps.Descendents.whereTypeIs(String).Count)
-    assertEquals(2, peeps.Descendents.whereTypeIs(String).where( \ s -> s.length() > 3 ).Count)
-    assertEquals(2, peeps.Descendents.whereTypeIs(People).where( \ p -> p.Age > 30 ).Count )
-    assertEquals(3, peeps.Descendents.whereTypeIs(People).where( \ p -> p.Parent.People.Count == 3 ).Count )
+    assertEquals(11, peeps.descendents().Count)
+    assertEquals(3, peeps.descendents().whereTypeIs(String).Count)
+    assertEquals(2, peeps.find(String).where( \ s -> s.length() > 3 ).Count)
+    assertEquals(2, peeps.find(People).where( \ p -> p.Age > 30 ).Count )
+    assertEquals(3, peeps.find(People).where( \ p -> p.parent().People.Count == 3 ).Count )
   }
 
   function testAutoCreateWithJSchemaTypes() {
@@ -349,6 +349,20 @@ class JSchemaTypesTest extends GosonTest {
 
   }
 
+  function testCircularLoopIsCopiedCorrectly() {
+    var x1 = new SelfTest() { :Name = "Single" }
+    x1.Reference = x1
+
+    var x2 = x1.convertTo(SelfTest)
+
+    assertEquals( x1, x1.Reference )
+
+    assertEquals( x2, x2.Reference )
+
+    assertFalse( x1 === x2 )
+
+  }
+
   function testSelfProperties() {
     var slf = new SelfTest() {
       :Name = "Parent",
@@ -383,6 +397,12 @@ class JSchemaTypesTest extends GosonTest {
     assertEquals( "Parent", slfMap["name"] )
     assertEquals( {}, slfMap["children"] )
     assertNull( slfMap["reference"] )
+  }
+
+  function testURISupport() {
+    var test = URITest.parse( '{ "link" : "http://example.com" }' )
+    assertEquals(URI, statictypeof test.Link )
+    assertEquals(new URI("http://example.com"), test.Link )
   }
 
 }

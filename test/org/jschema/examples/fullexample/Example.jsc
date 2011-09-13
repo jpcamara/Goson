@@ -1,11 +1,9 @@
 {
   "some_type": {
-    "big_int_ex": "biginteger",
+    "int_ex": "int",
     "string_ex": "string",
     "boolean_ex": "boolean",
-    "big_decimal_ex": "bigdecimal",
-    "int_ex": "integer",
-    "decimal_ex": "decimal",
+    "number_ex": "number",
     "type_in_array": [{
       "content": "string"
     }],
@@ -19,10 +17,10 @@
         "value": "string",
         "a_date": "date"
       }],
-      "big_int_array_ex": ["biginteger"],
+      "int_array_ex": ["int"],
       "string_array_ex": ["string"],
-      "nested_big_int_ex" : "biginteger",
-      "nested_big_decimal_ex" : "bigdecimal"
+      "nested_int_ex" : "int",
+      "nested_number_ex" : "number"
     }
   }
 }

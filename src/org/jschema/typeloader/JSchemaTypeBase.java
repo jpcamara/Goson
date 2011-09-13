@@ -8,6 +8,7 @@ import org.jschema.model.JsonList;
 import org.jschema.model.JsonMap;
 import org.jschema.util.JSchemaUtils;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -19,12 +20,11 @@ public abstract class JSchemaTypeBase extends TypeBase implements IJSchemaType {
 
   private static final Map<String, IJavaType> TYPES = new HashMap<String, IJavaType>();
   static {
-    TYPES.put("bigdecimal", IJavaType.BIGDECIMAL);
-    TYPES.put("biginteger", IJavaType.BIGINTEGER);
-    TYPES.put("decimal", IJavaType.DOUBLE);
-    TYPES.put("integer", IJavaType.INTEGER);
+    TYPES.put("number", IJavaType.BIGDECIMAL);
+    TYPES.put("int", IJavaType.LONG);
     TYPES.put("string", IJavaType.STRING);
     TYPES.put("date", IJavaType.DATE);
+    TYPES.put("uri", (IJavaType) TypeSystem.get(URI.class));
     TYPES.put("boolean", IJavaType.BOOLEAN);
     TYPES.put("enum", IJavaType.ENUM);
     TYPES.put("map_of", IJavaType.MAP);

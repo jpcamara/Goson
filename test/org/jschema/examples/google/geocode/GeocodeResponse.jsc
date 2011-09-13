@@ -20,18 +20,18 @@
     }],
     "geometry": {
       "location": {
-        "lat": "bigdecimal",
-        "lng": "bigdecimal"
+        "lat": "number",
+        "lng": "number"
       },
       "location_type": "string",
       "viewport": {
         "southwest": {
-          "lat": "bigdecimal",
-          "lng": "bigdecimal"
+          "lat": "number",
+          "lng": "number"
         },
         "northeast": {
-          "lat": "bigdecimal",
-          "lng": "bigdecimal"
+          "lat": "number",
+          "lng": "number"
         }
       }
     }

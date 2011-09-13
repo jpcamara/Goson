@@ -22,17 +22,17 @@ class JSchemaRPCTypesTest extends GosonTest {
 
    assertEquals( "Joe", emp.FirstName )
    assertEquals( "Blow", emp.LastName )
-   assertEquals( 21, emp.Age )
-   assertEquals( 42, emp.Id )
+   assertEquals( 21L, emp.Age )
+   assertEquals( 42L, emp.Id )
  }
 
  function testBootstrapAdd() {
    var server = new RPCServer()
    server.addEndPoint( new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) )
    using( server ) {
-     assertEquals( 2, Sample1.add(1, 1) )
-     assertEquals( 0, Sample1.add(1, -1) )
-     assertEquals( -1, Sample1.add(0, -1) )
+     assertEquals( 2L, Sample1.add(1, 1) )
+     assertEquals( 0L, Sample1.add(1, -1) )
+     assertEquals( -1L, Sample1.add(0, -1) )
    }
  }
 
@@ -62,8 +62,8 @@ class JSchemaRPCTypesTest extends GosonTest {
 
      assertEquals( "Joe", emp.FirstName )
      assertEquals( "Blow", emp.LastName )
-     assertEquals( 21, emp.Age )
-     assertEquals( 42, emp.Id )
+     assertEquals( 21L, emp.Age )
+     assertEquals( 42L, emp.Id )
    }
  }
 
@@ -75,11 +75,35 @@ class JSchemaRPCTypesTest extends GosonTest {
 
      assertEquals( "Joe", emp.FirstName )
      assertEquals( "Blow", emp.LastName )
-     assertEquals( 21, emp.Age )
-     assertEquals( 42, emp.Id )
+     assertEquals( 21L, emp.Age )
+     assertEquals( 42L, emp.Id )
    }
  }
 
+ function testBootstrapFileRemotelyWithGetOnJetty() {
+   using( JettyStarter.server( 12321, new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) ) ) {
+     var emp = Sample1
+                  .with( :method = GET )
+                  .getEmployee(22)
+
+     assertEquals( "Joe", emp.FirstName )
+     assertEquals( "Blow", emp.LastName )
+     assertEquals( 21L, emp.Age )
+     assertEquals( 42L, emp.Id )
+   }
+ }
+
+ function testBootstrapFileRemotelyWithPostOnJetty() {
+   using( JettyStarter.server( 12321, new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) ) ) {
+     var emp = Sample1
+                  .getEmployee(22)
+
+     assertEquals( "Joe", emp.FirstName )
+     assertEquals( "Blow", emp.LastName )
+     assertEquals( 21L, emp.Age )
+     assertEquals( 42L, emp.Id )
+   }
+ }
 
  function testBootstrapFileRemotelyWithGetUsingApacheHTTPClient() {
    var server = new RPCServer()
@@ -91,8 +115,8 @@ class JSchemaRPCTypesTest extends GosonTest {
 
      assertEquals( "Joe", emp.FirstName )
      assertEquals( "Blow", emp.LastName )
-     assertEquals( 21, emp.Age )
-     assertEquals( 42, emp.Id )
+     assertEquals( 21L, emp.Age )
+     assertEquals( 42L, emp.Id )
    }
  }
 
@@ -107,13 +131,40 @@ class JSchemaRPCTypesTest extends GosonTest {
 
      assertEquals( "Joe", emp.FirstName )
      assertEquals( "Blow", emp.LastName )
-     assertEquals( 21, emp.Age )
-     assertEquals( 42, emp.Id )
+     assertEquals( 21L, emp.Age )
+     assertEquals( 42L, emp.Id )
+   }
+ }
+
+ function testBootstrapFileRemotelyWithGetUsingApacheHTTPClientOnJetty() {
+   using( JettyStarter.server( 12321, new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) ) ) {
+     var emp = Sample1
+                  .with( :handler = new ApacheHTTPClientCallHandler(),
+                         :method = GET )
+                  .getEmployee(22)
+
+     assertEquals( "Joe", emp.FirstName )
+     assertEquals( "Blow", emp.LastName )
+     assertEquals( 21L, emp.Age )
+     assertEquals( 42L, emp.Id )
+   }
+ }
+
+ function testBootstrapFileRemotelyWithPostUsingApacheHTTPClientOnJetty() {
+   using( JettyStarter.server( 12321, new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) ) ) {
+     var emp = Sample1
+                  .with(:handler = new ApacheHTTPClientCallHandler())
+                  .getEmployee(22)
+
+     assertEquals( "Joe", emp.FirstName )
+     assertEquals( "Blow", emp.LastName )
+     assertEquals( 21L, emp.Age )
+     assertEquals( 42L, emp.Id )
    }
  }
 
  class Impl1 {
-   function getEmployee( id : Integer ) : GetEmployee {
+   function getEmployee( id : Long ) : GetEmployee {
      return new GetEmployee() {
        :FirstName = "Joe",
        :LastName = "Blow",
@@ -124,11 +175,11 @@ class JSchemaRPCTypesTest extends GosonTest {
 
    function updateEmployee(emp : Employee) : Boolean
    {
-     return(Boolean.TRUE)
+     return(true)
    }
 
-   function add( i1 : Integer , i2 : Integer ) : Integer {
-     return new Integer(i1.intValue() + i2.intValue());
+   function add( i1 : Long , i2 : Long ) : Long {
+     return i1 + i2
    }
  }
 
@@ -140,7 +191,7 @@ class JSchemaRPCTypesTest extends GosonTest {
 
    assertEquals( "Joe", emp.FirstName )
    assertEquals( "Blow", emp.LastName )
-   assertEquals( 21, emp.Age )
+   assertEquals( 21L, emp.Age )
 
    var result = Sample2
                 .with( :handler = \ method, url, args -> 'true' )
@@ -198,7 +249,7 @@ class JSchemaRPCTypesTest extends GosonTest {
         var endPoint = new RPCEndPoint(ValidationBasis, new IncompleteValidation(), "/validation")
         fail("Exception not thrown")
     }
-    catch(re : JSchemaRPCException){
+    catch(jse : JSchemaRPCException) {
         // Gulp
     }
  }
@@ -209,7 +260,7 @@ class JSchemaRPCTypesTest extends GosonTest {
          var endPoint = new RPCEndPoint(ValidationBasis, new IncorrectArgTypeValidation(), "/validation")
          fail("Exception not thrown")
      }
-     catch(rp : JSchemaRPCException){
+     catch(jse : JSchemaRPCException) {
          // Gulp
      }
  }
@@ -220,7 +271,7 @@ class JSchemaRPCTypesTest extends GosonTest {
          var endPoint = new RPCEndPoint(ValidationBasis, new IncorrectArgCountValidation(), "/validation")
          fail("Exception not thrown")
      }
-     catch(rp : JSchemaRPCException){
+     catch(jse : JSchemaRPCException) {
          // Gulp
      }
  }
@@ -231,7 +282,7 @@ class JSchemaRPCTypesTest extends GosonTest {
         var endPoint = new RPCEndPoint(ValidationBasis, new IncorrectReturnValidation(), "/validation")
         fail("Exception not thrown")
     }
-    catch(rp : JSchemaRPCException){
+    catch(jse : JSchemaRPCException) {
         // Gulp
     }
  }
@@ -258,7 +309,7 @@ class JSchemaRPCTypesTest extends GosonTest {
 
 
  class IncompleteValidation {
-    function intArgVoidReturn(arg1 : Integer)
+    function intArgVoidReturn(arg1 : Long)
     {
         return;
     }
@@ -266,7 +317,7 @@ class JSchemaRPCTypesTest extends GosonTest {
  }
 
  class IncorrectArgTypeValidation{
-    function intArgVoidReturn(arg1 : Integer)
+    function intArgVoidReturn(arg1 : Long)
     {
         return;
     }
@@ -278,7 +329,7 @@ class JSchemaRPCTypesTest extends GosonTest {
  }
 
  class IncorrectArgCountValidation{
-    function intArgVoidReturn(arg1 : Integer)
+    function intArgVoidReturn(arg1 : Long)
     {
         return;
     }
@@ -292,14 +343,14 @@ class JSchemaRPCTypesTest extends GosonTest {
 
 
   class IncorrectReturnValidation{
-     function intArgVoidReturn(arg1 : Integer)
+     function intArgVoidReturn(arg1 : Long)
      {
          return;
      }
 
-     function intArgBoolArgBooleanReturn(arg1 : Integer, arg2 : Boolean) : Integer
+     function intArgBoolArgBooleanReturn(arg1 : Integer, arg2 : Boolean) : Long
      {
-         return(new Integer(1))
+         return(new Long(1))
      }
   }
 
@@ -308,11 +359,11 @@ class JSchemaRPCTypesTest extends GosonTest {
      throw "Good times, good times"
    }
 
-   function deepException( depth : Integer ) {
+   function deepException( depth : Long ) {
      if(depth.intValue() <= 0) {
        throw "Good times, good times"
      } else {
-       deepException( new Integer(depth.intValue() - 1) )
+       deepException( new Long(depth.intValue() - 1) )
      }
    }
 
@@ -340,16 +391,16 @@ class JSchemaRPCTypesTest extends GosonTest {
       assertEquals( null, Defaults.with( :includeNulls = true ).identityStringWithDefault( null ) )
       assertEquals( null, Defaults.with( :includeNulls = true ).identityStringWithDefault( :s = null ) )
 
-      assertEquals( 123421, Defaults.identityInteger( 123421 ) )
-      assertEquals( 123421, Defaults.identityInteger( :i = 123421 ) )
+      assertEquals( 123421L, Defaults.identityInteger( 123421 ) )
+      assertEquals( 123421L, Defaults.identityInteger( :i = 123421 ) )
       assertEquals( null, Defaults.identityInteger( null ) )
       assertEquals( null, Defaults.identityInteger( :i = null ) )
 
-      assertEquals( 123421, Defaults.identityIntegerWithDefault( 123421 ) )
-      assertEquals( 123421, Defaults.identityIntegerWithDefault( :i = 123421 ) )
-      assertEquals( 42, Defaults.identityIntegerWithDefault( null ) )
-      assertEquals( 42, Defaults.identityIntegerWithDefault() )
-      assertEquals( 42, Defaults.identityIntegerWithDefault( :i = null ) )
+      assertEquals( 123421L, Defaults.identityIntegerWithDefault( 123421 ) )
+      assertEquals( 123421L, Defaults.identityIntegerWithDefault( :i = 123421 ) )
+      assertEquals( 42L, Defaults.identityIntegerWithDefault( null ) )
+      assertEquals( 42L, Defaults.identityIntegerWithDefault() )
+      assertEquals( 42L, Defaults.identityIntegerWithDefault( :i = null ) )
       assertEquals( null, Defaults.with( :includeNulls = true ).identityIntegerWithDefault() )
       assertEquals( null, Defaults.with( :includeNulls = true ).identityIntegerWithDefault( null ) )
       assertEquals( null, Defaults.with( :includeNulls = true ).identityIntegerWithDefault( :i = null ) )
@@ -370,14 +421,14 @@ class JSchemaRPCTypesTest extends GosonTest {
     using( server ) {
       assertEquals( "foo", Defaults.identityObject( "foo" ) )
       assertEquals( "foo", Defaults.identityObject( :obj = "foo" ) )
-      assertEquals( 1, Defaults.identityObject( 1 ) )
-      assertEquals( 1, Defaults.identityObject( :obj = 1 ) )
+      assertEquals( 1L, Defaults.identityObject( 1 ) )
+      assertEquals( 1L, Defaults.identityObject( :obj = 1 ) )
       assertEquals( true, Defaults.identityObject( true ) )
       assertEquals( true, Defaults.identityObject( :obj = true ) )
-      assertEquals( {1, 2, 3}, Defaults.identityObject( {1, 2, 3} ) )
-      assertEquals( {1, 2, 3}, Defaults.identityObject( :obj = {1, 2, 3} ) )
-      assertEquals( {"a" -> 1, "b" -> 2, "c" -> 3}, Defaults.identityObject( {"a" -> 1, "b" -> 2, "c" -> 3} ) )
-      assertEquals( {"a" -> 1, "b" -> 2, "c" -> 3}, Defaults.identityObject( :obj = {"a" -> 1, "b" -> 2, "c" -> 3} ) )
+      assertEquals( {1L, 2L, 3L}, Defaults.identityObject( {1, 2, 3} ) )
+      assertEquals( {1L, 2L, 3L}, Defaults.identityObject( :obj = {1, 2, 3} ) )
+      assertEquals( {"a" -> 1L, "b" -> 2L, "c" -> 3L}, Defaults.identityObject( {"a" -> 1, "b" -> 2, "c" -> 3} ) )
+      assertEquals( {"a" -> 1L, "b" -> 2L, "c" -> 3L}, Defaults.identityObject( :obj = {"a" -> 1, "b" -> 2, "c" -> 3} ) )
       assertEquals( null, Defaults.identityObject( null ) )
       assertEquals( null, Defaults.identityObject( :obj = null ) )
     }
@@ -393,7 +444,7 @@ class JSchemaRPCTypesTest extends GosonTest {
       return s
     }
 
-    function identityInteger(i : Integer) : Integer {
+    function identityInteger(i : Long) : Long {
       return i
     }
 
@@ -401,7 +452,7 @@ class JSchemaRPCTypesTest extends GosonTest {
       return o
     }
 
-    function identityIntegerWithDefault(i : Integer) : Integer {
+    function identityIntegerWithDefault(i : Long) : Long {
       return i
     }
 

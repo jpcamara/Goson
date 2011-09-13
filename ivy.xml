@@ -6,5 +6,7 @@
   <dependencies>
     <dependency org="junit" name="junit" rev="4.8.2" conf="lib->*,!sources,!javadoc"/>
     <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.0" conf="lib->*,!sources,!javadoc"/>
+    <dependency org="org.eclipse.jetty" name="jetty-server" rev="8.0.0.M2" conf="lib->*,!sources,!javadoc"/>
+    <dependency org="org.eclipse.jetty" name="jetty-webapp" rev="8.0.0.M2" conf="lib->*,!sources,!javadoc"/>
   </dependencies>
 </ivy-module>

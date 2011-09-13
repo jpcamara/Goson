@@ -1,18 +1,19 @@
 package org.jschema.util;
 
 import gw.lang.reflect.*;
-import gw.lang.reflect.gs.IGenericTypeVariable;
 import gw.util.GosuEscapeUtil;
 import gw.util.GosuStringUtil;
 import org.jschema.model.JsonList;
 import org.jschema.model.JsonMap;
 import org.jschema.parser.JSONParser;
 import org.jschema.typeloader.IJSchemaType;
-import org.jschema.typeloader.JSchemaType;
 
-import javax.swing.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class JSchemaUtils {
@@ -91,7 +92,8 @@ public class JSchemaUtils {
     } else if (json instanceof Boolean) {
       return stringBuilder.append(json.toString());
     } else if (json instanceof Date) {
-      // TODO cgross - properly serialize dates
+      return buildJSON(stringBuilder, serializeDate((Date) json), indent, depth);
+    } else if (json instanceof URI) {
       return buildJSON(stringBuilder, json.toString(), indent, depth);
     } else if (json instanceof IEnumValue) {
       return buildJSON(stringBuilder, ((IEnumValue) json).getValue(), indent, depth);
@@ -204,10 +206,10 @@ public class JSchemaUtils {
     if (json instanceof Integer ||
         json instanceof Long ||
         json instanceof BigInteger) {
-      return "biginteger";
+      return "int";
     } else if (json instanceof Double ||
         json instanceof BigDecimal) {
-      return "bigdecimal";
+      return "number";
     } else if (json instanceof String) {
       return "string";
     } else if (json instanceof Boolean) {
@@ -221,8 +223,119 @@ public class JSchemaUtils {
     return json;
   }
 
+  //See http://www.w3.org/TR/NOTE-datetime
   public static Date parseDate(String s) {
-    return new Date(s);
+    try {
+      if (s.length() == 4) {
+        int year = Integer.parseInt(s);
+        GregorianCalendar calendar = new GregorianCalendar(year, 0, 1);
+        calendar.setTimeZone(TimeZone.getTimeZone("Z"));
+        return calendar.getTime();
+      } else if (s.length() == 7) {
+        String[] strs = s.split("-");
+        int year = Integer.parseInt(strs[0]);
+        int month = Integer.parseInt(strs[1]) - 1;
+        GregorianCalendar calendar = new GregorianCalendar(year, month, 1);
+        calendar.setTimeZone(TimeZone.getTimeZone("Z"));
+        return calendar.getTime();
+      } else if (s.length() == 10) {
+        String[] strs = s.split("-");
+        int year = Integer.parseInt(strs[0]);
+        int month = Integer.parseInt(strs[1]) - 1;
+        int day = Integer.parseInt(strs[2]);
+        GregorianCalendar calendar = new GregorianCalendar(year, month, day);
+        calendar.setTimeZone(TimeZone.getTimeZone("Z"));
+        return calendar.getTime();
+      } else {
+        String[] strs = s.split("T");
+        String[] firstPart = strs[0].split("-");
+        int year = Integer.parseInt(firstPart[0]);
+        int month = Integer.parseInt(firstPart[1]) - 1;
+        int day = Integer.parseInt(firstPart[2]);
+
+        TimeZone tz;
+        String secondPart = strs[1];
+        if (secondPart.contains("+")) {
+          int offset = secondPart.indexOf("+");
+          tz = extractTimeZone(+1, secondPart.substring(offset + 1));
+          secondPart = secondPart.substring(0, offset);
+        } else if (secondPart.contains("-")) {
+          int offset = secondPart.indexOf("-");
+          tz = extractTimeZone(-1, secondPart.substring(offset + 1));
+          secondPart = secondPart.substring(0, offset);
+        } else if (secondPart.endsWith("Z")) {
+          tz = TimeZone.getTimeZone("Z");
+          secondPart = secondPart.substring(0, secondPart.indexOf("Z"));
+        } else {
+          tz = TimeZone.getTimeZone("Z");
+        }
+
+        double fractionsOfASecond;
+        boolean foundDot;
+        if (secondPart.contains(".")) {
+          foundDot = true;
+          fractionsOfASecond = Double.parseDouble(secondPart.substring(secondPart.indexOf('.')));
+          secondPart = secondPart.substring(0, secondPart.indexOf('.'));
+        } else {
+          foundDot = false;
+          fractionsOfASecond = 0;
+        }
+
+        String[] split = secondPart.split(":");
+        int hour;
+        int minute;
+        int second;
+        if (split.length == 2) {
+          if (foundDot) {
+            return null; //bad date format
+          }
+          hour = Integer.parseInt(split[0]);
+          minute = Integer.parseInt(split[1]);
+          second = 0;
+        } else {
+          hour = Integer.parseInt(split[0]);
+          minute = Integer.parseInt(split[1]);
+          second = Integer.parseInt(split[2]);
+        }
+
+        GregorianCalendar calendar = new GregorianCalendar(year, month, day);
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, second);
+        calendar.set(Calendar.MILLISECOND, (int) (fractionsOfASecond * 1000));
+
+        calendar.setTimeZone(tz);
+
+        return calendar.getTime();
+      }
+    } catch (Exception e) {
+      // bad date format
+    }
+    return null;
+  }
+
+  public static String serializeDate(Date d) {
+    GregorianCalendar calendar = new GregorianCalendar();
+    calendar.setTime(d);
+    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+    String text = df.format(d);
+    int i = calendar.get(Calendar.MILLISECOND);
+    String milliString = "";
+    if (i != 0) {
+      milliString = "." + GosuStringUtil.leftPad("" + i, 3, "0");
+    }
+    String result = text.substring(0, 19) + milliString + text.substring(19, 22) + ":" + text.substring(22);
+    return result;
+  }
+
+  private static TimeZone extractTimeZone(int lead, String secondPart) {
+    TimeZone tz;
+    String[] tzSplit = secondPart.split(":");
+    int hours = Integer.parseInt(tzSplit[0]);
+    int minutes = Integer.parseInt(tzSplit[1]);
+    int millis = lead * ((hours * 60) + minutes) * 60 * 1000;
+    tz = new SimpleTimeZone(millis, "Custom");
+    return tz;
   }
 
   public static Object cloneToType(IJSchemaType targetType, JsonMap fromMap, IJSchemaType fromType) {
@@ -322,5 +435,9 @@ public class JSchemaUtils {
       }
     }
     return sb.toString();
+  }
+
+  public static URI parseURI(String s) throws URISyntaxException {
+    return new URI(s);
   }
 }

@@ -10,12 +10,12 @@
       "returns" : "string"
     },
     { "name" : "identityInteger",
-      "args" : [ {"i" : "integer" } ],
-      "returns" : "integer"
+      "args" : [ {"i" : "int" } ],
+      "returns" : "int"
     },
     { "name" : "identityIntegerWithDefault",
-      "args" : [ {"i" : "integer", "default" : 42 } ],
-      "returns" : "integer"
+      "args" : [ {"i" : "int", "default" : 42 } ],
+      "returns" : "int"
     },
     { "name" : "twoArgsWithDefaults",
       "args" : [ {"arg1" : "string", "default" : "joe" }, {"arg2" : "string", "default" : "blow" } ],

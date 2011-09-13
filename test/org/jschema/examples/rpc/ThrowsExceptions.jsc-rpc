@@ -6,7 +6,7 @@
       "args" : []
     },
     { "name" : "deepException",
-      "args" : [ {"depth" : "integer"} ]
+      "args" : [ {"depth" : "int"} ]
     },
     { "name" : "npeException",
       "args" : []

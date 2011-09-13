@@ -3,11 +3,11 @@
   "functions" : [
     { "name" : "getEmployee",
       "description" : "Returns the employee of the given name",
-      "args" : [ {"id" : "integer"} ],
+      "args" : [ {"id" : "int"} ],
       "returns" : { "first_name" : "string",
                     "last_name" : "string",
-                    "age" : "integer",
-                    "id" : "integer"
+                    "age" : "int",
+                    "id" : "int"
                   }
     },
     { "name" : "updateEmployee",
@@ -15,15 +15,15 @@
       "args" : [ {"employee" : {
                         "first_name" : "string",
                         "last_name" : "string",
-                        "age" : "integer",
-                        "id" : "integer"
+                        "age" : "int",
+                        "id" : "int"
                     }
                   } ],
       "returns" : "boolean"
     },
     { "name" : "add",
-      "args" : [ {"i1" : "integer" }, {"i2" : "integer" } ],
-      "returns" : "integer"
+      "args" : [ {"i1" : "int" }, {"i2" : "int" } ],
+      "returns" : "int"
     }
   ]
 }

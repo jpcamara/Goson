@@ -2,6 +2,7 @@ package org.jschema.model;
 
 import gw.lang.reflect.IType;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 public class JsonMap<T> extends JsonObject implements Map<String, T> {
@@ -40,6 +41,32 @@ public class JsonMap<T> extends JsonObject implements Map<String, T> {
   @Override
   public T get(Object o) {
     return _backingMap.get(o);
+  }
+
+  /* Typed getters */
+
+  public JsonMap getMap(String name) {
+    return (JsonMap) get(name);
+  }
+
+  public JsonList getList(String name) {
+    return (JsonList) get(name);
+  }
+
+  public String getString(String name) {
+    return (String) get(name);
+  }
+
+  public BigDecimal getDecimal(String name) {
+    return (BigDecimal) get(name);
+  }
+
+  public Long getInt(String name) {
+    return (Long) get(name);
+  }
+
+  public Boolean getBoolean(String name) {
+    return (Boolean) get(name);
   }
 
   @Override
@@ -110,5 +137,10 @@ public class JsonMap<T> extends JsonObject implements Map<String, T> {
     JsonMap jsonMap = (JsonMap) o;
     if (_backingMap != null ? !_backingMap.equals(jsonMap._backingMap) : jsonMap._backingMap != null) return false;
     return true;
+  }
+
+  @Override
+  public String toString() {
+    return _backingMap.toString();
   }
 }
