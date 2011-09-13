@@ -3,6 +3,7 @@ package org.jschema.parser;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.java.IJavaType;
 import junit.framework.TestCase;
+import org.jschema.test.GosonTest;
 import org.jschema.util.JSchemaUtils;
 
 import java.math.BigDecimal;
@@ -15,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class JSONParserTest extends TestCase {
+public class JSONParserTest extends GosonTest {
 
   public void testBasics() {
     // null
