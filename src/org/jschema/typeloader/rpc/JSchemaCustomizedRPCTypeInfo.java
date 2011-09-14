@@ -36,7 +36,6 @@ public class JSchemaCustomizedRPCTypeInfo extends JSchemaRPCTypeInfoBase
       url = getOwnersType().getDefaultURL();
     }
     url = url + "/" + method;
-    return config.getCallHandler().handleCall(config.getMethod().name(),
-      url, argsMap);
+    return handleRPCMethodInvocationWithConfig(config, url, argsMap);
   }
 }

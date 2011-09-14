@@ -67,7 +67,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
             if (args[0] != null) {
               indent = (Integer) args[0];
             }
-            return JSchemaUtils.serializeJson(ctx, indent);
+            return JSchemaUtils.serializeJSON(ctx, indent);
           }
         })
         .build(JSchemaTypeInfo.this));
@@ -78,7 +78,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
         .withCallHandler(new IMethodCallHandler() {
           @Override
           public Object handleCall(Object ctx, Object... args) {
-            return JSchemaUtils.parseJson((String) args[0], getOwnersType());
+            return JSchemaUtils.parseJSONValue((String) args[0], getOwnersType());
           }
         })
         .build(JSchemaTypeInfo.this));
@@ -98,7 +98,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
                 builder.append(line);
                 line = reader.readLine();
               }
-              return JSchemaUtils.parseJson(builder.toString(), getOwnersType());
+              return JSchemaUtils.parseJSONValue(builder.toString(), getOwnersType());
             } catch (Exception e) {
               throw new RuntimeException(e);
             }
@@ -121,7 +121,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
           @Override
           public Object handleCall(Object ctx, Object... args) {
             Map<String, String> fixedArgs = fixArgs((Map) args[1]);
-            return JSchemaUtils.parseJson(SimpleRPCCallHandler.doGet((String) args[0], fixedArgs), getOwnersType());
+            return JSchemaUtils.parseJSONValue(SimpleRPCCallHandler.doGet((String) args[0], fixedArgs), getOwnersType());
           }
         })
         .build(JSchemaTypeInfo.this));
@@ -142,7 +142,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
           @Override
           public Object handleCall(Object ctx, Object... args) {
             Map<String, String> fixedArgs = fixArgs((Map) args[1]);
-            return JSchemaUtils.parseJson(SimpleRPCCallHandler.doPost((String) args[0], fixedArgs), getOwnersType());
+            return JSchemaUtils.parseJSONValue(SimpleRPCCallHandler.doPost((String) args[0], fixedArgs), getOwnersType());
           }
         })
         .build(JSchemaTypeInfo.this));

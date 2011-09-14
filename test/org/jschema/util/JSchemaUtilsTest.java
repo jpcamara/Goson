@@ -28,7 +28,7 @@ public class JSchemaUtilsTest extends TestCase {
     }
 
     Map json = (Map) JSONParser.parseJSONValue(content);
-    json = (Map)JSchemaUtils.convertJsonToJSchema(json);
+    json = (Map)JSchemaUtils.convertJSONToJSchema(json);
     Map someType = (Map)json.get("some_type");
     Map nested = (Map)someType.get("nested_type");
     Map nestedListEntry = (Map)((List)someType.get("type_in_array")).get(0);
@@ -82,7 +82,7 @@ public class JSchemaUtilsTest extends TestCase {
       "    }\n" +
       "  }\n" +
       "}",
-      JSchemaUtils.serializeJson(m, 2));
+      JSchemaUtils.serializeJSON(m, 2));
 
     assertEquals("{\n" +
       "    \"foo\" : 10, \n" +
@@ -95,7 +95,7 @@ public class JSchemaUtilsTest extends TestCase {
       "        }\n" +
       "    }\n" +
       "}",
-      JSchemaUtils.serializeJson(m, 4));
+      JSchemaUtils.serializeJSON(m, 4));
 
 
     HashMap map2 = new HashMap();
@@ -107,13 +107,13 @@ public class JSchemaUtilsTest extends TestCase {
                  "  {\n" +
                  "    \"foo\" : \"bar\"\n" +
                  "  }\n" +
-                 "]", JSchemaUtils.serializeJson(lst, 2));
+                 "]", JSchemaUtils.serializeJSON(lst, 2));
 
     assertEquals("[[{}, {}, \n" +
                  "    {\n" +
                  "      \"foo\" : \"bar\"\n" +
                  "    }\n" +
-                 "  ]]", JSchemaUtils.serializeJson(Arrays.asList(lst), 2));
+                 "  ]]", JSchemaUtils.serializeJSON(Arrays.asList(lst), 2));
 
     HashMap map3 = new HashMap();
     map3.put("foo", lst);
@@ -124,7 +124,7 @@ public class JSchemaUtilsTest extends TestCase {
                  "      \"foo\" : \"bar\"\n" +
                  "    }\n" +
                  "  ]\n" +
-                 "}", JSchemaUtils.serializeJson(map3, 2));
+                 "}", JSchemaUtils.serializeJSON(map3, 2));
   }
 
   public void testLongSerialize() {

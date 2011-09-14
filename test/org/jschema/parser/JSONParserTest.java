@@ -73,18 +73,18 @@ public class JSONParserTest extends GosonTest {
 
   public void testBasicNestedDataStructures() {
     Map obj = (Map) JSONParser.parseJSONValue(
-            "{" +
-                    "\"null\" : null, " +
-                    " \"number1\" : 1, " +
-                    " \"number2\" : 1.1, " +
-                    " \"boolean\" : true, " +
-                    " \"list1\" : [ 1, 2, 3 ], " +
-                    " \"list2\" : [ { \"str\" : \"string\" } ]," +
-                    " \"map\" : { " +
-                    "    \"map_boolean\" : true," +
-                    "    \"map_string\" : \"string\"" +
-                    "  } " +
-                    "}");
+      "{" +
+        "\"null\" : null, " +
+        " \"number1\" : 1, " +
+        " \"number2\" : 1.1, " +
+        " \"boolean\" : true, " +
+        " \"list1\" : [ 1, 2, 3 ], " +
+        " \"list2\" : [ { \"str\" : \"string\" } ]," +
+        " \"map\" : { " +
+        "    \"map_boolean\" : true," +
+        "    \"map_string\" : \"string\"" +
+        "  } " +
+        "}");
     assertEquals(null, obj.get("null"));
     assertEquals(1L, obj.get("number1"));
     assertEquals(bd("1.1"), obj.get("number2"));
@@ -129,6 +129,11 @@ public class JSONParserTest extends GosonTest {
     Map m = new HashMap();
     m.put("foo", new URI("http://example.com"));
     assertEquals(m, val2);
+
+    assertEquals(uri, JSONParser.parseJSONValue(JSchemaUtils.serializeJson(uri), TypeSystem.get(URI.class)));
+
+    URI email2 = new URI("mailto:test@test.com");
+    assertEquals(email2, JSONParser.parseJSONValue(JSchemaUtils.serializeJson(email2), TypeSystem.get(URI.class)));
   }
 
   public void testDateParsing() {

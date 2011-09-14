@@ -70,7 +70,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
       }
       for (JsonFile jsonFile : jsonFiles.get()) {
         try {
-          jsonFile.content = JSchemaUtils.convertJsonToJSchema(jsonFile.content);
+          jsonFile.content = JSchemaUtils.convertJSONToJSchema(jsonFile.content);
           addTypes(types, new Stack<Map<String, String>>(), jsonFile.rootTypeName, jsonFile.content);
         } catch (Exception e) {
           throw GosuExceptionUtil.forceThrow(e);
@@ -262,7 +262,8 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
           jsonString.append(s.nextLine());
         }
         current.stringContent = jsonString.toString();
-        current.content = JSONParser.parseJSONValue(current.stringContent);
+        // Look ma, it's homoiconicity! (look it up)
+        current.content = JSONParser.parseJSON(current.stringContent);
         init.add(current);
       } catch (FileNotFoundException e) {
         throw new RuntimeException(e);

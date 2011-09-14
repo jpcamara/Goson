@@ -14,6 +14,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 public class RPCEndPoint {
 
@@ -100,7 +101,24 @@ public class RPCEndPoint {
     return uri.getPath().startsWith(_rootPath);
   }
 
-  public String handle(URI uri, Map<String, String> args) {
+  public String handle(final URI uri, final Map<String, String> args) {
+    if (RPCDefaults.getLogger() != null) {
+      RPCDefaults.getLogger().log("Handling call to " + uri + " with args " + args);
+    }
+    RPCInvocationWrapper wrapper = RPCDefaults.getHandlerWrapper();
+    if (wrapper != null) {
+      return wrapper.invoke(uri.toString(), new Callable<String>() {
+        @Override
+        public String call() throws Exception {
+          return _handle(uri, args);
+        }
+      });
+    } else {
+      return _handle(uri, args);
+    }
+  }
+
+  private String _handle(URI uri, Map<String, String> args) {
     try {
       if (args.size() == 1 && args.containsKey("JSchema-RPC")) {
         return _rpcType.getSchemaContent();
@@ -122,7 +140,7 @@ public class RPCEndPoint {
         String s = args.get(parameter.getName());
         Object value;
         if (s != null) {
-          value = JSchemaUtils.parseJson(s, parameter.getFeatureType());
+          value = JSchemaUtils.parseJSONValue(s, parameter.getFeatureType());
         } else {
           value = _rpcType.getDefaultValue(method, parameter.getName());
         }
