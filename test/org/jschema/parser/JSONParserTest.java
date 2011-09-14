@@ -51,10 +51,6 @@ public class JSONParserTest extends GosonTest {
     assertEquals(map, JSONParser.parseJSONValue("{\"foo\" : 10, \"bar\" : false}"));
   }
 
-  private Object bd(double v) {
-    return new BigDecimal(v);
-  }
-
   private Object bd(String s) {
     return new BigDecimal(s);
   }
@@ -122,8 +118,17 @@ public class JSONParserTest extends GosonTest {
   public void testURIsParseCorrectly() throws URISyntaxException {
     URI uri = new URI("http://example.com");
     assertEquals(uri, JSONParser.parseJSONValue(JSchemaUtils.serializeJson(uri), TypeSystem.get(URI.class)));
+
     URI email = new URI("mailto:test@test.com");
     assertEquals(email, JSONParser.parseJSONValue(JSchemaUtils.serializeJson(email), TypeSystem.get(URI.class)));
+
+    Object val = JSONParser.parseJSONValue("[\"http://example.com\"]", IJavaType.LIST.getParameterizedType(TypeSystem.get(URI.class)));
+    assertEquals(Arrays.asList(new URI("http://example.com")), val);
+
+    Object val2 = JSONParser.parseJSONValue("{\"foo\" : \"http://example.com\"}", IJavaType.MAP.getParameterizedType(IJavaType.STRING, TypeSystem.get(URI.class)));
+    Map m = new HashMap();
+    m.put("foo", new URI("http://example.com"));
+    assertEquals(m, val2);
   }
 
   public void testDateParsing() {

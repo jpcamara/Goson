@@ -295,7 +295,22 @@ public class JSONParser {
         return Collections.EMPTY_MAP;
       } else {
         JsonMap map = new JsonMap(_currentType);
-        IType jschemaType = _currentType;
+
+        IType ctxType = _currentType;
+
+        IJSchemaType jschemaType = null;
+        if (_currentType instanceof IJSchemaType) {
+          jschemaType = (IJSchemaType) _currentType;
+        }
+
+        IType mapValueType = null;
+        if (ctxType != null && IJavaType.MAP.isAssignableFrom(ctxType)) {
+          IType parameterizedType = TypeLord.findParameterizedType(ctxType, IJavaType.MAP.getGenericType());
+          if (parameterizedType != null) {
+            mapValueType = parameterizedType.getTypeParameters()[1];
+          }
+        }
+
         try {
           do {
             String key = parseString();
@@ -308,13 +323,15 @@ public class JSONParser {
               badToken();
             }
 
-            if (jschemaType instanceof IJSchemaType) {
-              _currentType = ((IJSchemaType) jschemaType).getTypeForJsonSlot(key);
+            if (jschemaType != null) {
+              _currentType = jschemaType.getTypeForJsonSlot(key);
+            } else if (mapValueType != null) {
+              _currentType = mapValueType;
             }
             map.put(key, parseValue());
           } while (match(","));
         } finally {
-          _currentType = jschemaType;
+          _currentType = ctxType;
         }
 
         if (!match("}")) {
