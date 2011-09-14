@@ -73,18 +73,18 @@ public class JSONParserTest extends GosonTest {
 
   public void testBasicNestedDataStructures() {
     Map obj = (Map) JSONParser.parseJSONValue(
-            "{" +
-                    "\"null\" : null, " +
-                    " \"number1\" : 1, " +
-                    " \"number2\" : 1.1, " +
-                    " \"boolean\" : true, " +
-                    " \"list1\" : [ 1, 2, 3 ], " +
-                    " \"list2\" : [ { \"str\" : \"string\" } ]," +
-                    " \"map\" : { " +
-                    "    \"map_boolean\" : true," +
-                    "    \"map_string\" : \"string\"" +
-                    "  } " +
-                    "}");
+      "{" +
+        "\"null\" : null, " +
+        " \"number1\" : 1, " +
+        " \"number2\" : 1.1, " +
+        " \"boolean\" : true, " +
+        " \"list1\" : [ 1, 2, 3 ], " +
+        " \"list2\" : [ { \"str\" : \"string\" } ]," +
+        " \"map\" : { " +
+        "    \"map_boolean\" : true," +
+        "    \"map_string\" : \"string\"" +
+        "  } " +
+        "}");
     assertEquals(null, obj.get("null"));
     assertEquals(1L, obj.get("number1"));
     assertEquals(bd("1.1"), obj.get("number2"));
@@ -117,22 +117,23 @@ public class JSONParserTest extends GosonTest {
 
   public void testURIsParseCorrectly() throws URISyntaxException {
     URI uri = new URI("http://example.com");
-    assertEquals(uri, JSONParser.parseJSON(JSchemaUtils.serializeJson(uri), TypeSystem.get(URI.class)));
+    assertEquals(uri, JSONParser.parseJSONValue(JSchemaUtils.serializeJson(uri), TypeSystem.get(URI.class)));
 
     URI email = new URI("mailto:test@test.com");
-    assertEquals(email, JSONParser.parseJSON(JSchemaUtils.serializeJson(email), TypeSystem.get(URI.class)));
+    assertEquals(email, JSONParser.parseJSONValue(JSchemaUtils.serializeJson(email), TypeSystem.get(URI.class)));
 
-    Object val = JSONParser.parseJSON("[\"http://example.com\"]", IJavaType.LIST.getParameterizedType(TypeSystem.get(URI.class)));
+    Object val = JSONParser.parseJSONValue("[\"http://example.com\"]", IJavaType.LIST.getParameterizedType(TypeSystem.get(URI.class)));
     assertEquals(Arrays.asList(new URI("http://example.com")), val);
 
-    Object val2 = JSONParser.parseJSON("{\"foo\" : \"http://example.com\"}", IJavaType.MAP.getParameterizedType(IJavaType.STRING, TypeSystem.get(URI.class)));
+    Object val2 = JSONParser.parseJSONValue("{\"foo\" : \"http://example.com\"}", IJavaType.MAP.getParameterizedType(IJavaType.STRING, TypeSystem.get(URI.class)));
     Map m = new HashMap();
     m.put("foo", new URI("http://example.com"));
     assertEquals(m, val2);
 
     assertEquals(uri, JSONParser.parseJSONValue(JSchemaUtils.serializeJson(uri), TypeSystem.get(URI.class)));
-    URI email = new URI("mailto:test@test.com");
-    assertEquals(email, JSONParser.parseJSONValue(JSchemaUtils.serializeJson(email), TypeSystem.get(URI.class)));
+
+    URI email2 = new URI("mailto:test@test.com");
+    assertEquals(email2, JSONParser.parseJSONValue(JSchemaUtils.serializeJson(email2), TypeSystem.get(URI.class)));
   }
 
   public void testDateParsing() {
