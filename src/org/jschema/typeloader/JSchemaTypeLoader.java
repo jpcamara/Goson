@@ -262,7 +262,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
           jsonString.append(s.nextLine());
         }
         current.stringContent = jsonString.toString();
-        current.content = JSONParser.parseJSON(current.stringContent);
+        current.content = JSONParser.parseJSONValue(current.stringContent);
         init.add(current);
       } catch (FileNotFoundException e) {
         throw new RuntimeException(e);

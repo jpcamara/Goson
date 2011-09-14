@@ -1,7 +1,6 @@
 package org.jschema.util;
 
 import junit.framework.TestCase;
-import org.jschema.model.JsonList;
 import org.jschema.model.JsonMap;
 import org.jschema.parser.JSONParser;
 
@@ -28,7 +27,7 @@ public class JSchemaUtilsTest extends TestCase {
       if (scan != null) { scan.close(); }
     }
 
-    Map json = (Map) JSONParser.parseJSON(content);
+    Map json = (Map) JSONParser.parseJSONValue(content);
     json = (Map)JSchemaUtils.convertJsonToJSchema(json);
     Map someType = (Map)json.get("some_type");
     Map nested = (Map)someType.get("nested_type");
@@ -134,54 +133,6 @@ public class JSchemaUtilsTest extends TestCase {
     assertEquals("{\"int_key\" : 123123123123}", JSchemaUtils.serializeJson(map));
   }
 
-  public void testDateParsing() {
-    assertEquals(makeDate(1999, 1, 1, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseDate("1999"));
-    assertEquals(makeDate(1999, 1, 1, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-01"));
-    assertEquals(makeDate(1999, 12, 1, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12"));
-    assertEquals(makeDate(1999, 1, 2, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-01-02"));
-    assertEquals(makeDate(1999, 12, 31, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31"));
-    assertEquals(makeDate(1999, 12, 31, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T00:00"));
-    assertEquals(makeDate(1999, 12, 31, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T00:00:00"));
-    assertEquals(makeDate(1999, 12, 31, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T00:00:00.00"));
-    assertEquals(makeDate(1999, 12, 31, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T00:00:00.00Z"));
-    assertEquals(makeDate(1999, 12, 31, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T00:00:00.00+00:00"));
-    assertEquals(makeDate(1999, 12, 31, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T00:00:00.00-00:00"));
-
-    assertEquals(makeDate(1999, 12, 31, 1, 0, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T01:00:00.00-00:00"));
-    assertEquals(makeDate(1999, 12, 31, 23, 0, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T23:00:00.00-00:00"));
-    assertEquals(makeDate(1999, 12, 31, 1, 0, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T01:00:00.00"));
-    assertEquals(makeDate(1999, 12, 31, 23, 0, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T23:00:00.00"));
-    assertEquals(makeDate(1999, 12, 31, 1, 0, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T01:00:00"));
-    assertEquals(makeDate(1999, 12, 31, 23, 0, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T23:00:00"));
-    assertEquals(makeDate(1999, 12, 31, 1, 0, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T01:00"));
-    assertEquals(makeDate(1999, 12, 31, 23, 0, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T23:00"));
-
-    assertEquals(makeDate(1999, 12, 31, 1, 1, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T01:01:00.00-00:00"));
-    assertEquals(makeDate(1999, 12, 31, 23, 59, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T23:59:00.00-00:00"));
-    assertEquals(makeDate(1999, 12, 31, 1, 1, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T01:01:00.00"));
-    assertEquals(makeDate(1999, 12, 31, 23, 59, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T23:59:00.00"));
-    assertEquals(makeDate(1999, 12, 31, 1, 1, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T01:01:00"));
-    assertEquals(makeDate(1999, 12, 31, 23, 59, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T23:59:00"));
-    assertEquals(makeDate(1999, 12, 31, 1, 1, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T01:01"));
-    assertEquals(makeDate(1999, 12, 31, 23, 59, 0, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T23:59"));
-
-    assertEquals(makeDate(1999, 12, 31, 1, 1, 1, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T01:01:01.00-00:00"));
-    assertEquals(makeDate(1999, 12, 31, 23, 59, 59, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T23:59:59.00-00:00"));
-    assertEquals(makeDate(1999, 12, 31, 1, 1, 1, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T01:01:01.00"));
-    assertEquals(makeDate(1999, 12, 31, 23, 59, 59, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T23:59:59.00"));
-    assertEquals(makeDate(1999, 12, 31, 1, 1, 1, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T01:01:01"));
-    assertEquals(makeDate(1999, 12, 31, 23, 59, 59, 0, 0, 0), JSchemaUtils.parseDate("1999-12-31T23:59:59"));
-
-    assertEquals(makeDate(1999, 12, 31, 1, 1, 1, 10, 0, 0), JSchemaUtils.parseDate("1999-12-31T01:01:01.01-00:00"));
-    assertEquals(makeDate(1999, 12, 31, 23, 59, 59, 999, 0, 0), JSchemaUtils.parseDate("1999-12-31T23:59:59.999-00:00"));
-    assertEquals(makeDate(1999, 12, 31, 1, 1, 1, 10, 0, 0), JSchemaUtils.parseDate("1999-12-31T01:01:01.01"));
-    assertEquals(makeDate(1999, 12, 31, 23, 59, 59, 999, 0, 0), JSchemaUtils.parseDate("1999-12-31T23:59:59.999"));
-
-    assertEquals(makeDate(1999, 12, 31, 1, 1, 1, 10, -10, 30), JSchemaUtils.parseDate("1999-12-31T01:01:01.01-10:30"));
-    assertEquals(makeDate(1999, 12, 31, 23, 59, 59, 999, 10, 30), JSchemaUtils.parseDate("1999-12-31T23:59:59.999+10:30"));
-
-    assertNull(JSchemaUtils.parseDate("1999-12-31T23:59.999+10:30"));
-  }
 
   public void testDateSerializationWorks() {
     Calendar cal = new GregorianCalendar(1999, 12, 30, 0, 0, 0);
@@ -200,20 +151,5 @@ public class JSchemaUtilsTest extends TestCase {
     }
   }
 
-  private Object makeDate(int year, int month, int day, int hour, int minute, int second, int milli, int offsetHours, int offsetMinutes) {
-    GregorianCalendar gregorianCalendar = new GregorianCalendar();
-    gregorianCalendar.set(Calendar.YEAR, year);
-    gregorianCalendar.set(Calendar.MONTH, month - 1);
-    gregorianCalendar.set(Calendar.DAY_OF_MONTH, day);
-    gregorianCalendar.set(Calendar.HOUR_OF_DAY, hour);
-    gregorianCalendar.set(Calendar.MINUTE, minute);
-    gregorianCalendar.set(Calendar.SECOND, second);
-    gregorianCalendar.set(Calendar.MILLISECOND, milli);
-    int millis = ((offsetHours * 60) + ((offsetHours < 0 ? - 1 : 1 ) * offsetMinutes)) * 60 * 1000;
-    gregorianCalendar.setTimeZone(new SimpleTimeZone(millis, "Custom"));
-    Date time = gregorianCalendar.getTime();
-    System.out.println(time.toGMTString());
-    return time;
-  }
 
 }
