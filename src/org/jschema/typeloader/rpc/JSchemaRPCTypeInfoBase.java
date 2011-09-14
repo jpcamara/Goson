@@ -16,6 +16,9 @@ import gw.lang.reflect.java.IJavaType;
 import gw.util.GosuExceptionUtil;
 import gw.util.GosuStringUtil;
 import org.jschema.rpc.JSchemaRPCException;
+import org.jschema.rpc.RPCConfig;
+import org.jschema.rpc.RPCInvocationWrapper;
+import org.jschema.rpc.RPCLoggerCallback;
 import org.jschema.util.JSchemaUtils;
 
 import java.lang.reflect.Constructor;
@@ -25,6 +28,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
   private JSchemaRPCTypeBase _owner;
@@ -121,6 +125,24 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
   protected abstract String handleRPCMethodInvocation(Object ctx, String method, Map<String, String> argsMap);
 
   protected abstract boolean areRPCMethodsStatic();
+
+  protected String handleRPCMethodInvocationWithConfig(final RPCConfig config, final String url, final Map<String, String> argsMap) {
+    RPCLoggerCallback logger = config.getLogger();
+    if (logger != null) {
+      logger.log("Invoking RPC call at " + url + " with arguments " + argsMap);
+    }
+    RPCInvocationWrapper wrapper = config.getWrapper();
+    if (wrapper == null) {
+      return config.getCallHandler().handleCall(config.getMethod().name(), url, argsMap);
+    } else {
+      return wrapper.invoke(url, new Callable<String>() {
+        @Override
+        public String call() throws Exception {
+          return config.getCallHandler().handleCall(config.getMethod().name(), url, argsMap);
+        }
+      });
+    }
+  }
 
   @Override
   public List<? extends IPropertyInfo> getProperties() {

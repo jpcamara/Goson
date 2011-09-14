@@ -2,12 +2,10 @@ package org.jschema.typeloader.rpc;
 
 import gw.lang.parser.ISymbol;
 import gw.lang.reflect.*;
-import org.jschema.rpc.CustomRPCInstance;
-import org.jschema.rpc.HttpMethod;
-import org.jschema.rpc.RPCConfig;
-import org.jschema.rpc.RPCCallHandler;
+import org.jschema.rpc.*;
 
 import java.util.*;
+import java.util.concurrent.Callable;
 
 public class JSchemaRPCTypeInfo extends JSchemaRPCTypeInfoBase
 {
@@ -47,13 +45,22 @@ public class JSchemaRPCTypeInfo extends JSchemaRPCTypeInfoBase
         new ParameterInfoBuilder()
           .withName("includeNulls")
           .withType(TypeSystem.get(Boolean.class))
+          .withDefValue(ISymbol.NULL_DEFAULT_VALUE),
+        new ParameterInfoBuilder()
+          .withName("logger")
+          .withType(TypeSystem.get(RPCLoggerCallback.class))
+          .withDefValue(ISymbol.NULL_DEFAULT_VALUE),
+        new ParameterInfoBuilder()
+          .withName("wrapper")
+          .withType(TypeSystem.get(RPCInvocationWrapper.class))
           .withDefValue(ISymbol.NULL_DEFAULT_VALUE)
       )
       .withReturnType(TypeSystem.getByFullName(getOwnersType().getName() + JSchemaCustomizedRPCType.TYPE_SUFFIX))
       .withCallHandler(new IMethodCallHandler() {
         @Override
         public Object handleCall(Object ctx, Object... args) {
-          return new CustomRPCInstance(getOwnersType(), (RPCCallHandler) args[0], (String) args[1], (HttpMethod) args[2], (Boolean) args[3]);
+          return new CustomRPCInstance(getOwnersType(), (RPCCallHandler) args[0], (String) args[1], (HttpMethod) args[2],
+            (Boolean) args[3], (RPCLoggerCallback) args[4], (RPCInvocationWrapper) args[5] );
         }
       })
       .build(this));
@@ -65,9 +72,9 @@ public class JSchemaRPCTypeInfo extends JSchemaRPCTypeInfoBase
   }
 
   @Override
-  protected String handleRPCMethodInvocation(Object ctx, String method, Map<String, String> argsMap) {
-    RPCConfig config = new RPCConfig();
-    return config.getCallHandler().handleCall(config.getMethod().name(),
-      getOwnersType().getDefaultURL() + "/" + method, argsMap);
+  protected String handleRPCMethodInvocation(Object ctx, String method, final Map<String, String> argsMap) {
+    final RPCConfig config = new RPCConfig();
+    final String url = getOwnersType().getDefaultURL() + "/" + method;
+    return handleRPCMethodInvocationWithConfig(config, url, argsMap);
   }
 }

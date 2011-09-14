@@ -114,52 +114,18 @@ public class JSONParser {
     if (_currentToken.isNumber()) {
       String value = _currentToken.getValue();
       consumeToken();
-      if (value.contains(".") || value.contains("e") || value.contains("E")) {
-        if (IJavaType.DOUBLE.equals(_currentType)) {
-          if (leadingNegative) {
-            return Double.parseDouble("-" + value);
-          } else {
-            return Double.parseDouble(value);
-          }
+      if (value.contains(".") || value.contains("e") || value.contains("E") || IJavaType.BIGDECIMAL.equals(_currentType)) {
+        if (leadingNegative) {
+          return new BigDecimal("-" + value);
         } else {
-          if (leadingNegative) {
-            return new BigDecimal("-" + value);
-          } else {
-            return new BigDecimal(value);
-          }
+          return new BigDecimal(value);
         }
       } else {
-        if (IJavaType.INTEGER.equals(_currentType)) {
-          if (leadingNegative) {
-            return Integer.parseInt("-" + value);
-          } else {
-            return Integer.parseInt(value);
-          }
-        } else if (IJavaType.BIGINTEGER.equals(_currentType)) {
-          if (leadingNegative) {
-            return new BigInteger("-" + value);
-          } else {
-            return new BigInteger(value);
-          }
-        } else if (IJavaType.DOUBLE.equals(_currentType)) {
-          if (leadingNegative) {
-            return Double.parseDouble("-" + value);
-          } else {
-            return Double.parseDouble(value);
-          }
-        } else if (IJavaType.BIGDECIMAL.equals(_currentType)) {
-          if (leadingNegative) {
-            return new BigDecimal("-" + value);
-          } else {
-            return new BigDecimal(value);
-          }
+        if (leadingNegative) {
+          return Long.parseLong("-" + value);
         } else {
-           if (leadingNegative) {
-             return Long.parseLong("-" + value);
-           } else {
-             return Long.parseLong(value);
-           }
-         }
+          return Long.parseLong(value);
+        }
       }
     } else if (leadingNegative) {
       badToken();

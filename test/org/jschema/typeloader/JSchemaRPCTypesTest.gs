@@ -12,6 +12,7 @@ uses org.jschema.examples.rpc.Sample1.GetEmployee
 uses org.jschema.examples.rpc.Sample1.UpdateEmployee.Employee
 uses org.jschema.examples.rpc.Sample2
 uses org.jschema.examples.rpc.ValidationBasis
+uses org.jschema.examples.rpc.Adder
 
 class JSchemaRPCTypesTest extends GosonTest {
 
@@ -446,6 +447,120 @@ class JSchemaRPCTypesTest extends GosonTest {
     using( server ) {
       assertEquals(ThrowsExceptions.Schema, SimpleRPCCallHandler.doGet("http://localhost:12321/throws?JSchema-RPC"))
     }
+ }
+
+ function testLogger() {
+    var server = new RPCServer()
+    server.addEndPoint( new RPCEndPoint( Adder, new AdderImpl(), "/adder" ) )
+    using( server ) {
+      try {
+        var logMessages = {}
+        var theAnswer = Adder
+                          .with( :logger = \ s -> {
+                            print( s )
+                            logMessages.add( s )
+                          })
+                          .add(40, 2)
+        assertEquals( 42L, theAnswer )
+        assertFalse( logMessages.Empty )
+      } catch( e ) {
+        //pass
+      }
+    }
+ }
+
+ function testWrapper() {
+    var server = new RPCServer()
+    server.addEndPoint( new RPCEndPoint( Adder, new AdderImpl(), "/adder" ) )
+    using( server ) {
+      try {
+        var logMessages = {}
+        var theAnswer = Adder
+                          .with( :wrapper = \ url, callback -> {
+                            logMessages.add("Before")
+                            print("Before ${url}")
+                            print(statictypeof callback)
+                            var val = callback.call()
+                            logMessages.add("After ${url}")
+                            print("After ${url}")
+                            return val as String
+                          })
+                          .add(40, 2)
+        assertEquals( 42L, theAnswer )
+        assertEquals( 2, logMessages.Count )
+      } catch( e ) {
+        //pass
+      }
+    }
+ }
+
+ function testGlobalLogger() {
+    var server = new RPCServer()
+    server.addEndPoint( new RPCEndPoint( Adder, new AdderImpl(), "/adder" ) )
+
+    var logMessages = {}
+    RPCDefaults.setLogger( \ s -> {
+                            print( s )
+                            logMessages.add( s )
+                          })
+    try {
+      using( server ) {
+        try {
+          var theAnswer = Adder.add(40, 2)
+          assertEquals( 42L, theAnswer )
+          assertEquals(2, logMessages.Count)
+        } catch( e ) {
+          //pass
+        }
+      }
+    } finally {
+      RPCDefaults.setLogger(null)
+    }
+ }
+
+ function testGlobalWrapper() {
+    var server = new RPCServer()
+    server.addEndPoint( new RPCEndPoint( Adder, new AdderImpl(), "/adder" ) )
+
+    var logMessages = {}
+    RPCDefaults.setCallWrapper( \ url, callback -> {
+                              logMessages.add("Before")
+                              print("Before ${url}")
+                              print(statictypeof callback)
+                              var val = callback.call()
+                              logMessages.add("After ${url}")
+                              print("After ${url}")
+                              return val as String
+                          } )
+    RPCDefaults.setHandlerWrapper( \ url, callback -> {
+                              logMessages.add("Before")
+                              print("Before ${url}")
+                              print(statictypeof callback)
+                              var val = callback.call()
+                              logMessages.add("After ${url}")
+                              print("After ${url}")
+                              return val as String
+                          } )
+    try {
+      using( server ) {
+        try {
+          var theAnswer = Adder.add(40, 2)
+          assertEquals( 42L, theAnswer )
+          assertEquals(4, logMessages.Count)
+        } catch( e ) {
+          //pass
+        }
+      }
+    } finally {
+      RPCDefaults.setCallWrapper(null)
+      RPCDefaults.setHandlerWrapper(null)
+    }
+ }
+
+ class AdderImpl {
+   function add(i : Long, j : Long) : Long {
+     return i + j
+   }
  }
 
 }
