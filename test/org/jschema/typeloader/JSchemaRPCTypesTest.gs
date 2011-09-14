@@ -174,7 +174,7 @@ class JSchemaRPCTypesTest extends GosonTest {
      }
    }
 
-   function updateEmployee(emp : Employee) : boolean
+   function updateEmployee(emp : Employee) : Boolean
    {
      return(true)
    }
@@ -250,7 +250,7 @@ class JSchemaRPCTypesTest extends GosonTest {
         var endPoint = new RPCEndPoint(ValidationBasis, new IncompleteValidation(), "/validation")
         fail("Exception not thrown")
     }
-    catch(iae : java.lang.IllegalArgumentException) {
+    catch(jse : JSchemaRPCException) {
         // Gulp
     }
  }
@@ -261,7 +261,7 @@ class JSchemaRPCTypesTest extends GosonTest {
          var endPoint = new RPCEndPoint(ValidationBasis, new IncorrectArgTypeValidation(), "/validation")
          fail("Exception not thrown")
      }
-     catch(iae : java.lang.IllegalArgumentException) {
+     catch(jse : JSchemaRPCException) {
          // Gulp
      }
  }
@@ -272,7 +272,7 @@ class JSchemaRPCTypesTest extends GosonTest {
          var endPoint = new RPCEndPoint(ValidationBasis, new IncorrectArgCountValidation(), "/validation")
          fail("Exception not thrown")
      }
-     catch(iae : java.lang.IllegalArgumentException) {
+     catch(jse : JSchemaRPCException) {
          // Gulp
      }
  }
@@ -283,10 +283,31 @@ class JSchemaRPCTypesTest extends GosonTest {
         var endPoint = new RPCEndPoint(ValidationBasis, new IncorrectReturnValidation(), "/validation")
         fail("Exception not thrown")
     }
-    catch(iae : java.lang.IllegalArgumentException) {
+    catch(jse : JSchemaRPCException) {
         // Gulp
     }
  }
+
+ function testValidateAggregatesMultipleErrors()
+ {
+     try{
+        var endPoint = new RPCEndPoint(ValidationBasis, new MultipleErrorValidation(), "/validation")
+        fail("Exception not thrown")
+    }
+    catch(rp : JSchemaRPCException){
+        var lines = rp.getMessage().split("\n");
+        assertEquals(3, lines.length)
+    }
+
+ }
+
+ class MultipleErrorValidation{
+    function intArgVoidReturn(arg1 : String) : Boolean
+    {
+        return(Boolean.TRUE);
+    }
+ }
+
 
  class IncompleteValidation {
     function intArgVoidReturn(arg1 : Long)
@@ -302,9 +323,9 @@ class JSchemaRPCTypesTest extends GosonTest {
         return;
     }
 
-    function intArgBoolArgBooleanReturn(arg1 : String, arg2 : boolean) : boolean
+    function intArgBoolArgBooleanReturn(arg1 : String, arg2 : Boolean) : Boolean
     {
-        return(true)
+        return(Boolean.TRUE)
     }
  }
 
@@ -314,9 +335,9 @@ class JSchemaRPCTypesTest extends GosonTest {
         return;
     }
 
-    function intArgBoolArgBooleanReturn(arg1 : Long) : boolean
+    function intArgBoolArgBooleanReturn(arg1 : Integer) : Boolean
     {
-        return(true)
+        return(Boolean.TRUE)
     }
  }
 
@@ -328,7 +349,7 @@ class JSchemaRPCTypesTest extends GosonTest {
          return;
      }
 
-     function intArgBoolArgBooleanReturn(arg1 : Long, arg2 : boolean) : Long
+     function intArgBoolArgBooleanReturn(arg1 : Integer, arg2 : Boolean) : Long
      {
          return(new Long(1))
      }

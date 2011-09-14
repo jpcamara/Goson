@@ -20,21 +20,68 @@ public class JSONParser {
   private JSONToken _currentToken;
   private IType _currentType;
 
-  public JSONParser(String json, IType rootType) {
+  private JSONParser(String json, IType rootType) {
     _currentToken = JSONToken.tokenize(json).removeTokens(JSONTokenType.COMMENT);
     _currentType = rootType;
   }
 
-  public static Object parseJSON(String json, IType rootType) {
+  /**
+   * Parses a JSON document fragment. In fact this can parse an entire JSON document, but it
+   * doesn't demand that the formal arg json conform to the JSON grammar defined in the
+   * RFC
+   *
+   * @param json - Document fragment to parse
+   * @param rootType - The expected type of the resulting parse
+   * @return Really? You have to ask this?
+   */
+  public static Object parseJSONValue(String json, IType rootType) {
     JSONParser jsonParser = new JSONParser(json, rootType);
     return jsonParser.parseValue();
   }
 
-  public static Object parseJSON(String json) {
-    return parseJSON(json, null);
+  public static Object parseJSONValue(String json) {
+    return parseJSONValue(json, null);
   }
 
-  public Object parseValue() {
+  /**
+   * Parses a complete JSON document, which must start either an object ('{') or an array ('[')
+   * @param json The document text
+   * @param rootType The possibly null type that is the Gosu type of the resultant object
+   *
+   * @return An object representative of the json document
+   *
+   * @throws JsonParseException if something goes wrong
+   */
+  public static Object parseJSON(String json, IType rootType)
+  {
+    JSONParser jsonParser = new JSONParser(json, rootType);
+    return(jsonParser.start());
+  }
+
+  public static Object parseJSON(String json){
+    return(parseJSON(json, null));
+  }
+
+  /**
+   * JSON RFC requires that a JSON document starts with an object or an array decl.
+   */
+  private Object start()
+  {
+    Map object = parseObject();
+    if (object != null ) {
+      return object;
+    }
+
+    List arr = parseArray();
+    if (arr != null) {
+      return arr;
+    }
+
+    badToken();
+    return null;
+  }
+
+  private Object parseValue() {
 
     Date date = parseDate();
     if (date != null ) {

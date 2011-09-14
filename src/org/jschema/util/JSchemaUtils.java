@@ -67,7 +67,7 @@ public class JSchemaUtils {
   }
 
   public static Object parseJson(String json, IType rootType) {
-    return JSONParser.parseJSON(json, rootType);
+    return JSONParser.parseJSONValue(json, rootType);
   }
 
   public static String serializeJson(Object json) {
