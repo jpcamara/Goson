@@ -148,7 +148,7 @@ public class RPCEndPoint {
       }
       Object value = impl.getCallHandler().handleCall(_impl, paramValues);
       if (!impl.getReturnType().equals(IJavaType.pVOID)) {
-        return JSchemaUtils.serializeJson(value);
+        return JSchemaUtils.serializeJSON(value);
       } else {
         return "";
       }

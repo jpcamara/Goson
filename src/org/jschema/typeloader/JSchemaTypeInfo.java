@@ -48,7 +48,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
         .withCallHandler(new IMethodCallHandler() {
           @Override
           public Object handleCall(Object ctx, Object... args) {
-            return JSchemaUtils.serializeJson(ctx);
+            return JSchemaUtils.serializeJSON(ctx);
           }
         })
         .build(JSchemaTypeInfo.this));
@@ -78,7 +78,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
         .withCallHandler(new IMethodCallHandler() {
           @Override
           public Object handleCall(Object ctx, Object... args) {
-            return JSchemaUtils.parseJSONValue((String) args[0], getOwnersType());
+            return JSchemaUtils.parseJSON((String) args[0], getOwnersType());
           }
         })
         .build(JSchemaTypeInfo.this));
@@ -98,7 +98,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
                 builder.append(line);
                 line = reader.readLine();
               }
-              return JSchemaUtils.parseJSONValue(builder.toString(), getOwnersType());
+              return JSchemaUtils.parseJSON(builder.toString(), getOwnersType());
             } catch (Exception e) {
               throw new RuntimeException(e);
             }

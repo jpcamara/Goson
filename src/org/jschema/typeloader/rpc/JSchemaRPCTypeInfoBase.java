@@ -60,7 +60,7 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
 
               @Override
               public void setValue(Object o, Object o1) {
-                throw new IllegalStateException("Scheam Property isn't writable");
+                throw new IllegalStateException("Schema Property isn't writable");
               }
             }).build(this));
     return props;
@@ -204,7 +204,7 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
         Object value = args[i];
         String name = _argNames.get(i);
         if (value != null || includeNulls(ctx)) {
-          String valueString = JSchemaUtils.serializeJson(value);
+          String valueString = JSchemaUtils.serializeJSON(value);
           argsMap.put(name, valueString);
         }
       }

@@ -74,7 +74,7 @@ public class JSchemaUtils {
     return(JSONParser.parseJSON(json, rootType));
   }
 
-  public static String serializeJson(Object json) {
+  public static String serializeJSON(Object json) {
     return serializeJSON(json, -1);
   }
 

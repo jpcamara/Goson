@@ -1,7 +1,6 @@
 package org.jschema.parser;
 
 import gw.lang.reflect.TypeSystem;
-import gw.lang.reflect.java.IJavaArrayType;
 import gw.lang.reflect.java.IJavaType;
 import org.jschema.test.GosonTest;
 import org.jschema.util.JSchemaUtils;
@@ -117,10 +116,10 @@ public class JSONParserTest extends GosonTest {
 
   public void testURIsParseCorrectly() throws URISyntaxException {
     URI uri = new URI("http://example.com");
-    assertEquals(uri, JSONParser.parseJSONValue(JSchemaUtils.serializeJson(uri), TypeSystem.get(URI.class)));
+    assertEquals(uri, JSONParser.parseJSONValue(JSchemaUtils.serializeJSON(uri), TypeSystem.get(URI.class)));
 
     URI email = new URI("mailto:test@test.com");
-    assertEquals(email, JSONParser.parseJSONValue(JSchemaUtils.serializeJson(email), TypeSystem.get(URI.class)));
+    assertEquals(email, JSONParser.parseJSONValue(JSchemaUtils.serializeJSON(email), TypeSystem.get(URI.class)));
 
     Object val = JSONParser.parseJSONValue("[\"http://example.com\"]", IJavaType.LIST.getParameterizedType(TypeSystem.get(URI.class)));
     assertEquals(Arrays.asList(new URI("http://example.com")), val);
@@ -130,10 +129,10 @@ public class JSONParserTest extends GosonTest {
     m.put("foo", new URI("http://example.com"));
     assertEquals(m, val2);
 
-    assertEquals(uri, JSONParser.parseJSONValue(JSchemaUtils.serializeJson(uri), TypeSystem.get(URI.class)));
+    assertEquals(uri, JSONParser.parseJSONValue(JSchemaUtils.serializeJSON(uri), TypeSystem.get(URI.class)));
 
     URI email2 = new URI("mailto:test@test.com");
-    assertEquals(email2, JSONParser.parseJSONValue(JSchemaUtils.serializeJson(email2), TypeSystem.get(URI.class)));
+    assertEquals(email2, JSONParser.parseJSONValue(JSchemaUtils.serializeJSON(email2), TypeSystem.get(URI.class)));
   }
 
   public void testDateParsing() {

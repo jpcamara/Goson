@@ -46,14 +46,14 @@ public class JSchemaUtilsTest extends TestCase {
   }
 
   public void testSerializeStrings() {
-    assertEquals("\"blah\\\"blah\"", JSchemaUtils.serializeJson("blah\"blah"));
-    assertEquals("\"blah\\\\blah\"", JSchemaUtils.serializeJson("blah\\blah"));
-    assertEquals("\"blah\\bblah\"", JSchemaUtils.serializeJson("blah\bblah"));
-    assertEquals("\"blah\\fblah\"", JSchemaUtils.serializeJson("blah\fblah"));
-    assertEquals("\"blah\\nblah\"", JSchemaUtils.serializeJson("blah\nblah"));
-    assertEquals("\"blah\\rblah\"", JSchemaUtils.serializeJson("blah\rblah"));
-    assertEquals("\"blah\\tblah\"", JSchemaUtils.serializeJson("blah\tblah"));
-    assertEquals("\"blah\\u1234blah\"", JSchemaUtils.serializeJson("blah\u1234blah"));
+    assertEquals("\"blah\\\"blah\"", JSchemaUtils.serializeJSON("blah\"blah"));
+    assertEquals("\"blah\\\\blah\"", JSchemaUtils.serializeJSON("blah\\blah"));
+    assertEquals("\"blah\\bblah\"", JSchemaUtils.serializeJSON("blah\bblah"));
+    assertEquals("\"blah\\fblah\"", JSchemaUtils.serializeJSON("blah\fblah"));
+    assertEquals("\"blah\\nblah\"", JSchemaUtils.serializeJSON("blah\nblah"));
+    assertEquals("\"blah\\rblah\"", JSchemaUtils.serializeJSON("blah\rblah"));
+    assertEquals("\"blah\\tblah\"", JSchemaUtils.serializeJSON("blah\tblah"));
+    assertEquals("\"blah\\u1234blah\"", JSchemaUtils.serializeJSON("blah\u1234blah"));
   }
 
   public void testSerialize() {
@@ -69,7 +69,7 @@ public class JSchemaUtilsTest extends TestCase {
     subMapMap.put("foo", "bar");
 
     assertEquals("{\"foo\" : 10, \"bar\" : [1, 2, 3], \"empty_map\" : {}, \"map\" : {\"empty_map\" : {}, \"map\" : {\"foo\" : \"bar\"}}}",
-      JSchemaUtils.serializeJson(m));
+      JSchemaUtils.serializeJSON(m));
 
     assertEquals("{\n" +
       "  \"foo\" : 10, \n" +
@@ -101,7 +101,7 @@ public class JSchemaUtilsTest extends TestCase {
     HashMap map2 = new HashMap();
     map2.put("foo", "bar");
     List lst = Arrays.asList(Collections.EMPTY_MAP, Collections.EMPTY_MAP, map2);
-    assertEquals("[{}, {}, {\"foo\" : \"bar\"}]", JSchemaUtils.serializeJson(lst));
+    assertEquals("[{}, {}, {\"foo\" : \"bar\"}]", JSchemaUtils.serializeJSON(lst));
 
     assertEquals("[{}, {}, \n" +
                  "  {\n" +
@@ -130,7 +130,7 @@ public class JSchemaUtilsTest extends TestCase {
   public void testLongSerialize() {
     Map map = new HashMap();
     map.put("int_key", 123123123123l);
-    assertEquals("{\"int_key\" : 123123123123}", JSchemaUtils.serializeJson(map));
+    assertEquals("{\"int_key\" : 123123123123}", JSchemaUtils.serializeJSON(map));
   }
 
 
