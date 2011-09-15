@@ -8,11 +8,9 @@ import org.jschema.model.JsonList;
 import org.jschema.model.JsonMap;
 import org.jschema.typeloader.IJSchemaType;
 import org.jschema.util.JSchemaUtils;
-import org.omg.CORBA.*;
 
 import java.lang.Object;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
