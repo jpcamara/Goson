@@ -260,6 +260,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
         s = new Scanner(pair.getSecond().toJavaFile());
         while (s.hasNextLine()) {
           jsonString.append(s.nextLine());
+          jsonString.append("\n");
         }
         current.stringContent = jsonString.toString();
         current.content = JSONParser.parseJSONValue(current.stringContent);
