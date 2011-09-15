@@ -16,6 +16,7 @@ if (gosuHome == null) {
 	throw "Please set GOSU_HOME environment variable!" 
 } 
 var gosuDir = file("${gosuHome}/jars")
+var gosuExtDir = file("${gosuHome}/jars")
 
 function deps() {
   Ivy.retrieve(:sync = true, :log = "download-only")
@@ -27,11 +28,13 @@ function compile() {
   Ant.javac(:srcdir = path(srcDir),
             :debug = true,
             :classpath = classpath()
-              .withFileset(gosuDir.fileset()),
+              .withFileset(gosuDir.fileset())
+              .withFileset(libDir.fileset())
+              .withFileset(gosuExtDir.fileset()),
             :destdir = classesDir,
             :includeantruntime = false)
   classesDir.file("META-INF").mkdir()
-  classesDir.file("META-INF/MANIFEST.MF").write("Gosu-Typeloaders: com.jpcamara.gosu.json.JsonTypeLoader\n\n")
+  classesDir.file("META-INF/MANIFEST.MF").write("Gosu-Typeloaders: org.jschema.typeloader.JsonTypeLoader\n\n")
 }
 
 @Depends("compile")
