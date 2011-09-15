@@ -8,7 +8,9 @@ import org.jschema.model.JsonList;
 import org.jschema.model.JsonMap;
 import org.jschema.typeloader.IJSchemaType;
 import org.jschema.util.JSchemaUtils;
+import org.omg.CORBA.*;
 
+import java.lang.Object;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -19,6 +21,7 @@ public class JSONParser {
 
   private JSONToken _currentToken;
   private IType _currentType;
+  private List<JSonParseError> _errors = new ArrayList<JSonParseError>();
 
   private JSONParser(String json, IType rootType) {
     _currentToken = JSONToken.tokenize(json).removeTokens(JSONTokenType.COMMENT);
@@ -34,12 +37,19 @@ public class JSONParser {
    * @param rootType - The expected type of the resulting parse
    * @return Really? You have to ask this?
    */
-  public static Object parseJSONValue(String json, IType rootType) {
+  public static Object parseJSONValue(String json, IType rootType)
+  {
     JSONParser jsonParser = new JSONParser(json, rootType);
-    return jsonParser.parseValue();
+    Object retVal = jsonParser.parseValue();
+    if(jsonParser._errors.size() != 0){
+      throw(new JsonParseException(Integer.toString(jsonParser._errors.size()) + " errors detected.", jsonParser._errors));
+    }
+    return(retVal);
+
   }
 
-  public static Object parseJSONValue(String json) {
+  public static Object parseJSONValue(String json)
+  {
     return parseJSONValue(json, null);
   }
 
@@ -55,7 +65,11 @@ public class JSONParser {
   public static Object parseJSON(String json, IType rootType)
   {
     JSONParser jsonParser = new JSONParser(json, rootType);
-    return(jsonParser.start());
+    Object retVal = jsonParser.start();
+    if(jsonParser._errors.size() != 0){
+      throw(new JsonParseException(Integer.toString(jsonParser._errors.size()) + " errors detected.", jsonParser._errors));
+    }
+    return(retVal);
   }
 
   public static Object parseJSON(String json){
@@ -322,7 +336,8 @@ public class JSONParser {
   }
 
   private void badToken() {
-    throw new JsonParseException("Unexpected token '" + _currentToken.getValue() + "' at line " + _currentToken.getLine() + ", column " + _currentToken.getColumn());
+    JSonParseError error = new JSonParseError("Unexpected token '" + _currentToken.getValue() + "' at line " + _currentToken.getLine() + ", column " + _currentToken.getColumn());
+    _errors.add(error);
   }
 
 }

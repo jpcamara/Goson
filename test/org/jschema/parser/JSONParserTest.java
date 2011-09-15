@@ -188,7 +188,6 @@ public class JSONParserTest extends GosonTest {
     catch(JsonParseException jpe){
       // gulp
     }
-
   }
 
   public void testParseDocumentThrowsIfNotMapOrList()
@@ -203,6 +202,17 @@ public class JSONParserTest extends GosonTest {
     // And these should not throw.
     JSONParser.parseJSON("{ \"a\" : \"some value\" }");
     JSONParser.parseJSON("[ \"a\"]");
+  }
+
+  public void testParserGathersError()
+  {
+    try{
+      JSONParser.parseJSONValue("\"1999-12-31T23:59.999+10:30\"", IJavaType.DATE);
+      fail("Exception not thrown");
+    }
+    catch(JsonParseException jpe){
+      assertEquals(1, jpe.getErrorList().size());
+    }
   }
 
   private Object makeDate(int year, int month, int day, int hour, int minute, int second, int milli, int offsetHours, int offsetMinutes) {
