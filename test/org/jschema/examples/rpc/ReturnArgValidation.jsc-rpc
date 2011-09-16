@@ -1,0 +1,17 @@
+{
+  "url" : "http://localhost:12321/returnvalidation",
+  "functions" : [
+    { "name" : "intArgIntReturn",
+      "args" : [ {"arg1" : "int"} ],
+      "returns" : "int"
+    },
+    { "name" : "intArgBoolArgMapReturn",
+      "args" : [ {"arg1" : "int"}, { "arg2" : "boolean" } ],
+      "returns" :{ "first_name" : "string",
+                    "last_name" : "string",
+                    "age" : "int",
+                    "id" : "int"
+                 }
+    }
+  ]
+}

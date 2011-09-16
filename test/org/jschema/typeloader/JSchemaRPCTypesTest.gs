@@ -12,6 +12,7 @@ uses org.jschema.examples.rpc.Sample1.GetEmployee
 uses org.jschema.examples.rpc.Sample1.UpdateEmployee.Employee
 uses org.jschema.examples.rpc.Sample2
 uses org.jschema.examples.rpc.ValidationBasis
+uses org.jschema.examples.rpc.ReturnArgValidation
 uses org.jschema.examples.rpc.Adder
 
 class JSchemaRPCTypesTest extends GosonTest {
@@ -301,6 +302,12 @@ class JSchemaRPCTypesTest extends GosonTest {
 
  }
 
+ function testReturningPrimitiveTypeWorks()
+ {
+    var endPoint = new RPCEndPoint(ReturnArgValidation, new ReturnArgValidationImpl(), "/returntype")
+ }
+
+
  class MultipleErrorValidation{
     function intArgVoidReturn(arg1 : String) : Boolean
     {
@@ -335,15 +342,13 @@ class JSchemaRPCTypesTest extends GosonTest {
         return;
     }
 
-    function intArgBoolArgBooleanReturn(arg1 : Integer) : Boolean
+    function intArgBoolArgBooleanReturn(arg1 : Long) : Boolean
     {
         return(Boolean.TRUE)
     }
  }
 
-
-
-  class IncorrectReturnValidation{
+ class IncorrectReturnValidation{
      function intArgVoidReturn(arg1 : Long)
      {
          return;
@@ -353,6 +358,20 @@ class JSchemaRPCTypesTest extends GosonTest {
      {
          return(new Long(1))
      }
+  }
+
+  class ReturnArgValidationImpl
+  {
+    function intArgIntReturn(arg1: Long) : int
+    {
+        return(23)
+    }
+
+
+    function intArgBoolArgMapReturn(arg1 : Long, arg2 : Boolean) : Map
+    {
+        return new HashMap<Object, Object>();
+    }
   }
 
  class ThrowsImpl {

@@ -49,33 +49,48 @@ public class RPCEndPoint {
           IParameterInfo[] implParameters = implMethodInfo.getParameters();
           compareFormalArgTypes(jsonImplParameters, implParameters, jsonMethodInfo, validationErrors);
           compareReturnTypes(jsonMethodInfo, implMethodInfo, validationErrors);
+          break;
         }
       }
       if(matched == false){
         validationErrors.add("Method " + jsonMethodInfo.getName() + " declared on type " + _rpcType.getName() + " does not exist on impl type " + _implType.getName());
       }
-
-      if(validationErrors.size() != 0){
-        String newline = String.format("%n");
-        StringBuilder buf = new StringBuilder("Error validating RPC endpoint " + _rpcType.getName());
-        buf.append(newline);
-
-        for(int cntr = 0; cntr < validationErrors.size(); cntr++){
-          buf.append(validationErrors.get(cntr));
-          if(cntr < validationErrors.size()-1){
-            buf.append(newline);
-          }
-        }
-        throw(new JSchemaRPCException(buf.toString()));
-      }
     }
+    if(validationErrors.size() != 0){
+      String newline = String.format("%n");
+      StringBuilder buf = new StringBuilder("Error validating RPC endpoint " + _rpcType.getName());
+      buf.append(newline);
+
+      for(int cntr = 0; cntr < validationErrors.size(); cntr++){
+        buf.append(validationErrors.get(cntr));
+        if(cntr < validationErrors.size()-1){
+          buf.append(newline);
+        }
+      }
+      throw(new JSchemaRPCException(buf.toString()));
+    }
+
     return;
   }
 
   private void compareReturnTypes(IMethodInfo jsonMethodInfo, IMethodInfo implMethodInfo, List<String> validationErrors)
   {
-    if(jsonMethodInfo.getReturnType().equals(implMethodInfo.getReturnType()) == false){
-      validationErrors.add("Method " + jsonMethodInfo.getName() + " declared on type " + _rpcType.getName() + " declares a different return type than does impl type " + _implType.getName());
+    if(jsonMethodInfo.getReturnType().equals(implMethodInfo.getReturnType()) == false) {
+      boolean isError = true;
+      // Allow primitive types for returns...
+      if(jsonMethodInfo.getReturnType().equals(IJavaType.LONG)){
+        if(implMethodInfo.getReturnType().equals(IJavaType.pINT) ||  implMethodInfo.getReturnType().equals(IJavaType.pLONG)){
+          isError = false;
+        }
+      }
+      else if(jsonMethodInfo.getReturnType().equals(IJavaType.BIGDECIMAL)){
+        if(implMethodInfo.getReturnType().equals(IJavaType.pFLOAT) ||  implMethodInfo.getReturnType().equals(IJavaType.pDOUBLE)){
+          isError = false;
+        }
+      }
+      if(isError == true){
+        validationErrors.add("Method " + jsonMethodInfo.getName() + " declared on type " + _rpcType.getName() + " declares a different return type than does impl type " + _implType.getName());
+      }
     }
     return;
   }
