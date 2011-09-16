@@ -297,7 +297,7 @@ class JSchemaRPCTypesTest extends GosonTest {
     }
     catch(rp : JSchemaRPCException){
         var lines = rp.getMessage().split("\n");
-        assertEquals(3, lines.length)
+        assertEquals(4, lines.length)
     }
 
  }
