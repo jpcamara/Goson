@@ -215,6 +215,29 @@ public class JSONParserTest extends GosonTest {
     }
   }
 
+  public void testParserDetectsExtraneousCharactersAtEndOfDocument()
+  {
+    String badJson = "{}{}";
+    try{
+      JSONParser.parseJSON(badJson);
+      fail("Exception not thrown");
+    }
+    catch(JsonParseException jpe){
+      // gulp
+    }
+
+    badJson = "[]{";
+    try{
+      JSONParser.parseJSON(badJson);
+      fail("Exception not thrown");
+    }
+    catch(JsonParseException jpe){
+      // gulp
+    }
+
+  }
+
+
   private Object makeDate(int year, int month, int day, int hour, int minute, int second, int milli, int offsetHours, int offsetMinutes) {
     GregorianCalendar gregorianCalendar = new GregorianCalendar();
     gregorianCalendar.set(Calendar.YEAR, year);

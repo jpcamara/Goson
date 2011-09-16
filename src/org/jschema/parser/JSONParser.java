@@ -79,18 +79,20 @@ public class JSONParser {
    */
   private Object start()
   {
-    Map object = parseObject();
-    if (object != null ) {
-      return object;
+    Object retVal;
+    retVal = parseObject();
+    if (retVal == null ) {
+      retVal = parseArray();
     }
-
-    List arr = parseArray();
-    if (arr != null) {
-      return arr;
+    if(retVal != null){
+      if(_currentToken.isEOF() == false){
+        badToken();
+      }
     }
-
-    badToken();
-    return null;
+    else{
+      badToken();
+    }
+    return(retVal);
   }
 
   private Object parseValue() {
