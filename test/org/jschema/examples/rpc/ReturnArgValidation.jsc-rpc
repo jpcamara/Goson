@@ -4,6 +4,10 @@
     { "name" : "intArgIntReturn",
       "args" : [ {"arg1" : "int"} ],
       "returns" : "int"
+    },
+    { "name" : "intArgNumberReturn",
+      "args" : [ {"arg1" : "int"} ],
+      "returns" : "number"
     }
   ]
 }

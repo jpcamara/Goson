@@ -304,7 +304,8 @@ class JSchemaRPCTypesTest extends GosonTest {
 
  function testReturningPrimitiveTypeWorks()
  {
-    var endPoint = new RPCEndPoint(ReturnArgValidation, new ReturnArgValidationImpl(), "/returntype")
+    var endPoint = new RPCEndPoint(ReturnArgValidation, new ReturnArgValidationImpl1(), "/returntype")
+    endPoint = new RPCEndPoint(ReturnArgValidation, new ReturnArgValidationImpl2(), "/returntype")
  }
 
 
@@ -360,19 +361,32 @@ class JSchemaRPCTypesTest extends GosonTest {
      }
   }
 
-  class ReturnArgValidationImpl
+  class ReturnArgValidationImpl1
   {
     function intArgIntReturn(arg1: Long) : int
     {
         return(23)
     }
 
-
-    function intArgBoolArgMapReturn(arg1 : Long, arg2 : Boolean) : Map
+    function intArgNumberReturn(arg1 : Long) : float
     {
-        return new HashMap<Object, Object>();
+        return(23.23)
     }
   }
+
+  class ReturnArgValidationImpl2
+  {
+    function intArgIntReturn(arg1: Long) : long
+    {
+        return(23L)
+    }
+
+    function intArgNumberReturn(arg1 : Long) : double
+    {
+        return(23.23)
+    }
+  }
+
 
  class ThrowsImpl {
    function exception() {
