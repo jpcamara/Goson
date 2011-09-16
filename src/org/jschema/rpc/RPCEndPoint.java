@@ -75,7 +75,7 @@ public class RPCEndPoint {
   private void compareReturnTypes(IMethodInfo jsonMethodInfo, IMethodInfo implMethodInfo, List<String> validationErrors)
   {
     if(jsonMethodInfo.getReturnType().equals(implMethodInfo.getReturnType()) == false){
-      validationErrors.add("Method " + jsonMethodInfo.getName() + " declared on type " + _rpcType.getName() + " declares a different return type than does impl type " + _implType.getName());
+      validationErrors.add("Method " + jsonMethodInfo.getName() + " declared on type " + _rpcType.getName() + " declares a different return type than does impl type " + _implType.getName() + " Expected " + jsonMethodInfo.getReturnType().getName() +  " but found " + implMethodInfo.getReturnType().getName() );
     }
     return;
   }
