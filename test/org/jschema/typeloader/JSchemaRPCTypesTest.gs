@@ -13,6 +13,7 @@ uses org.jschema.examples.rpc.Sample1.UpdateEmployee.Employee
 uses org.jschema.examples.rpc.Sample2
 uses org.jschema.examples.rpc.ValidationBasis
 uses org.jschema.examples.rpc.Adder
+uses org.jschema.examples.rpc.ReturnsArrays
 
 class JSchemaRPCTypesTest extends GosonTest {
 
@@ -583,5 +584,25 @@ class JSchemaRPCTypesTest extends GosonTest {
      return i + j
    }
  }
+
+  function testArrays() {
+    var server = new RPCServer()
+    server.addEndPoint( new RPCEndPoint( ReturnsArrays, new ReturnsArraysImpl(), "/arrs" ) )
+    using( server ) {
+      assertEquals( {1L, 2L}, ReturnsArrays.intArray() )
+      assertEquals( { new ReturnsArray.Example(){ :Foo = "blah" } }, ReturnsArrays.intArray() )
+    }
+  }
+
+  class ReturnsArraysImpl {
+    function intArray() : JsonList<Long> {
+      return {1L, 2L}
+    }
+
+    function refArray() : JsonList<ReturnsArrays.Example> {
+      return { new ReturnsArray.Example(){ :Foo = "blah" } }
+    }
+  }
+
 
 }

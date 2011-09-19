@@ -12,8 +12,8 @@ public class GosonScratchSuite extends TestSuite {
   private static String[] getTests() {
     return new String[]{
 //      "org.jschema.parser.JSONParserTest",
-      "org.jschema.typeloader.JSchemaTypesTest",
-      "org.jschema.typeloader.JSchemaRPCTypesTest"
+//      "org.jschema.typeloader.JSchemaTypesTest",
+      "org.jschema.typeloader.InvoiceTest"
     };
   }
 

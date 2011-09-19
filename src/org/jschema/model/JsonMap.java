@@ -57,6 +57,10 @@ public class JsonMap<T> extends JsonObject implements Map<String, T> {
     return (String) get(name);
   }
 
+  public Number getNumber(String name) {
+    return (Number) get(name);
+  }
+
   public BigDecimal getDecimal(String name) {
     return (BigDecimal) get(name);
   }

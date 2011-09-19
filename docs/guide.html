@@ -1,14 +1,15 @@
 <html>
   <head>
-    <title>Goson Documentation</title>
+    <title>JSchema-Gosu Documentation</title>
+    <script type="text/javascript" src="generated_toc.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css" />
   </head>
   <body>
     <h1>Introduction</h1>
-    <p>Goson is a Gosu implementation of the <a href="http://jschema.org">JSchema</a> and <a href="http://jschema.org">JSchema-RPC</a>
+    <p>JSchema-Gosu is a Gosu implementation of the <a href="http://jschema.org">JSchema</a> and <a href="http://jschema.org">JSchema-RPC</a>
       specifications.  It consists of:</p>
     <ul>
-      <li>A Typeloader For JSchema (.jsc) and JSchema-RPC (.jsc-rpc) documents</li>
+      <li>A Typeloader For JSchema (.jsc), JSON (.json) and JSchema-RPC (.jsc-rpc) documents</li>
       <li>Tools for working with JSON</li>
       <li>A servlet filter that can be used to publish JSchema-RPC end points</li>
       <li>A simple HTTP server that can be used to publish JSchema-RPC end points</li>
@@ -16,123 +17,276 @@
     <p>As with other Gosu Type Loaders, you need only to add this jar to your project's classpath to start using the JSchema-based
     types.</p>
 
-    <h1>JSchema Types</h1>
+    <h1>JSchema Example</h1>
     <p>
-      A set of JSchema types will be created for each <code>.jsc</code> file found in the classpath.
-      Given a <code>.jsc</code> file at <code>/src/schemas/Group.jsc</code> with the following content:
+      Let's say that you have the following <code>.jsc</code> file in your source directory at <code>src/jschema/Invoice.jsc</code>:
     </p>
     <pre>
 {
-  "group_name" : "string",
-  "members" : [
-    { "first_name" : "string",
-      "last_name" : " string",
-      "age" : "int",
-      "position" : {"enum" : [ "manager", "developer", "documentation" ] }
-    }
-  ]
+  "typedefs@" : {
+    "Address" : {
+       "type" : { "enum" : ["business", "residential"] },
+       "line1" : "string",
+       "line2" : "string",
+       "city" : "string",
+       "state" : "string",
+       "country" : "string",
+       "zip" : "int"
+     }
+  },
+  "id" : "int",
+  "date" : "date",
+  "billing_address" : "Address",
+  "customers" : [ {
+    "first_name" : "string",
+    "last_name" : "string",
+    "business_name" : "string",
+    "address" : "Address"
+   } ],
+   "items" : [ {
+     "name" : "string",
+     "sku" : "number",
+     "amount" : "number",
+     "unit_cost" : "number",
+     "total_cost" : "number"
+   } ]
 }
     </pre>
     <p>
-      The following types are created:
+      Given this JSchema file, the JSchema-Gosu type loader will create the following types:
     </p>
-
     <ul>
-      <li><code>schemas.Group</code> - Represents the Group root object.</li>
-      <li><code>schemas.Group.Members</code> - Represents the Members.</li>
-      <li><code>schemas.Group.Members.Position</code> - An Enum Type.</li>
+      <li><code>jschema.Invoice</code></li>
+      <li><code>jschema.Invoice.Address</code></li>
+      <li><code>jschema.Invoice.Customers</code></li>
+      <li><code>jschema.Invoice.Items</code></li>
     </ul>
 
-    <h2>Parsing JSON</h2>
-
-    <p>All JSchema types have a set of static <code>parse()</code> methods for working with various kinds of input.</p>
-
-    <p>For example, to parse a string conforming to the <code>Group</code> schema above you would say:</p>
-
+    <h2>Creating An Invoice</h2>
+    <p>
+      Creating an Invoice based on this schema in Gosu is quite simple:
+    </p>
     <pre>
-  var str = '{ "group_name" = "A Group", "members" = [ { "first_name" : "Joe", "last_name" : "blow", "age" : "int", "position" : "developer" } ] }'
-
-  var group = Group.parse( str )
-
-  print( "The group name is ${group.GroupName}" )
-
-  print( "The first members age is ${group.Members.first().Age}" )
+  uses jschema.Invoice
+  
+  var invoice = new Invoice() {
+    :Id = 42,
+    :Date = Date.Today,
+    :BillingAddress = new Invoice.Address() {
+      :Type = BUSINESS,
+      :Line1 = "123 Main Street",
+      :City = "Menlo Park",
+      :State = "CA",
+      :Country = "USA",
+      :Zip = 12345
+    },
+    :Customers = {
+      new Invoice.Customers() {
+        :FirstName = "Ted",
+        :LastName = "Smith",
+        :Address = new Invoice.Address() {
+          :Type = RESIDENTIAL,
+          :Line1 = "1122 G Street",
+          :City = "Stockton",
+          :State = "CA",
+          :Country = "USA",
+          :Zip = 12345
+        }
+      }
+    },
+    :Items = {
+      new Invoice.Items() { :Name = "Cornmeal", :Amount = 1, :TotalCost = 5.99 }
+    }
+  }
     </pre>
 
-    <h2>Schema Properties</h2>
+    <p>
+      Note that we are using the <a href="http://lazygosu.org/misc.html">Object Initializer</a> syntax in gosu to declare
+      this invoice.  This is a general feature of Gosu and is not specific to JSchema.
+    </p>
 
-    <p>JSchema types have properties available on them corresponding to their definition in the <code>jsc</code> file.</p>
-
-    <p>These properties will have their names transformed to conform to Gosu naming conventions, and all properties are
-    both readable and writable, as you can see in the example above.</p>
-
-    <h2>Serializing to JSON</h2>
-
-    <p>JSchema objects can be serialized to JSON with the <code>write()</code> method:</p>
+    <p>
+      As you can see readable and writable properties are created for each member in the JSchema document, making it easy
+      to create an mutate JSchema-based objects.  As an example, let's add a new item to the invoice:
+    </p>
 
     <pre>
-  var str = '{ "group_name" = "A Group", "members" = [ { "first_name" : "Joe", "last_name" : "blow", "age" : "int", "position" : "developer" } ] }'
-  var group = Group.parse( str )
+  invoice.Items.add( new jschema.Invoice.Items() {  :Name = "Rice", :Quantity = 2, :TotalCost = 8.39 } )</pre>
 
-  print( group.write() )
-    </pre>
+    <p>And update the invoice ID:</p>
 
-    <p>It can also be serialized with nice whitespace using the <code>prettyPrint()</code> method:</p>
     <pre>
-  var str = '{ "group_name" = "A Group", "members" = [ { "first_name" : "Joe", "last_name" : "blow", "age" : "int", "position" : "developer" } ] }'
-  var group = Group.parse( str )
+  invoice.Id = 43</pre>
 
-  print( group.prettyPrint() )
-    </pre>
-    <p><code>prettyPrint()</code> takes an optional parameter for the indent spacing to use.</p>
+    <h2>Serializing To JSON</h2>
 
-    <h2>Other Methods</h2>
+    <p>You can write the JSchema object to a JSON string by calling the <code>write()</code> method:</p>
 
-    <p>JSchema types have some other useful methods on them:</p>
-
-    <h3><code>descendents()</code></h3>
-    <p>Returns an <code>Iterable</code> of all descendents of given JSchema node. As an example, here is how to print out
-    all strings found in a group:</p>
     <pre>
-  group.descendents().whereTypeIs(String).each( \ s -> print( "String found : ${s}" ) )
-    </pre>
+  print( invoice.write() )</pre>
 
-    <h3><code>find(Type)</code></h3>
-    <p>Returns an <code>Iterable</code> of all descendents of the given type, so we could simplify the above to:</p>
+    <p>Or, if you want nice whitespace in your JSON, use the <code>prettyPrint()</code> method, which has an optional indent argument:</p>
+
     <pre>
-  group.find(String).each( \ s -> print( "String found : ${s}" ) )
-    </pre>
-    <p>Or, to find all group members with an age over 21:</p>
+  print( invoice.prettyPrint() )
+  print( invoice.prettyPrint(4) )</pre>
+
+    <h2>Parsing From JSON</h2>
+
+    <p>To parse JSON content, there are a set of static <code>parse()</code> methods on JSchema types:</p>
+
     <pre>
-  group.find(Members).where( \ m -> m.Age > 21 )
+  var invoice = '{ "id" : 1 }' // A very boring invoice
+
+  var invoice = Invoice.parse( str )
+
+  print( "The ID of the Invoice is ${invoice.Id}" )
     </pre>
 
-    <h3><code>parent()</code></h3>
-    <p>Returns the parent of the given node.  This will be strongly typed if possible.  (It might not be possible in the
-    case of things like JSchema typedefs, which can have multiple different parents.)</p>
-    <p>For example, you could print the name of the group above out like so:</p>
+    <h2>Using HTTP</h2>
+
+    <p>
+      If you have a JSchema document that describes an http end point, you can easily do an HTTP Get or Post to retrieve
+      the value of that document:
+    </p>
+
     <pre>
-  print( group.Members.first().parent().GroupName )
-    </pre>
-    <p>That's a convoluted way to do it, but it demonstrates the concept.</p>
+  var invoiceViaGet = Invoice.get( "http://example.com/invoices", { "id" -> 42 } )
 
-    <h3><code>get(String, Map) &amp; post(String, Map)</code></h3>
-    <p>You can make simple HTTP requests to JSON end points using JSchema types:</p>
+  var invoiceViaPost = Invoice.post( "http://example.com/invoices", { "id" -> 42 } )
+    </pre>
+
+    <p>
+      Both methods allow you to pass arguments via a Map, which is an optional second argument.
+    </p>
+
+    <h2>Finding Things</h2>
+
+    <p>JSchema does not have a JPath-like system and instead relies on programming languages to be good enough to
+      make it pleasant to work with JSchema content.</p>
+
+    <h3>Finding Everything</h3>
+
+    <p>The <code>descendents()</code> method returns all nodes at or below the node it is invoked on.  This can be used
+    to search the entire tree:
+    </p>
+
     <pre>
-  var group = Group.get( "http://myserver/myendpoint", { "id" -> 42 } )
-  print( group.write() )
+  invoice.descendents().whereTypeIs(Invoice.Address)
+                       .where( \ addr -> addr.State == "CA" )
+                       .each( \ addr -> print( "Found CA Address : ${addr}" ) )
     </pre>
-    <p>The second argument is a map of values that will be passed as parameters to the JSON end point, either as query
-      parameters or as POST paramters, depending on the method you use.</p>
 
-    <h3><code>asJson()</code></h3>
-    <p>Returns the node as a raw <code>JsonMap</code> object</p>
+    <h3>Finding Specific Things</h3>
 
-    <h3><code>convertTo(Type)</code></h3>
-    <p>Creates a copy of the object, converted to the type given.  This only works if the type being converted to is a
-    subset of the type being converted.</p>
+    <p>Finding all nodes of a specific type is a common operation, so there is a <code>find()</code> method that takes
+    a specific type and returns all descendents (again, inclusive of the root node) of that type.  Using this method, the
+    code above can be simplified to:</p>
+
+    <pre>
+  invoice.find(Invoice.Address)
+         .where( \ addr -> addr.State == "CA" )
+         .each( \ addr -> print( "Found CA Address : ${addr}" ) )
+    </pre>
+
+    <h3>Getting The Parent</h3>
+
+    <p>JSchema-Gosu objects maintain pointer to their parent objects, which can be accessed via the <code>parent()</code> method:</p>
+
+    <pre>
+  invoice.find(Invoice.Address)
+         .each( \ addr -> print( "Address Parent: ${addr.parent()}" ) )
+    </pre>
+
+    <p>The <code>parent()</code> method will be strongly typed where possible, so, for example, the return type of <code>parent()</code> on
+    the <code>jschema.Invoice.Items</code> type is <code>jschema.Invoice</code>, since it is an inline type, whereas for
+      <code>jschema.Invoice.Address</code> is it <code>Object</code>, since an Address can belong to multiple parents (i.e. both
+    <code>jschema.Invoice</code> and <code>jschema.Invoice.Customers</code></p>
+
+    <h2>Going Untyped</h2>
+
+    <p>The JSchema-Gosu library inclues support for working with untyped JSON.  This functionality is outlined below.</p>
+
+    <h3>Raw JSON Objects</h3>
+
+    <p>JSchema-Gosu ships with a general JSON parser that returns objects from the model found in the
+      <code>org.jschema.model</code> package.  This models is based on the Java Collections interfaces, <code>List</code> and
+      <code>Map</code> in particular, but adds the concept of a parent pointer, effectively modeling the JSON tree.  Note this
+      is in contrast to the standard JSON library, which does not implement the java Collections interfaces.</p>
+
+    <p>The easiest way to parse raw JSON is the static method <code>org.jschema.util.JSchemaUtils.parseJsonObject()</code> which
+      will return a <code>org.jschema.model.JsonMap</code>, which extends <code>Map&lt;String, Object&gt;</code>.  You
+      can manipulate this object using the standard <code>java.util.Map</code> methods, such as <code>get()</code> and
+      <code>put()</code>.</p>
+
+    <p>In addition to the usual methods on <code>Map</code>, <code>JsonMap</code> also has:</p>
+    <ul>
+      <li><code>getMap(String name)</code> - returns the value cast to a JsonMap.</li>
+      <li><code>getList(String name)</code> - returns the value cast to a JsonList.</li>
+      <li><code>getString(String name)</code> - returns the value cast to a String.</li>
+      <li><code>getNumber(String name)</code> - returns the value cast to a Number.</li>
+      <li><code>getDecimal(String name)</code> - returns the value cast to a BigDecimal.</li>
+      <li><code>getInt(String name)</code> - returns the value cast to a Long.</li>
+      <li><code>getBoolean(String name)</code> - returns the value cast to a Boolean.</li>
+      <li><code>write()</code> - returns a JSON serialized version of the object.</li>
+      <li><code>prettyPrint()</code> - returns a JSON serialized version of the object with nice formatting.</li>
+      <li><code>parent()</code> - returns the parent of this map.</li>
+      <li><code>descendents()</code> - returns the descendents of this map.</li>
+    </ul>
+
+    <p><code>JsonList</code> has similar methods.</p>
+
+    <h3>JSchema Objects Untyped</h3>
+
+    <p>At runtime, JSchema-Gosu objects are actually simply <code>org.jschema.model.JsonMap</code>'s.  You can get at
+    this underlying map for direct manipulation via the <code>asJSON</code> method:</p>
+
+    <pre>
+  var map = invoice.asJSON()
+
+  print( "Raw ID: ${map.get("id")}" )
+  map.put( "foo", "bar" ) // stash a non-schema based value away
+    </pre>
+
+    <p>Note that the keys of the map will be raw string values, and <em>may not</em> necessarily correspond to the
+      property names (in fact often they will be different).</p>
+
+    <p>It is obviously possible to subvert the type system in this manner, and store, say, a string where a boolean
+    is expected, but we are all adults here, right?</p>
+
+    <h2>Conversions</h2>
+
+    <p>You can convert from one JSchema type to another using the <code>convertTo(Type)</code> method.  This will create
+    a new object of the type passed in and fill in the properties of it based on the object that <code>convertTo()</code>
+    was called on</p>
+    
+    <p>This only works if the type being converted to has a subset of the properties type being converted from.  Presently
+    <code>convertTo()</code> will fail at runtime if this is not the case, but we intend to make it a compile time error.</p>
+
+    <h2>JSON Types</h2>
+
+    <p>A JSchema-based type can be derived from a sample JSON document.  Twitter, for example, offers an sample document
+      from their User Timeline API here: https://dev.twitter.com/docs/api/1/get/statuses/user_timeline.</p>
+
+    <p>If you download this sample to <code>src/jschema/TwitterUserTimeline.json</code>, you can write the following
+      code:</p>
+
+    <pre>
+  var latestTweets = jschema.TwitterUserTimeline.get("http://api.twitter.com/1/statuses/user_timeline.json",
+                                                     { "include_entities" -> true,
+                                                       "include_rts" -> true,
+                                                       "screen_name" -> "carson_gross",
+                                                       "count"-> 5 } )
+  for( tweet in latestTweets ) {
+    print( tweet.Text )
+  }
+    </pre>
+
+    <p>While certain type information is lost (e.g. enums are simply strings) it is still much more pleasant than the
+    untyped alternative.</p>
 
     <h1>JSchema RPC Types</h1>
+
 
     <p>JSchema RPC types are defined in <code>jsc-rpc</code> files.  Given this JSchema RPC file at <code>src/rpc/EmployeeService</code>:</p>
     <pre>

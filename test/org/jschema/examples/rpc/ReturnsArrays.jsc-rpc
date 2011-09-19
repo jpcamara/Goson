@@ -1,0 +1,18 @@
+{ "description" : "Returns arrays",
+  "url" : "http://localhost:12321/arrs",
+  "typedefs@" : {
+    "Example" : {
+      "foo" : "string"
+    }
+  },
+  "functions" : [
+    { "name" : "intArray",
+      "args" : [],
+      "returns" : [ "int" ]
+    },
+    { "name" : "refArray",
+      "args" : [],
+      "returns" : [ "Example" ]
+    }
+  ]
+}

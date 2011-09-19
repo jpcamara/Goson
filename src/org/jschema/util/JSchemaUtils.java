@@ -66,6 +66,18 @@ public class JSchemaUtils {
       " \"" + JSCHEMA_TRACE_KEY + "\" : \"" + GosuEscapeUtil.escapeForGosuStringLiteral(trace) + "\"  }";
   }
 
+  public static JsonMap parseJsonObject(String json) {
+    return (JsonMap) JSONParser.parseJSONValue(json, null);
+  }
+
+  public static JsonList parseJsonArray(String json) {
+    return (JsonList) JSONParser.parseJSONValue(json, null);
+  }
+
+  public static Object parseJson(String json) {
+    return JSONParser.parseJSONValue(json, null);
+  }
+
   public static Object parseJson(String json, IType rootType) {
     return JSONParser.parseJSONValue(json, rootType);
   }

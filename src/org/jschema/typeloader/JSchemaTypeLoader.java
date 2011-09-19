@@ -105,8 +105,10 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
           typeDefs.push(new HashMap<String, String>());
           processTypeDefs(types, typeDefs, name, jsonMap);
           for (Object key : jsonMap.keySet()) {
-            addTypes(types, typeDefs, name + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(key.toString()),
-              jsonMap.get(key));
+            if (!JSchemaUtils.JSCHEMA_TYPEDEFS_KEY.equals(key)) {
+              addTypes(types, typeDefs, name + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(key.toString()),
+                jsonMap.get(key));
+            }
           }
           putType(types, name, new JSchemaType(name, this, o, copyTypeDefs(typeDefs)));
         } finally {

@@ -316,6 +316,10 @@ public class JSchemaTypeInfo extends TypeInfoBase {
 
     for (Object k : json.keySet()) {
 
+      if (JSchemaUtils.JSCHEMA_TYPEDEFS_KEY.equals(k)) {
+        continue;
+      }
+
       final String jsonSlotName = (String) k;
       String propertyName = JSchemaUtils.convertJSONStringToGosuIdentifier(jsonSlotName);
       final Object value = json.get(jsonSlotName);
@@ -323,7 +327,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
       jsonSlotToPropertyName.put(jsonSlotName, propertyName);
       propertyNameToJsonSlot.put(propertyName, jsonSlotName);
 
-      final IType propType = getOwnersType().resolveInnerType(getOwnersType() + "."+ propertyName, value);
+      final IType propType = getOwnersType().resolveInnerType(getOwnersType() + "." + propertyName, value);
 
       PropertyInfoBuilder pib = new PropertyInfoBuilder()
         .withName(propertyName)

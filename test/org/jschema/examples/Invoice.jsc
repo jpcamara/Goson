@@ -1,0 +1,29 @@
+{
+  "typedefs@" : {
+    "Address" : {
+       "type" : { "enum" : ["business", "residential"] },
+       "line1" : "string",
+       "line2" : "string",
+       "city" : "string",
+       "state" : "string",
+       "country" : "string",
+       "zip" : "int"
+     }
+  },
+  "id" : "int",
+  "date" : "date",
+  "billing_address" : "Address",
+  "customers" : [ {
+    "first_name" : "string",
+    "last_name" : "string",
+    "business_name" : "string",
+    "address" : "Address"
+   } ],
+   "items" : [ {
+     "name" : "string",
+     "sku" : "number",
+     "amount" : "number",
+     "unit_cost" : "number",
+     "total_cost" : "number"
+   } ]
+}
