@@ -22,7 +22,7 @@ import java.util.*;
 public class JSchemaTypeInfo extends TypeInfoBase {
 
   private IJSchemaType owner;
-  private Map json;
+  private Object json;
   private Map<String, String> jsonSlotToPropertyName = new HashMap<String, String>();
   private Map<String, String> propertyNameToJsonSlot = new HashMap<String, String>();
   private List<IPropertyInfo> properties;
@@ -39,12 +39,21 @@ public class JSchemaTypeInfo extends TypeInfoBase {
   private List<IMethodInfo> buildMethods() {
     if (isJsonEnum()) {
       return (List) TypeSystem.get(JSchemaEnumType.JsonEnumValue.class).getTypeInfo().getMethods();
-    } else {
+    } else if (isListWrapper()) {
       List<IMethodInfo> typeMethods = new ArrayList<IMethodInfo>();
+
+      addStaticProductionMethods(typeMethods, ((JSchemaListWrapperType) getOwnersType()).getWrappedType(), this);
+
+      return typeMethods;
+    } else {
+
+      List<IMethodInfo> typeMethods = new ArrayList<IMethodInfo>();
+
+      addStaticProductionMethods(typeMethods, getOwnersType(), this);
+
       typeMethods.add(new MethodInfoBuilder()
         .withName("write")
         .withReturnType(IJavaType.STRING)
-        .withStatic(true)
         .withCallHandler(new IMethodCallHandler() {
           @Override
           public Object handleCall(Object ctx, Object... args) {
@@ -68,81 +77,6 @@ public class JSchemaTypeInfo extends TypeInfoBase {
               indent = (Integer) args[0];
             }
             return JSchemaUtils.serializeJson(ctx, indent);
-          }
-        })
-        .build(JSchemaTypeInfo.this));
-      typeMethods.add(parseMethod()
-        .withParameters(new ParameterInfoBuilder()
-          .withType(IJavaType.STRING)
-          .withName("content"))
-        .withCallHandler(new IMethodCallHandler() {
-          @Override
-          public Object handleCall(Object ctx, Object... args) {
-            return JSchemaUtils.parseJson((String) args[0], getOwnersType());
-          }
-        })
-        .build(JSchemaTypeInfo.this));
-      typeMethods.add(parseMethod()
-        .withParameters(new ParameterInfoBuilder()
-          .withType(TypeSystem.get(java.net.URL.class))
-          .withName("content"))
-        .withCallHandler(new IMethodCallHandler() {
-          @Override
-          public Object handleCall(Object ctx, Object... args) {
-            try {
-              java.net.URL content = (java.net.URL) args[0];
-              BufferedReader reader = new BufferedReader(new InputStreamReader(content.openConnection().getInputStream()));
-              StringBuilder builder = new StringBuilder();
-              String line = reader.readLine();
-              while (line != null) {
-                builder.append(line);
-                line = reader.readLine();
-              }
-              return JSchemaUtils.parseJson(builder.toString(), getOwnersType());
-            } catch (Exception e) {
-              throw new RuntimeException(e);
-            }
-          }
-        })
-        .build(JSchemaTypeInfo.this));
-      typeMethods.add(new MethodInfoBuilder()
-        .withName("get")
-        .withParameters(new ParameterInfoBuilder()
-          .withType(IJavaType.STRING)
-          .withName("url"),
-          new ParameterInfoBuilder()
-            .withType(IJavaType.MAP.getParameterizedType(IJavaType.STRING, IJavaType.OBJECT))
-            .withDefValue(ISymbol.NULL_DEFAULT_VALUE)
-            .withName("args")
-        )
-        .withReturnType(getOwnersType())
-        .withStatic(true)
-        .withCallHandler(new IMethodCallHandler() {
-          @Override
-          public Object handleCall(Object ctx, Object... args) {
-            Map<String, String> fixedArgs = fixArgs((Map) args[1]);
-            return JSchemaUtils.parseJson(SimpleRPCCallHandler.doGet((String) args[0], fixedArgs), getOwnersType());
-          }
-        })
-        .build(JSchemaTypeInfo.this));
-
-      typeMethods.add(new MethodInfoBuilder()
-        .withName("post")
-        .withParameters(new ParameterInfoBuilder()
-          .withType(IJavaType.STRING)
-          .withName("url"),
-          new ParameterInfoBuilder()
-            .withType(IJavaType.MAP.getParameterizedType(IJavaType.STRING, IJavaType.OBJECT))
-            .withDefValue(ISymbol.NULL_DEFAULT_VALUE)
-            .withName("args")
-        )
-        .withReturnType(getOwnersType())
-        .withStatic(true)
-        .withCallHandler(new IMethodCallHandler() {
-          @Override
-          public Object handleCall(Object ctx, Object... args) {
-            Map<String, String> fixedArgs = fixArgs((Map) args[1]);
-            return JSchemaUtils.parseJson(SimpleRPCCallHandler.doPost((String) args[0], fixedArgs), getOwnersType());
           }
         })
         .build(JSchemaTypeInfo.this));
@@ -240,10 +174,88 @@ public class JSchemaTypeInfo extends TypeInfoBase {
     }
   }
 
-  private MethodInfoBuilder parseMethod() {
+  private static void addStaticProductionMethods(List<IMethodInfo> typeMethods, final IType producedType, ITypeInfo owner) {
+    typeMethods.add(parseMethod(producedType)
+      .withParameters(new ParameterInfoBuilder()
+        .withType(IJavaType.STRING)
+        .withName("content"))
+      .withCallHandler(new IMethodCallHandler() {
+        @Override
+        public Object handleCall(Object ctx, Object... args) {
+          return JSchemaUtils.parseJson((String) args[0], producedType);
+        }
+      })
+      .build(owner));
+    typeMethods.add(parseMethod(producedType)
+      .withParameters(new ParameterInfoBuilder()
+        .withType(TypeSystem.get(java.net.URL.class))
+        .withName("content"))
+      .withCallHandler(new IMethodCallHandler() {
+        @Override
+        public Object handleCall(Object ctx, Object... args) {
+          try {
+            java.net.URL content = (java.net.URL) args[0];
+            BufferedReader reader = new BufferedReader(new InputStreamReader(content.openConnection().getInputStream()));
+            StringBuilder builder = new StringBuilder();
+            String line = reader.readLine();
+            while (line != null) {
+              builder.append(line);
+              line = reader.readLine();
+            }
+            return JSchemaUtils.parseJson(builder.toString(), producedType);
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+        }
+      })
+      .build(owner));
+    typeMethods.add(new MethodInfoBuilder()
+      .withName("get")
+      .withParameters(new ParameterInfoBuilder()
+        .withType(IJavaType.STRING)
+        .withName("url"),
+        new ParameterInfoBuilder()
+          .withType(IJavaType.MAP.getParameterizedType(IJavaType.STRING, IJavaType.OBJECT))
+          .withDefValue(ISymbol.NULL_DEFAULT_VALUE)
+          .withName("args")
+      )
+      .withReturnType(producedType)
+      .withStatic(true)
+      .withCallHandler(new IMethodCallHandler() {
+        @Override
+        public Object handleCall(Object ctx, Object... args) {
+          Map<String, String> fixedArgs = fixArgs((Map) args[1]);
+          return JSchemaUtils.parseJson(SimpleRPCCallHandler.doGet((String) args[0], fixedArgs), producedType);
+        }
+      })
+      .build(owner));
+
+    typeMethods.add(new MethodInfoBuilder()
+      .withName("post")
+      .withParameters(new ParameterInfoBuilder()
+        .withType(IJavaType.STRING)
+        .withName("url"),
+        new ParameterInfoBuilder()
+          .withType(IJavaType.MAP.getParameterizedType(IJavaType.STRING, IJavaType.OBJECT))
+          .withDefValue(ISymbol.NULL_DEFAULT_VALUE)
+          .withName("args")
+      )
+      .withReturnType(producedType)
+      .withStatic(true)
+      .withCallHandler(new IMethodCallHandler() {
+        @Override
+        public Object handleCall(Object ctx, Object... args) {
+          Map<String, String> fixedArgs = fixArgs((Map) args[1]);
+          return JSchemaUtils.parseJson(SimpleRPCCallHandler.doPost((String) args[0], fixedArgs), producedType);
+        }
+      })
+      .build(owner));
+  }
+
+  private static MethodInfoBuilder parseMethod(IType ownersType) {
     return new MethodInfoBuilder()
       .withName("parse")
-      .withReturnType(getOwnersType())
+      .withReturnType(ownersType)
       .withStatic(true);
   }
 
@@ -267,15 +279,17 @@ public class JSchemaTypeInfo extends TypeInfoBase {
     }
   }
 
-  public JSchemaTypeInfo(JSchemaType owner, Object object) {
+  public JSchemaTypeInfo(IJSchemaType owner, Object object) {
     this.owner = owner;
-    this.json = (Map)object;
+    this.json = object;
     createProperties();
   }
 
-	private void createProperties() {
+	protected void createProperties() {
     if (isJsonEnum()) {
       properties = createEnumProperties();
+    } else if (isListWrapper()) {
+      properties = Collections.emptyList();
     } else {
       properties = createStructProperties();
     }
@@ -314,54 +328,56 @@ public class JSchemaTypeInfo extends TypeInfoBase {
     ArrayList<IPropertyInfo> props = new ArrayList<IPropertyInfo>();
     HashSet<String> propNames = new HashSet<String>();
 
-    for (Object k : json.keySet()) {
+    if (json instanceof Map) {
+      Map jsonMap = (Map) json;
+      for (Object k : jsonMap.keySet()) {
 
-      if (JSchemaUtils.JSCHEMA_TYPEDEFS_KEY.equals(k)) {
-        continue;
-      }
-
-      final String jsonSlotName = (String) k;
-      String propertyName = JSchemaUtils.convertJSONStringToGosuIdentifier(jsonSlotName);
-      final Object value = json.get(jsonSlotName);
-
-      jsonSlotToPropertyName.put(jsonSlotName, propertyName);
-      propertyNameToJsonSlot.put(propertyName, jsonSlotName);
-
-      final IType propType = getOwnersType().resolveInnerType(getOwnersType() + "." + propertyName, value);
-
-      PropertyInfoBuilder pib = new PropertyInfoBuilder()
-        .withName(propertyName)
-        .withType(propType);
-      propNames.add(propertyName);
-
-      pib.withAccessor(new IPropertyAccessor() {
-        @Override
-        public void setValue(Object ctx, Object value) {
-          JsonMap json = (JsonMap) ctx;
-          json.put(jsonSlotName, value);
+        if (JSchemaUtils.JSCHEMA_TYPEDEFS_KEY.equals(k)) {
+          continue;
         }
 
-        @Override
-        public Object getValue(Object ctx) {
-          JsonMap json = (JsonMap) ctx;
-          return json.get(jsonSlotName);
+        final String jsonSlotName = (String) k;
+        String propertyName = JSchemaUtils.convertJSONStringToGosuIdentifier(jsonSlotName);
+        final Object value = jsonMap.get(jsonSlotName);
+
+        jsonSlotToPropertyName.put(jsonSlotName, propertyName);
+        propertyNameToJsonSlot.put(propertyName, jsonSlotName);
+
+        final IType propType = getOwnersType().resolveInnerType(getOwnersType() + "." + propertyName, value);
+
+        PropertyInfoBuilder pib = new PropertyInfoBuilder()
+          .withName(propertyName)
+          .withType(propType);
+        propNames.add(propertyName);
+
+        pib.withAccessor(new IPropertyAccessor() {
+          @Override
+          public void setValue(Object ctx, Object value) {
+            JsonMap json = (JsonMap) ctx;
+            json.put(jsonSlotName, value);
+          }
+
+          @Override
+          public Object getValue(Object ctx) {
+            JsonMap json = (JsonMap) ctx;
+            return json.get(jsonSlotName);
+          }
+        });
+
+        if (propType instanceof IEnumType) {
+          //ignore
+        } else if (propType instanceof IJSchemaType) {
+          pib.withAnnotations(makeMapAutoCreateAnnotation(propType));
+        } else if (TypeSystem.get(JsonMap.class).equals(propType.getGenericType())) {
+          pib.withAnnotations(makeMapAutoCreateAnnotation(propType));
+        } else if (TypeSystem.get(JsonList.class).equals(propType.getGenericType())) {
+          pib.withAnnotations(makeListAutoCreateAnnotation(propType),
+            makeListAutoInsertAnnotation());
         }
-      });
 
-      if (propType instanceof IEnumType) {
-        //ignore
-      } else if (propType instanceof IJSchemaType) {
-        pib.withAnnotations(makeMapAutoCreateAnnotation(propType));
-      } else if (TypeSystem.get(JsonMap.class).equals(propType.getGenericType())) {
-        pib.withAnnotations(makeMapAutoCreateAnnotation(propType));
-      } else if (TypeSystem.get(JsonList.class).equals(propType.getGenericType())) {
-        pib.withAnnotations(makeListAutoCreateAnnotation(propType),
-          makeListAutoInsertAnnotation());
+        props.add(pib.build(this));
       }
-
-      props.add(pib.build(this));
     }
-
     return props;
   }
 
@@ -422,10 +438,14 @@ public class JSchemaTypeInfo extends TypeInfoBase {
 
 	@Override
 	public List<? extends IConstructorInfo> getConstructors() {
-		List<IConstructorInfo> constructors = new ArrayList<IConstructorInfo>();
-		constructors.add(defaultConstructor);
-		return constructors;
-	}
+    if (isJsonEnum() || isListWrapper()) {
+      return Collections.emptyList();
+    } else {
+      List<IConstructorInfo> constructors = new ArrayList<IConstructorInfo>();
+      constructors.add(defaultConstructor);
+      return constructors;
+    }
+  }
 
 	@Override
 	public List<? extends IMethodInfo> getMethods() {
@@ -501,5 +521,9 @@ public class JSchemaTypeInfo extends TypeInfoBase {
 
   public String getJsonSlotForPropertyName(String propName) {
     return propertyNameToJsonSlot.get(propName);
+  }
+
+  public boolean isListWrapper() {
+    return getOwnersType() instanceof JSchemaListWrapperType;
   }
 }

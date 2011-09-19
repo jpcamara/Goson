@@ -85,7 +85,7 @@ public abstract class JSchemaTypeBase extends TypeBase implements IJSchemaType {
       } else {
         return TypeSystem.getByFullName(fqn);
       }
-    } else if (value instanceof List) {
+    } else if (value instanceof List && ((List) value).size() > 0) {
       return TypeSystem.get(JsonList.class).getParameterizedType(resolveInnerType(fqn, ((List) value).get(0)));
     }
     //TODO cgross - this should be a verification error

@@ -9,6 +9,7 @@ import gw.lang.reflect.module.IResourceAccess;
 import gw.util.GosuExceptionUtil;
 import gw.util.Pair;
 import gw.util.concurrent.LazyVar;
+import org.jschema.model.JsonList;
 import org.jschema.parser.JSONParser;
 import org.jschema.parser.JsonParseException;
 import org.jschema.typeloader.rpc.JSchemaCustomizedRPCType;
@@ -56,7 +57,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
     if (types.isEmpty()) {
       for (JsonFile jshFile : jscFiles.get()) {
         try {
-          addTypes(types, new Stack<Map<String, String>>(), jshFile.rootTypeName, jshFile.content);
+          addRootType(types, new Stack<Map<String, String>>(), jshFile.rootTypeName, jshFile.content);
         } catch (Exception e) {
           throw GosuExceptionUtil.forceThrow(e);
         }
@@ -71,7 +72,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
       for (JsonFile jsonFile : jsonFiles.get()) {
         try {
           jsonFile.content = JSchemaUtils.convertJsonToJSchema(jsonFile.content);
-          addTypes(types, new Stack<Map<String, String>>(), jsonFile.rootTypeName, jsonFile.content);
+          addRootType(types, new Stack<Map<String, String>>(), jsonFile.rootTypeName, jsonFile.content);
         } catch (Exception e) {
           throw GosuExceptionUtil.forceThrow(e);
         }
@@ -90,8 +91,22 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
     }
   }
 
+  private void addRootType(Map<String, IType> types, Stack<Map<String, String>> typeDefs, String name, Object o) {
+    if (o instanceof List) {
+      int depth = 0;
+      while (o instanceof List && ((List) o).size() > 0) {
+        depth++;
+        o = ((List) o).get(0);
+      }
+      addTypes(types, typeDefs, name + ".Element", o);
+      types.put(name, new JSchemaListWrapperType(name, this, depth, o) );
+    } else {
+      addTypes(types, typeDefs, name, o);
+    }
+  }
+  
   private void addTypes(Map<String, IType> types, Stack<Map<String, String>> typeDefs, String name, Object o) {
-    if (o instanceof List && !((List)o).isEmpty()) {
+    while (o instanceof List && !((List)o).isEmpty()) {
       o = ((List)o).get(0);
     }
     if (o instanceof Map) {

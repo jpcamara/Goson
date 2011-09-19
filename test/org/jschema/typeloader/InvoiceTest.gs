@@ -6,6 +6,8 @@ uses org.jschema.test.*
 
 uses org.jschema.examples.Invoice
 
+uses org.jschema.examples.json.TwitterUserTimeline
+
 class InvoiceTest extends GosonTest {
 
   function testDocs() {
@@ -56,6 +58,17 @@ class InvoiceTest extends GosonTest {
     var map = invoice.asJSON()
     print( "Raw ID: ${map.get("id")}" )
     map.put( "foo", "bar" )
+  }
+
+  function testTwitterWhichHasNothingToDoWithInvoiceSoShutUp() {
+    var latestTweets = TwitterUserTimeline.get("http://api.twitter.com/1/statuses/user_timeline.json",
+                                              { "include_entities" -> true,
+                                                 "include_rts" -> true,
+                                                 "screen_name" -> "carson_gross",
+                                                 "count"-> 5 } )
+    for( tweet in latestTweets ) {
+      print( tweet.Text )
+    }
   }
 
 }

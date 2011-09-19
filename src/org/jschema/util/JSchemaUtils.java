@@ -210,12 +210,13 @@ public class JSchemaUtils {
     if (json instanceof List && !((List)json).isEmpty()) {
       List jsonList = (List)json;
       ListIterator it = jsonList.listIterator();
-      while (it.hasNext()) {
-        Object current = it.next();
-        it.set(convertJsonToJSchema(current));
-      }
-    }
-    if (json instanceof Integer ||
+      Object current = it.next();
+      JsonList returnList = new JsonList();
+      returnList.add(convertJsonToJSchema(current));
+      return returnList;
+    } else if (json == null) {
+      return "object";
+    } else if (json instanceof Integer ||
         json instanceof Long ||
         json instanceof BigInteger) {
       return "int";
