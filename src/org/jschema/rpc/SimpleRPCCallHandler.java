@@ -82,6 +82,7 @@ public class SimpleRPCCallHandler implements RPCCallHandler {
       String inputLine;
       while ((inputLine = in.readLine()) != null) {
         result.append(inputLine);
+        result.append("\n");
       }
       in.close();
     } finally {

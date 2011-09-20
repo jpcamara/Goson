@@ -155,7 +155,8 @@ public class RPCEndPoint {
         String s = args.get(parameter.getName());
         Object value;
         if (s != null) {
-          value = JSchemaUtils.parseJSONValue(s, parameter.getFeatureType());
+          // TODO: This should be parseJSONValue.
+          value = JSchemaUtils.parseJson(s, parameter.getFeatureType());
         } else {
           value = _rpcType.getDefaultValue(method, parameter.getName());
         }
@@ -163,7 +164,7 @@ public class RPCEndPoint {
       }
       Object value = impl.getCallHandler().handleCall(_impl, paramValues);
       if (!impl.getReturnType().equals(IJavaType.pVOID)) {
-        return JSchemaUtils.serializeJSON(value);
+        return JSchemaUtils.serializeJson(value);
       } else {
         return "";
       }

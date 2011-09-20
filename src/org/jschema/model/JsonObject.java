@@ -3,6 +3,7 @@ package org.jschema.model;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.gs.IGosuObject;
+import org.jschema.util.JSchemaUtils;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -110,6 +111,18 @@ public class JsonObject implements IGosuObject{
       }
     }
     return ll;
+  }
+
+  public String write() {
+    return JSchemaUtils.serializeJson(this);
+  }
+
+  public String prettyPrint() {
+    return JSchemaUtils.serializeJson(this, 2);
+  }
+
+  public String prettyPrint(int indent) {
+    return JSchemaUtils.serializeJson(this, indent);
   }
 
   protected interface ValueConverter {

@@ -86,5 +86,10 @@ public class JSchemaEnumType extends JSchemaType implements IEnumType {
   	public IType getIntrinsicType() {
       return JSchemaEnumType.this;
   	}
+
+    @Override
+    public String toString() {
+      return getValue() + "";
+    }
   }
 }

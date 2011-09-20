@@ -10,7 +10,11 @@ public class JsonList<T> extends JsonCollection<T> implements List<T> {
   List<T> _backingList;
 
   public JsonList() {
-    this(null);
+    this(null, new ArrayList<T>());
+  }
+
+  public JsonList(List<T> backingList) {
+    this(null, backingList);
   }
 
   public JsonList(IType explicitType) {
@@ -46,6 +50,10 @@ public class JsonList<T> extends JsonCollection<T> implements List<T> {
 
   public String getString(int i) {
     return (String) get(i);
+  }
+
+  public Number getNumber(int i) {
+    return (Number) get(i);
   }
 
   public BigDecimal getDecimal(int i) {

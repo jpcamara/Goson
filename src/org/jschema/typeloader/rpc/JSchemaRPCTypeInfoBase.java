@@ -204,14 +204,15 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
         Object value = args[i];
         String name = _argNames.get(i);
         if (value != null || includeNulls(ctx)) {
-          String valueString = JSchemaUtils.serializeJSON(value);
+          String valueString = JSchemaUtils.serializeJson(value);
           argsMap.put(name, valueString);
         }
       }
 
       String json = handleRPCMethodInvocation(ctx, _name, argsMap);
 
-      Object value = JSchemaUtils.parseJSONValue(json, _returnType);
+      // TODO: This should be parseJSONValue.
+      Object value = JSchemaUtils.parseJson(json, _returnType);
 
       handleRPCException(value);
 

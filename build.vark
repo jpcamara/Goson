@@ -16,6 +16,7 @@ if (gosuHome == null) {
 	throw "Please set GOSU_HOME environment variable!" 
 } 
 var gosuDir = file("${gosuHome}/jars")
+var gosuExtDir = file("${gosuHome}/jars")
 
 function deps() {
   Ivy.retrieve(:sync = true, :log = "download-only")

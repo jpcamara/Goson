@@ -66,19 +66,27 @@ public class JSchemaUtils {
       " \"" + JSCHEMA_TRACE_KEY + "\" : \"" + GosuEscapeUtil.escapeForGosuStringLiteral(trace) + "\"  }";
   }
 
-  public static Object parseJSONValue(String json, IType rootType) {
+  public static JsonMap parseJsonObject(String json) {
+    return (JsonMap) JSONParser.parseJSONValue(json, null);
+  }
+
+  public static JsonList parseJsonArray(String json) {
+    return (JsonList) JSONParser.parseJSONValue(json, null);
+  }
+
+  public static Object parseJson(String json) {
+    return JSONParser.parseJSONValue(json, null);
+  }
+
+  public static Object parseJson(String json, IType rootType) {
     return JSONParser.parseJSONValue(json, rootType);
   }
 
-  public static Object parseJSON(String json, IType rootType){
-    return(JSONParser.parseJSON(json, rootType));
+  public static String serializeJson(Object json) {
+    return serializeJson(json, -1);
   }
 
-  public static String serializeJSON(Object json) {
-    return serializeJSON(json, -1);
-  }
-
-  public static String serializeJSON(Object json, int indent) {
+  public static String serializeJson(Object json, int indent) {
     return buildJSON(new StringBuilder(), json, indent, 0).toString();
   }
 
@@ -198,16 +206,17 @@ public class JSchemaUtils {
     return Integer.toHexString(c).toUpperCase();
   }
 
-  public static Object convertJSONToJSchema(Object json) {
+  public static Object convertJsonToJSchema(Object json) {
     if (json instanceof List && !((List)json).isEmpty()) {
       List jsonList = (List)json;
       ListIterator it = jsonList.listIterator();
-      while (it.hasNext()) {
-        Object current = it.next();
-        it.set(convertJSONToJSchema(current));
-      }
-    }
-    if (json instanceof Integer ||
+      Object current = it.next();
+      JsonList returnList = new JsonList();
+      returnList.add(convertJsonToJSchema(current));
+      return returnList;
+    } else if (json == null) {
+      return "object";
+    } else if (json instanceof Integer ||
         json instanceof Long ||
         json instanceof BigInteger) {
       return "int";
@@ -221,7 +230,7 @@ public class JSchemaUtils {
     } else if (json instanceof Map) {
       Map jsonMap = (Map)json;
       for (Object key : jsonMap.keySet()) {
-        jsonMap.put(key, convertJSONToJSchema(jsonMap.get(key)));
+        jsonMap.put(key, convertJsonToJSchema(jsonMap.get(key)));
       }
     }
     return json;
@@ -370,10 +379,10 @@ public class JSchemaUtils {
       return deepCopyJSchemaObject(propertyPath, (IJSchemaType) toType, (JsonMap) from, (IJSchemaType) fromType, serializationMap);
     } else if (TypeSystem.get(JsonList.class).isAssignableFrom(toType) &&
       TypeSystem.get(JsonList.class).isAssignableFrom(fromType)) {
-      return deepCopyJSONList(propertyPath, toType, (JsonList) from, fromType, serializationMap);
+      return deepCopyJsonList(propertyPath, toType, (JsonList) from, fromType, serializationMap);
     } else if (TypeSystem.get(JsonMap.class).isAssignableFrom(toType) &&
       TypeSystem.get(JsonMap.class).isAssignableFrom(fromType)) {
-      return deepCopyJSONMap(propertyPath, toType, (JsonMap) from, fromType, serializationMap);
+      return deepCopyJsonMap(propertyPath, toType, (JsonMap) from, fromType, serializationMap);
     } else {
       if (toType.isAssignableFrom(TypeSystem.getFromObject(from))) {
         return from;
@@ -383,7 +392,7 @@ public class JSchemaUtils {
     }
   }
 
-  private static Object deepCopyJSONMap(Stack<String> propertyPath, IType toType, JsonMap from, IType fromType, IdentityHashMap<Object, Object> serializationMap) {
+  private static Object deepCopyJsonMap(Stack<String> propertyPath, IType toType, JsonMap from, IType fromType, IdentityHashMap<Object,Object> serializationMap) {
     IType toComponent = toType.getTypeParameters()[0];
     IType fromComponent = fromType.getTypeParameters()[0];
     JsonMap copy = new JsonMap(toType);
@@ -394,7 +403,7 @@ public class JSchemaUtils {
     return copy;
   }
 
-  private static Object deepCopyJSONList(Stack<String> propertyPath, IType toType, JsonList from, IType fromType, IdentityHashMap<Object, Object> serializationMap) {
+  private static Object deepCopyJsonList(Stack<String> propertyPath, IType toType, JsonList from, IType fromType, IdentityHashMap<Object,Object> serializationMap) {
     IType toComponent = toType.getTypeParameters()[0];
     IType fromComponent = fromType.getTypeParameters()[0];
     JsonList copy = new JsonList(toType);
