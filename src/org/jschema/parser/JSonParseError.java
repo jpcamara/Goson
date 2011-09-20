@@ -1,9 +1,9 @@
 package org.jschema.parser;
 
-public class JSonParseError {
+public class JSONParseError {
   private String _message;
 
-  public JSonParseError(String message)
+  public JSONParseError(String message)
   {
     _message = message;
     return;

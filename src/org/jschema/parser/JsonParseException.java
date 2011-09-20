@@ -5,15 +5,15 @@ import java.util.List;
 
 public class JsonParseException extends RuntimeException {
 
-  private List<JSonParseError> _errorList;
+  private List<JSONParseError> _errorList;
 
-  public JsonParseException(String msg, List<JSonParseError> errorList)
+  public JsonParseException(String msg, List<JSONParseError> errorList)
   {
     super(msg);
     _errorList = errorList;
   }
 
-  public List<JSonParseError> getErrorList() {
+  public List<JSONParseError> getErrorList() {
     return _errorList;
   }
 }
