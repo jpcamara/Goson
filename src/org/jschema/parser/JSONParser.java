@@ -19,7 +19,7 @@ public class JSONParser {
 
   private JSONToken _currentToken;
   private IType _currentType;
-  private List<JSONParseError> _errors = new ArrayList<JSONParseError>();
+  private List<JsonParseError> _errors = new ArrayList<JsonParseError>();
 
   private JSONParser(String json, IType rootType) {
     _currentToken = JSONToken.tokenize(json).removeTokens(JSONTokenType.COMMENT);
@@ -336,7 +336,7 @@ public class JSONParser {
   }
 
   private void badToken() {
-    JSONParseError error = new JSONParseError("Unexpected token '" + _currentToken.getValue() + "' at line " + _currentToken.getLine() + ", column " + _currentToken.getColumn());
+    JsonParseError error = new JsonParseError("Unexpected token '" + _currentToken.getValue() + "' at line " + _currentToken.getLine() + ", column " + _currentToken.getColumn());
     _errors.add(error);
   }
 
