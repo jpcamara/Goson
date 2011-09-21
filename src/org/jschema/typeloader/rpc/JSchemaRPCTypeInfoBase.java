@@ -82,22 +82,24 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
       List<ParameterInfoBuilder> argBuilders = new ArrayList<ParameterInfoBuilder>();
       final List<String> argNames = new ArrayList<String>();
 
-      for (Map arg : (List<Map>) function.get("args")) {
-        String argName = (String) arg.keySet().iterator().next();
-        argNames.add(argName);
-        Object type = arg.get(argName);
-        String argDescription = (String) arg.get("description");
-        Object defaultValue = arg.get("default");
-        ParameterInfoBuilder pib = new ParameterInfoBuilder()
-          .withName(argName)
-          .withType(getOwnersType().resolveInnerType(functionTypeName + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(argName), type));
-        if (argDescription != null) {
-          pib.withDescription(argDescription);
+      if(function.get("args") != null){
+        for (Map arg : (List<Map>) function.get("args")) {
+          String argName = (String) arg.keySet().iterator().next();
+          argNames.add(argName);
+          Object type = arg.get(argName);
+          String argDescription = (String) arg.get("description");
+          Object defaultValue = arg.get("default");
+          ParameterInfoBuilder pib = new ParameterInfoBuilder()
+                  .withName(argName)
+                  .withType(getOwnersType().resolveInnerType(functionTypeName + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(argName), type));
+          if (argDescription != null) {
+            pib.withDescription(argDescription);
+          }
+          if (defaultValue != null) {
+            pib.withDefValue(ISymbol.NULL_DEFAULT_VALUE);
+          }
+          argBuilders.add(pib);
         }
-        if (defaultValue != null) {
-          pib.withDefValue(ISymbol.NULL_DEFAULT_VALUE);
-        }
-        argBuilders.add(pib);
       }
 
       Object returnTypeSpec = function.get("returns");
