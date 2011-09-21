@@ -7,6 +7,7 @@ uses org.jschema.test.*
 uses org.jschema.rpc.*
 uses org.jschema.examples.rpc.ValidationBasis
 uses org.jschema.examples.rpc.ReturnArgValidation
+uses org.jschema.examples.rpc.ArgTypeValidation
 
 class RPCEndPointTest extends GosonTest {
 
@@ -69,7 +70,7 @@ class RPCEndPointTest extends GosonTest {
 
  }
 
- function testReturningPrimitiveTypeWorks()
+ function testReturnTypesArePromiscuousWhores()
  {
     var endPoint = new RPCEndPoint(ReturnArgValidation, new ReturnArgValidationImpl1(), "/returntype")
     endPoint = new RPCEndPoint(ReturnArgValidation, new ReturnArgValidationImpl2(), "/returntype")
@@ -78,60 +79,7 @@ class RPCEndPointTest extends GosonTest {
     endPoint = new RPCEndPoint(ReturnArgValidation, new ReturnArgValidationImpl5(), "/returntype")
  }
 
-
- class MultipleErrorValidation{
-    function intArgVoidReturn(arg1 : String) : Boolean
-    {
-        return(Boolean.TRUE);
-    }
- }
-
-
- class IncompleteValidation {
-    function intArgVoidReturn(arg1 : Long)
-    {
-        return;
-    }
-    // Missing intArgBoolArgBooleanReturn
- }
-
- class IncorrectArgTypeValidation{
-    function intArgVoidReturn(arg1 : Long)
-    {
-        return;
-    }
-
-    function intArgBoolArgBooleanReturn(arg1 : String, arg2 : Boolean) : Boolean
-    {
-        return(Boolean.TRUE)
-    }
- }
-
- class IncorrectArgCountValidation{
-    function intArgVoidReturn(arg1 : Long)
-    {
-        return;
-    }
-
-    function intArgBoolArgBooleanReturn(arg1 : Long) : Boolean
-    {
-        return(Boolean.TRUE)
-    }
- }
-
- class IncorrectReturnValidation{
-     function intArgVoidReturn(arg1 : Long)
-     {
-         return;
-     }
-
-     function intArgBoolArgBooleanReturn(arg1 : Integer, arg2 : Boolean) : Long
-     {
-         return(new Long(1))
-     }
-  }
-
-  class ReturnArgValidationImpl1
+   class ReturnArgValidationImpl1
   {
     function intArgIntReturn(arg1: Long) : int
     {
@@ -221,5 +169,131 @@ class RPCEndPointTest extends GosonTest {
         return(Boolean.TRUE)
      }
   }
+ /*
+ function testArguementTypesAreAsSluttyAsReturnTypes()
+ {
+    var endPoint = new RPCEndPoint(ArgTypeValidation, new ArgTypeValidationImpl1(), "/argtype")
+    endPoint = new RPCEndPoint(ArgTypeValidation, new ArgTypeValidationImpl2(), "/argtype")
+    endPoint = new RPCEndPoint(ArgTypeValidation, new ArgTypeValidationImpl3(), "/argtype")
+    endPoint = new RPCEndPoint(ArgTypeValidation, new ArgTypeValidationImpl4(), "/argtype")
+    endPoint = new RPCEndPoint(ArgTypeValidation, new ArgTypeValidationImpl5(), "/argtype")
+ }
+ */
+ class ArgTypeValidationImpl1{
+    function intArgVoidReturn(arg1 : byte)
+    {
+        return;
+    }
+
+    function numberArgVoidReturn(arg1 : float)
+    {
+        return;
+    }
+ }
+
+
+  class ArgTypeValidationImpl2{
+     function intArgVoidReturn(arg1 : int)
+     {
+         return;
+     }
+
+     function numberArgVoidReturn(arg1 : double)
+     {
+         return;
+     }
+  }
+
+
+  class ArgTypeValidationImpl3{
+     function intArgVoidReturn(arg1 : long)
+     {
+         return;
+     }
+
+     function numberArgVoidReturn(arg1 : float)
+     {
+         return;
+     }
+  }
+
+
+ class ArgTypeValidationImpl4{
+    function intArgVoidReturn(arg1 : Byte)
+    {
+        return;
+    }
+
+    function numberArgVoidReturn(arg1 : Float)
+    {
+        return;
+    }
+ }
+
+ class ArgTypeValidationImpl5{
+    function intArgVoidReturn(arg1 : Integer)
+    {
+        return;
+    }
+
+    function numberArgVoidReturn(arg1 : Double)
+    {
+        return;
+    }
+ }
+
+ class MultipleErrorValidation{
+    function intArgVoidReturn(arg1 : String) : Boolean
+    {
+        return(Boolean.TRUE);
+    }
+ }
+
+
+ class IncompleteValidation {
+    function intArgVoidReturn(arg1 : Long)
+    {
+        return;
+    }
+    // Missing intArgBoolArgBooleanReturn
+ }
+
+ class IncorrectArgTypeValidation{
+    function intArgVoidReturn(arg1 : Long)
+    {
+        return;
+    }
+
+    function intArgBoolArgBooleanReturn(arg1 : String, arg2 : Boolean) : Boolean
+    {
+        return(Boolean.TRUE)
+    }
+ }
+
+ class IncorrectArgCountValidation{
+    function intArgVoidReturn(arg1 : Long)
+    {
+        return;
+    }
+
+    function intArgBoolArgBooleanReturn(arg1 : Long) : Boolean
+    {
+        return(Boolean.TRUE)
+    }
+ }
+
+ class IncorrectReturnValidation{
+     function intArgVoidReturn(arg1 : Long)
+     {
+         return;
+     }
+
+     function intArgBoolArgBooleanReturn(arg1 : Integer, arg2 : Boolean) : Long
+     {
+         return(new Long(1))
+     }
+  }
+
+
 
 }

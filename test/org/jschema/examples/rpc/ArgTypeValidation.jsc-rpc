@@ -1,0 +1,11 @@
+{
+  "url" : "http://localhost:12321/argvalidation",
+  "functions" : [
+    { "name" : "intArgVoidReturn",
+      "args" : [ {"arg1" : "int"} ]
+    },
+    { "name" : "numberArgNumberVoidReturn",
+      "args" : [ {"arg1" : "number"} ]
+    }
+  ]
+}

@@ -9,7 +9,6 @@ import gw.lang.reflect.java.IJavaType;
 import org.jschema.typeloader.rpc.IJSchemaRPCType;
 import org.jschema.typeloader.rpc.JSchemaRPCTypeInfoBase;
 import org.jschema.util.JSchemaUtils;
-import sun.jvm.hotspot.runtime.ia64.IA64JavaCallWrapper;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -49,7 +48,13 @@ public class RPCEndPoint {
           matched = true;
           IParameterInfo[] implParameters = implMethodInfo.getParameters();
           compareFormalArgTypes(jsonImplParameters, implParameters, jsonMethodInfo, validationErrors);
-          compareReturnTypes(jsonMethodInfo, implMethodInfo, validationErrors);
+          IType jsonReturnType = jsonMethodInfo.getReturnType();
+          IType implReturnType = implMethodInfo.getReturnType();
+
+          if(typesAreCompatible(jsonReturnType, implReturnType) == false){
+            validationErrors.add("Method " + jsonMethodInfo.getName() + " declared on type " + _rpcType.getName() + " declares a different return type than does impl type " + _implType.getName());
+          }
+
           break;
         }
       }
@@ -74,35 +79,6 @@ public class RPCEndPoint {
     return;
   }
 
-  private void compareReturnTypes(IMethodInfo jsonMethodInfo, IMethodInfo implMethodInfo, List<String> validationErrors)
-  {
-    if(jsonMethodInfo.getReturnType().equals(implMethodInfo.getReturnType()) == false) {
-      boolean isError = true;
-      // Allow primitive types for returns...
-      if(jsonMethodInfo.getReturnType().equals(IJavaType.LONG)){
-        if(implMethodInfo.getReturnType().equals(IJavaType.pINT) || implMethodInfo.getReturnType().equals(IJavaType.pLONG) || implMethodInfo.getReturnType().equals(IJavaType.pBYTE) ||
-           implMethodInfo.getReturnType().equals(IJavaType.INTEGER) || implMethodInfo.getReturnType().equals(IJavaType.BYTE)){
-          isError = false;
-        }
-      }
-      else if(jsonMethodInfo.getReturnType().equals(IJavaType.BIGDECIMAL)){
-        if(implMethodInfo.getReturnType().equals(IJavaType.pFLOAT) ||  implMethodInfo.getReturnType().equals(IJavaType.pDOUBLE) ||
-           implMethodInfo.getReturnType().equals(IJavaType.FLOAT) || implMethodInfo.getReturnType().equals(IJavaType.DOUBLE)){
-          isError = false;
-        }
-      }
-      else if(jsonMethodInfo.getReturnType().equals(IJavaType.BOOLEAN)){
-        if(implMethodInfo.getReturnType().equals(IJavaType.pBOOLEAN)){
-          isError = false;
-        }
-      }
-      if(isError == true){
-        validationErrors.add("Method " + jsonMethodInfo.getName() + " declared on type " + _rpcType.getName() + " declares a different return type than does impl type " + _implType.getName());
-      }
-    }
-    return;
-  }
-
   private void compareFormalArgTypes(IParameterInfo[] jsonImplParameters, IParameterInfo[] implParameters, IMethodInfo jsonMethodInfo, List<String> validationErrors)
   {
     if(implParameters.length == jsonImplParameters.length){
@@ -119,6 +95,35 @@ public class RPCEndPoint {
       validationErrors.add("Method " + jsonMethodInfo.getName() + " declared on type " + _rpcType.getName() + " declares a different number of parameters (" + jsonImplParameters.length + ") than are on impl type " + _implType.getName() + " (" + implParameters.length + ")");
     }
   }
+
+  private boolean typesAreCompatible(IType jsonReturnType, IType implReturnType)
+  {
+    boolean retVal = true;
+    if(jsonReturnType.equals(implReturnType) == false) {
+      retVal = false;
+      // Allow primitive types for returns...
+      if(jsonReturnType.equals(IJavaType.LONG)){
+        if(implReturnType.equals(IJavaType.pINT) || implReturnType.equals(IJavaType.pLONG) || implReturnType.equals(IJavaType.pBYTE) ||
+           implReturnType.equals(IJavaType.INTEGER) || implReturnType.equals(IJavaType.BYTE)){
+          retVal = true;
+        }
+      }
+      else if(jsonReturnType.equals(IJavaType.BIGDECIMAL)){
+        if(implReturnType.equals(IJavaType.pFLOAT) ||  implReturnType.equals(IJavaType.pDOUBLE) ||
+           implReturnType.equals(IJavaType.FLOAT) || implReturnType.equals(IJavaType.DOUBLE)){
+          retVal = true;
+        }
+      }
+      else if(jsonReturnType.equals(IJavaType.BOOLEAN)){
+        if(implReturnType.equals(IJavaType.pBOOLEAN)){
+          retVal = true;
+        }
+      }
+    }
+    return(retVal);
+  }
+
+
 
   public boolean handles(URI uri) {
     return uri.getPath().startsWith(_rootPath);
