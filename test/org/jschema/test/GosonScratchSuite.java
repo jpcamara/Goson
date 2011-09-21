@@ -13,7 +13,7 @@ public class GosonScratchSuite extends TestSuite {
     return new String[]{
 //      "org.jschema.parser.JSONParserTest",
 //      "org.jschema.typeloader.JSchemaTypesTest",
-      "org.jschema.typeloader.InvoiceTest"
+      "org.jschema.rpc.RPCEndPointTest"
     };
   }
 

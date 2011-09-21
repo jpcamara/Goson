@@ -73,6 +73,9 @@ class RPCEndPointTest extends GosonTest {
  {
     var endPoint = new RPCEndPoint(ReturnArgValidation, new ReturnArgValidationImpl1(), "/returntype")
     endPoint = new RPCEndPoint(ReturnArgValidation, new ReturnArgValidationImpl2(), "/returntype")
+    endPoint = new RPCEndPoint(ReturnArgValidation, new ReturnArgValidationImpl3(), "/returntype")
+    endPoint = new RPCEndPoint(ReturnArgValidation, new ReturnArgValidationImpl4(), "/returntype")
+    endPoint = new RPCEndPoint(ReturnArgValidation, new ReturnArgValidationImpl5(), "/returntype")
  }
 
 
@@ -139,6 +142,11 @@ class RPCEndPointTest extends GosonTest {
     {
         return(23.23)
     }
+
+    function voidArgBooleanReturn() : Boolean
+    {
+        return(Boolean.TRUE)
+    }
   }
 
   class ReturnArgValidationImpl2
@@ -152,5 +160,66 @@ class RPCEndPointTest extends GosonTest {
     {
         return(23.23)
     }
+
+    function voidArgBooleanReturn() : Boolean
+    {
+        return(Boolean.TRUE)
+    }
+
   }
+
+  class ReturnArgValidationImpl3
+  {
+    function intArgIntReturn(arg1: Long) : byte
+    {
+        return(23)
+    }
+
+    function intArgNumberReturn(arg1 : Long) : double
+    {
+        return(23.23)
+    }
+
+    function voidArgBooleanReturn() : Boolean
+    {
+        return(Boolean.TRUE)
+    }
+  }
+
+    class ReturnArgValidationImpl4
+    {
+      function intArgIntReturn(arg1: Long) : Integer
+      {
+          return(23)
+      }
+
+      function intArgNumberReturn(arg1 : Long) : Double
+      {
+          return(23.23)
+      }
+
+     function voidArgBooleanReturn() : Boolean
+     {
+        return(Boolean.TRUE)
+     }
+    }
+
+  class ReturnArgValidationImpl5
+  {
+    function intArgIntReturn(arg1: Long) : Byte
+    {
+        return(23)
+    }
+
+    function intArgNumberReturn(arg1 : Long) : Float
+    {
+        return(23.23)
+    }
+
+     function voidArgBooleanReturn() : boolean
+     {
+        return(Boolean.TRUE)
+     }
+  }
+
 }

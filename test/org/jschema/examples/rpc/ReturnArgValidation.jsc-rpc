@@ -8,6 +8,10 @@
     { "name" : "intArgNumberReturn",
       "args" : [ {"arg1" : "int"} ],
       "returns" : "number"
+    },
+    { "name" : "voidArgBooleanReturn",
+      "args" : [],
+      "returns" : "boolean"
     }
   ]
 }

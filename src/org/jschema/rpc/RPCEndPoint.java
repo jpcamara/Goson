@@ -9,6 +9,7 @@ import gw.lang.reflect.java.IJavaType;
 import org.jschema.typeloader.rpc.IJSchemaRPCType;
 import org.jschema.typeloader.rpc.JSchemaRPCTypeInfoBase;
 import org.jschema.util.JSchemaUtils;
+import sun.jvm.hotspot.runtime.ia64.IA64JavaCallWrapper;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -79,12 +80,19 @@ public class RPCEndPoint {
       boolean isError = true;
       // Allow primitive types for returns...
       if(jsonMethodInfo.getReturnType().equals(IJavaType.LONG)){
-        if(implMethodInfo.getReturnType().equals(IJavaType.pINT) ||  implMethodInfo.getReturnType().equals(IJavaType.pLONG)){
+        if(implMethodInfo.getReturnType().equals(IJavaType.pINT) || implMethodInfo.getReturnType().equals(IJavaType.pLONG) || implMethodInfo.getReturnType().equals(IJavaType.pBYTE) ||
+           implMethodInfo.getReturnType().equals(IJavaType.INTEGER) || implMethodInfo.getReturnType().equals(IJavaType.BYTE)){
           isError = false;
         }
       }
       else if(jsonMethodInfo.getReturnType().equals(IJavaType.BIGDECIMAL)){
-        if(implMethodInfo.getReturnType().equals(IJavaType.pFLOAT) ||  implMethodInfo.getReturnType().equals(IJavaType.pDOUBLE)){
+        if(implMethodInfo.getReturnType().equals(IJavaType.pFLOAT) ||  implMethodInfo.getReturnType().equals(IJavaType.pDOUBLE) ||
+           implMethodInfo.getReturnType().equals(IJavaType.FLOAT) || implMethodInfo.getReturnType().equals(IJavaType.DOUBLE)){
+          isError = false;
+        }
+      }
+      else if(jsonMethodInfo.getReturnType().equals(IJavaType.BOOLEAN)){
+        if(implMethodInfo.getReturnType().equals(IJavaType.pBOOLEAN)){
           isError = false;
         }
       }
