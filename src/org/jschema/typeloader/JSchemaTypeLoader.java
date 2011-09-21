@@ -9,7 +9,6 @@ import gw.lang.reflect.module.IResourceAccess;
 import gw.util.GosuExceptionUtil;
 import gw.util.Pair;
 import gw.util.concurrent.LazyVar;
-import org.jschema.model.JsonList;
 import org.jschema.parser.JSONParser;
 import org.jschema.parser.JsonParseException;
 import org.jschema.typeloader.rpc.JSchemaCustomizedRPCType;
@@ -57,28 +56,33 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
     if (types.isEmpty()) {
       for (JsonFile jshFile : jscFiles.get()) {
         try {
-          addRootType(types, new Stack<Map<String, String>>(), jshFile.rootTypeName, jshFile.content);
+          addRootType(types, new Stack<Map<String, String>>(), jshFile);
         } catch (Exception e) {
           throw GosuExceptionUtil.forceThrow(e);
         }
       }
       for (JsonFile jshRpcFile : jscRpcFiles.get()) {
         try {
-          addRpcTypes(types, jshRpcFile.rootTypeName, jshRpcFile.content, jshRpcFile.stringContent);
+          addRpcTypes(types, jshRpcFile);
         } catch (Exception e) {
           throw GosuExceptionUtil.forceThrow(e);
         }
       }
       for (JsonFile jsonFile : jsonFiles.get()) {
         try {
-          jsonFile.content = JSchemaUtils.convertJsonToJSchema(jsonFile.content);
-          addRootType(types, new Stack<Map<String, String>>(), jsonFile.rootTypeName, jsonFile.content);
+          convertToJSchemaAndAddRootType(types, new Stack<Map<String, String>>(), jsonFile);
         } catch (Exception e) {
           throw GosuExceptionUtil.forceThrow(e);
         }
       }
       initInnerClasses(types);
     }
+  }
+
+  private void convertToJSchemaAndAddRootType(Map<String, IType> types, Stack<Map<String, String>> maps, JsonFile jsonFile) {
+    jsonFile.content = JSchemaUtils.convertJsonToJSchema(jsonFile.content);
+    addRootType(types, new Stack<Map<String, String>>(), jsonFile);
+    return;
   }
 
   private void initInnerClasses(Map<String, IType> types) {
@@ -91,17 +95,18 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
     }
   }
 
-  private void addRootType(Map<String, IType> types, Stack<Map<String, String>> typeDefs, String name, Object o) {
-    if (o instanceof List) {
+  private void addRootType(Map<String, IType> types, Stack<Map<String, String>> typeDefs, JsonFile jshFile) {
+    parseJsonFile(jshFile);
+    if (jshFile.content instanceof List) {
       int depth = 0;
-      while (o instanceof List && ((List) o).size() > 0) {
+      while (jshFile.content instanceof List && ((List) jshFile.content).size() > 0) {
         depth++;
-        o = ((List) o).get(0);
+        jshFile.content = ((List) jshFile.content).get(0);
       }
-      addTypes(types, typeDefs, name + ".Element", o);
-      types.put(name, new JSchemaListWrapperType(name, this, depth, o) );
+      addTypes(types, typeDefs, jshFile.rootTypeName + ".Element", jshFile.content);
+      types.put(jshFile.rootTypeName, new JSchemaListWrapperType(jshFile.rootTypeName, this, depth, jshFile.content) );
     } else {
-      addTypes(types, typeDefs, name, o);
+      addTypes(types, typeDefs, jshFile.rootTypeName, jshFile.content);
     }
   }
   
@@ -164,19 +169,21 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
     }
   }
 
-  private void addRpcTypes(Map<String, IType> types, String name, Object o, String stringContent) {
+  private void addRpcTypes(Map<String, IType> types, JsonFile jshRpcFile)
+  {
+    parseJsonFile(jshRpcFile);
     Stack<Map<String, String>> typeDefs = new Stack<Map<String, String>>();
     typeDefs.push(new HashMap<String, String>());
     Map<String, Map<String, Object>> defaultValues = new HashMap<String, Map<String, Object>>();
-    if (o instanceof Map) {
-      processTypeDefs(types, typeDefs, name, (Map) o);
-      Object functions = ((Map) o).get("functions");
+    if (jshRpcFile.content instanceof Map) {
+      processTypeDefs(types, typeDefs, jshRpcFile.rootTypeName, (Map) jshRpcFile.content);
+      Object functions = ((Map) jshRpcFile.content).get("functions");
       if (functions instanceof List) {
         for (Object function : (List) functions) {
           if (function instanceof Map) {
             Map functionMap = (Map) function;
             String str = functionMap.get("name").toString();
-            String functionTypeName =  name + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(str);
+            String functionTypeName =  jshRpcFile.rootTypeName + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(str);
 
             // add parameter names
             Object args = functionMap.get("args");
@@ -201,7 +208,6 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
                     }
                   }
                 }
-
               }
             }
             // add the return type
@@ -209,9 +215,9 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
           }
         }
       }
-      types.put(name, new JSchemaRPCType(name, this, o, typeDefs.peek(), defaultValues, stringContent));
-      String customizedTypeName = name + JSchemaCustomizedRPCType.TYPE_SUFFIX;
-      types.put(customizedTypeName, new JSchemaCustomizedRPCType(customizedTypeName, this, o, typeDefs.peek(), defaultValues, stringContent));
+      types.put(jshRpcFile.rootTypeName, new JSchemaRPCType(jshRpcFile.rootTypeName, this, jshRpcFile.content, typeDefs.peek(), defaultValues, jshRpcFile.stringContent));
+      String customizedTypeName = jshRpcFile.rootTypeName + JSchemaCustomizedRPCType.TYPE_SUFFIX;
+      types.put(customizedTypeName, new JSchemaCustomizedRPCType(customizedTypeName, this, jshRpcFile.content, typeDefs.peek(), defaultValues, jshRpcFile.stringContent));
     }
   }
 
@@ -261,7 +267,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
     List<Pair<String, IFile>> files = getModule().getResourceAccess().findAllFilesByExtension(extension);
     for (Pair<String, IFile> pair : files) {
       JsonFile current = new JsonFile();
-
+      current.file = pair.getSecond();
       String relativeNameAsFile = pair.getFirst();
       int trimmedLength = relativeNameAsFile.length() - extension.length() - 1;
       String typeName = relativeNameAsFile.replace('/', '.').replace('\\', '.').substring(0, trimmedLength);
@@ -270,33 +276,36 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
         throw new RuntimeException("Cannot have Simple JSON Schema definitions in the default package");
       }
       current.rootTypeName = typeName;
-
-      Scanner s = null;
-      try {
-        StringBuilder jsonString = new StringBuilder();
-        s = new Scanner(pair.getSecond().toJavaFile());
-        while (s.hasNextLine()) {
-          jsonString.append(s.nextLine());
-          jsonString.append("\n");
-        }
-        current.stringContent = jsonString.toString();
-        current.content = JSONParser.parseJSONValue(current.stringContent);
-        init.add(current);
-      } catch (FileNotFoundException e) {
-        throw new RuntimeException(e);
-      } catch (JsonParseException e) {
-        System.out.println("Unable to parse JSON file " + pair.getSecond().toJavaFile().getAbsolutePath());
-        System.out.println(e.getMessage());
-      } finally {
-        if (s != null) { s.close(); }
-      }
+      init.add(current);
     }
     return init;
+  }
+
+  private void parseJsonFile(JsonFile current) {
+    Scanner s = null;
+    try {
+      StringBuilder jsonString = new StringBuilder();
+      s = new Scanner(current.file.toJavaFile());
+      while (s.hasNextLine()) {
+        jsonString.append(s.nextLine());
+        jsonString.append("\n");
+      }
+      current.stringContent = jsonString.toString();
+      current.content = JSONParser.parseJSONValue(current.stringContent);
+    } catch (FileNotFoundException e) {
+      throw new RuntimeException(e);
+    } catch (JsonParseException e) {
+      System.out.println("Unable to parse JSON file " + current.file.toJavaFile().getAbsolutePath());
+      System.out.println(e.getMessage());
+    } finally {
+      if (s != null) { s.close(); }
+    }
   }
 
   private static class JsonFile {
     private Object content;
     private String stringContent;
     private String rootTypeName;
+    private IFile file;
   }
 }
