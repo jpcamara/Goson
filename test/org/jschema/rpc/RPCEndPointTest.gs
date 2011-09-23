@@ -195,6 +195,16 @@ class RPCEndPointTest extends GosonTest {
 
     }
 
+
+  class RidiculousListDerivation extends ArrayList<int>
+  {
+  }
+
+  class RidiculousMapDerivation extends HashMap<String, int>
+  {
+  }
+
+
   class ReturnArgValidationImpl5
   {
     function intArgIntReturn(arg1: Long) : Byte
@@ -212,16 +222,15 @@ class RPCEndPointTest extends GosonTest {
         return(Boolean.TRUE)
     }
 
-    function voidArgArrayReturn() : JsonList<Integer>
+    function voidArgArrayReturn() : RidiculousListDerivation
     {
         return(null)
     }
 
-    function voidArgMapReturn() : Map<String, Byte>
+    function voidArgMapReturn() : RidiculousMapDerivation
     {
         return(null)
     }
-
   }
 
  function testArguementTypesAreAsSluttyAsReturnTypes()

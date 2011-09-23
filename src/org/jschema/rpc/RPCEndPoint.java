@@ -129,17 +129,19 @@ public class RPCEndPoint {
         }
       }
       else if(TypeSystem.get(JsonList.class).getGenericType().equals(jsonReturnType.getGenericType()) == true){
-        if(TypeSystem.get(List.class).getGenericType().isAssignableFrom(implReturnType.getGenericType())){
+        IType implTypeAsParamType = TypeSystem.findParameterizedType(implReturnType, IJavaType.LIST);
+        if(implTypeAsParamType != null){
           IType jsonParamType = jsonReturnType.getTypeParameters()[0];
-          IType implParamType = implReturnType.getTypeParameters()[0];
+          IType implParamType = implTypeAsParamType.getTypeParameters()[0];
           // RECURSION!!
           retVal = typesAreCompatible(jsonParamType, implParamType);
         }
       }
       else if(TypeSystem.get(JsonMap.class).getGenericType().equals(jsonReturnType.getGenericType()) == true){
-        if(TypeSystem.get(Map.class).getGenericType().isAssignableFrom(implReturnType.getGenericType())){
+        IType implTypeAsParamType = TypeSystem.findParameterizedType(implReturnType, IJavaType.MAP);
+        if(implTypeAsParamType != null){
           IType jsonParamType = jsonReturnType.getTypeParameters()[0];
-          IType[] implParamTypes = implReturnType.getTypeParameters();
+          IType[] implParamTypes = implTypeAsParamType.getTypeParameters();
           // Return maps must be <String, SOMETHING>
           if(implParamTypes[0].equals(IJavaType.STRING) == true){
             retVal = typesAreCompatible(jsonParamType, implParamTypes[1]);
