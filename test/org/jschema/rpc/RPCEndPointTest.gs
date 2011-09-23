@@ -5,6 +5,7 @@ uses java.lang.*
 uses java.math.*
 uses org.jschema.test.*
 uses org.jschema.rpc.*
+uses org.jschema.model.*
 uses org.jschema.examples.rpc.ValidationBasis
 uses org.jschema.examples.rpc.ReturnArgValidation
 uses org.jschema.examples.rpc.ArgTypeValidation
@@ -95,6 +96,16 @@ class RPCEndPointTest extends GosonTest {
     {
         return(Boolean.TRUE)
     }
+
+    function voidArgArrayReturn() : List<Long>
+    {
+        return(null)
+    }
+
+    function voidArgMapReturn() : Map<String, Long>
+    {
+        return(null)
+    }
   }
 
   class ReturnArgValidationImpl2
@@ -112,6 +123,16 @@ class RPCEndPointTest extends GosonTest {
     function voidArgBooleanReturn() : Boolean
     {
         return(Boolean.TRUE)
+    }
+
+    function voidArgArrayReturn() : ArrayList<Long>
+    {
+        return(null)
+    }
+
+    function voidArgMapReturn() : Map<String, Long>
+    {
+        return(null)
     }
 
   }
@@ -132,6 +153,17 @@ class RPCEndPointTest extends GosonTest {
     {
         return(Boolean.TRUE)
     }
+
+    function voidArgArrayReturn() : List<byte>
+    {
+        return(null)
+    }
+
+    function voidArgMapReturn() : Map<String, byte>
+    {
+        return(null)
+    }
+
   }
 
     class ReturnArgValidationImpl4
@@ -150,6 +182,17 @@ class RPCEndPointTest extends GosonTest {
      {
         return(Boolean.TRUE)
      }
+
+     function voidArgArrayReturn() : List<int>
+     {
+        return(null)
+     }
+
+    function voidArgMapReturn() : Map<String, int>
+    {
+        return(null)
+    }
+
     }
 
   class ReturnArgValidationImpl5
@@ -167,7 +210,18 @@ class RPCEndPointTest extends GosonTest {
      function voidArgBooleanReturn() : boolean
      {
         return(Boolean.TRUE)
-     }
+    }
+
+    function voidArgArrayReturn() : JsonList<Integer>
+    {
+        return(null)
+    }
+
+    function voidArgMapReturn() : Map<String, Byte>
+    {
+        return(null)
+    }
+
   }
 
  function testArguementTypesAreAsSluttyAsReturnTypes()

@@ -6,6 +6,8 @@ import gw.lang.reflect.IType;
 import gw.lang.reflect.ITypeInfo;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.java.IJavaType;
+import org.jschema.model.JsonList;
+import org.jschema.model.JsonMap;
 import org.jschema.typeloader.rpc.IJSchemaRPCType;
 import org.jschema.typeloader.rpc.JSchemaRPCTypeInfoBase;
 import org.jschema.util.JSchemaUtils;
@@ -117,13 +119,31 @@ public class RPCEndPoint {
       }
       else if(jsonReturnType.equals(IJavaType.BIGDECIMAL)){
         if(implReturnType.equals(IJavaType.pFLOAT) ||  implReturnType.equals(IJavaType.pDOUBLE) ||
-           implReturnType.equals(IJavaType.FLOAT) || implReturnType.equals(IJavaType.DOUBLE)){
+          implReturnType.equals(IJavaType.FLOAT) || implReturnType.equals(IJavaType.DOUBLE)){
           retVal = true;
         }
       }
       else if(jsonReturnType.equals(IJavaType.BOOLEAN)){
         if(implReturnType.equals(IJavaType.pBOOLEAN)){
           retVal = true;
+        }
+      }
+      else if(TypeSystem.get(JsonList.class).getGenericType().equals(jsonReturnType.getGenericType()) == true){
+        if(TypeSystem.get(List.class).getGenericType().isAssignableFrom(implReturnType.getGenericType())){
+          IType jsonParamType = jsonReturnType.getTypeParameters()[0];
+          IType implParamType = implReturnType.getTypeParameters()[0];
+          // RECURSION!!
+          retVal = typesAreCompatible(jsonParamType, implParamType);
+        }
+      }
+      else if(TypeSystem.get(JsonMap.class).getGenericType().equals(jsonReturnType.getGenericType()) == true){
+        if(TypeSystem.get(Map.class).getGenericType().isAssignableFrom(implReturnType.getGenericType())){
+          IType jsonParamType = jsonReturnType.getTypeParameters()[0];
+          IType[] implParamTypes = implReturnType.getTypeParameters();
+          // Return maps must be <String, SOMETHING>
+          if(implParamTypes[0].equals(IJavaType.STRING) == true){
+            retVal = typesAreCompatible(jsonParamType, implParamTypes[1]);
+          }
         }
       }
     }

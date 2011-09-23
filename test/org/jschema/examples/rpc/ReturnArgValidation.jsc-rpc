@@ -11,6 +11,12 @@
     },
     { "name" : "voidArgBooleanReturn",
       "returns" : "boolean"
+    },
+    { "name" : "voidArgArrayReturn",
+      "returns" : [ "int" ]
+    },
+    { "name" : "voidArgMapReturn",
+      "returns" : { "map_of" : "int"}
     }
   ]
 }
