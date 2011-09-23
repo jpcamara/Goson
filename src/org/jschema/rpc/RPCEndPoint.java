@@ -44,7 +44,7 @@ public class RPCEndPoint {
       List<? extends IMethodInfo> methods = implTypeInfo.getMethods();
       boolean matched = false;
       for(IMethodInfo implMethodInfo : methods){
-        if(implMethodInfo.getDisplayName().compareTo(jsonMethodInfo.getDisplayName()) == 0){
+        if(methodNamesMatch(jsonMethodInfo, implMethodInfo) == true){
           matched = true;
           IParameterInfo[] implParameters = implMethodInfo.getParameters();
           compareFormalArgTypes(jsonImplParameters, implParameters, jsonMethodInfo, validationErrors);
@@ -79,13 +79,19 @@ public class RPCEndPoint {
     return;
   }
 
+  private boolean methodNamesMatch(IMethodInfo jsonMethodInfo, IMethodInfo implMethodInfo)
+  {
+    boolean retVal = implMethodInfo.getDisplayName().compareTo(jsonMethodInfo.getDisplayName()) == 0;
+    return(retVal);
+  }
+
   private void compareFormalArgTypes(IParameterInfo[] jsonImplParameters, IParameterInfo[] implParameters, IMethodInfo jsonMethodInfo, List<String> validationErrors)
   {
     if(implParameters.length == jsonImplParameters.length){
       for(int cntr = 0; cntr < implParameters.length; cntr++){
         IType jsonParamType = jsonImplParameters[cntr].getFeatureType();
         IType implParamType = implParameters[cntr].getFeatureType();
-        if(implParamType.equals(jsonParamType) == false){
+        if(typesAreCompatible(jsonParamType, implParamType) == false){
           validationErrors.add("Method " + jsonMethodInfo.getName() + " declared on type " + _rpcType.getName() + " declares parameter(s) of differing type(s) than are on impl type " + _implType.getName());
           break;
         }
@@ -96,6 +102,7 @@ public class RPCEndPoint {
     }
   }
 
+  // NB: Ordering of args is important. You want jsonReturnType to be the first arg
   private boolean typesAreCompatible(IType jsonReturnType, IType implReturnType)
   {
     boolean retVal = true;

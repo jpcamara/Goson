@@ -169,7 +169,7 @@ class RPCEndPointTest extends GosonTest {
         return(Boolean.TRUE)
      }
   }
- /*
+
  function testArguementTypesAreAsSluttyAsReturnTypes()
  {
     var endPoint = new RPCEndPoint(ArgTypeValidation, new ArgTypeValidationImpl1(), "/argtype")
@@ -178,7 +178,7 @@ class RPCEndPointTest extends GosonTest {
     endPoint = new RPCEndPoint(ArgTypeValidation, new ArgTypeValidationImpl4(), "/argtype")
     endPoint = new RPCEndPoint(ArgTypeValidation, new ArgTypeValidationImpl5(), "/argtype")
  }
- */
+
  class ArgTypeValidationImpl1{
     function intArgVoidReturn(arg1 : byte)
     {

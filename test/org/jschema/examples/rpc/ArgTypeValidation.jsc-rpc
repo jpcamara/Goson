@@ -4,7 +4,7 @@
     { "name" : "intArgVoidReturn",
       "args" : [ {"arg1" : "int"} ]
     },
-    { "name" : "numberArgNumberVoidReturn",
+    { "name" : "numberArgVoidReturn",
       "args" : [ {"arg1" : "number"} ]
     }
   ]
