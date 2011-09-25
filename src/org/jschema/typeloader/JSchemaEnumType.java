@@ -1,9 +1,6 @@
 package org.jschema.typeloader;
 
-import gw.lang.reflect.IEnumType;
-import gw.lang.reflect.IEnumValue;
-import gw.lang.reflect.IType;
-import gw.lang.reflect.ITypeLoader;
+import gw.lang.reflect.*;
 import gw.lang.reflect.gs.IGosuObject;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -12,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class JSchemaEnumType extends JSchemaType implements IEnumType {
+public class JSchemaEnumType extends JSchemaType implements IJSchemaEnumType {
 
   private List<IEnumValue> values = new ArrayList<IEnumValue>();
 
@@ -50,7 +47,40 @@ public class JSchemaEnumType extends JSchemaType implements IEnumType {
   public static String enumify(String original) {
     return original.replaceAll("\\s", "_").toUpperCase();
   }
-  
+
+  @Override
+  public boolean isAssignableFrom(IType type) {
+    if (super.isAssignableFrom(type)) {
+      return true;
+    } else {
+      return isEquivalentEnum(type);
+    }
+  }
+
+  private boolean isEquivalentEnum(IType type) {
+    if (type instanceof IJSchemaEnumType) {
+      IJSchemaEnumType otherEnum = (IJSchemaEnumType) type;
+      List<IEnumValue> otherValues = otherEnum.getEnumValues();
+      for (IEnumValue otherValue : otherValues) {
+        if (!hasValue(otherValue.getValue())) {
+          return false;
+        }
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  private boolean hasValue(Object value) {
+    for (IEnumValue iEnumValue : values) {
+      if (value.equals(iEnumValue.getValue())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public class JsonEnumValue implements IEnumValue, IGosuObject {
     public String code;
     public String displayName;
@@ -61,7 +91,7 @@ public class JSchemaEnumType extends JSchemaType implements IEnumType {
       code = JSchemaEnumType.enumify(value);
       displayName = code;
     }
-    
+
     @Override
     public Object getValue() {
       return originalValue;
@@ -81,7 +111,7 @@ public class JSchemaEnumType extends JSchemaType implements IEnumType {
     public String getDisplayName() {
       return displayName;
     }
-    
+
     @Override
   	public IType getIntrinsicType() {
       return JSchemaEnumType.this;

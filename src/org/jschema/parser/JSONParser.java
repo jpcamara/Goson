@@ -1,6 +1,8 @@
 package org.jschema.parser;
 
 import gw.internal.gosu.parser.TypeLord;
+import gw.lang.reflect.IEnumType;
+import gw.lang.reflect.IEnumValue;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.java.IJavaType;
@@ -8,6 +10,7 @@ import org.jschema.model.JsonList;
 import org.jschema.model.JsonMap;
 import org.jschema.typeloader.IJSchemaType;
 import org.jschema.util.JSchemaUtils;
+import sun.jvm.hotspot.debugger.posix.elf.ELFSectionHeader;
 
 import java.lang.Object;
 import java.math.BigDecimal;
@@ -40,7 +43,7 @@ public class JSONParser {
     JSONParser jsonParser = new JSONParser(json, rootType);
     Object retVal = jsonParser.parseValue();
     if(jsonParser._errors.size() != 0){
-      throw(new JsonParseException(Integer.toString(jsonParser._errors.size()) + " errors detected.", jsonParser._errors));
+      throw(new JsonParseException(jsonParser._errors));
     }
     return(retVal);
 
@@ -65,7 +68,7 @@ public class JSONParser {
     JSONParser jsonParser = new JSONParser(json, rootType);
     Object retVal = jsonParser.start();
     if(jsonParser._errors.size() != 0){
-      throw(new JsonParseException(Integer.toString(jsonParser._errors.size()) + " errors detected.", jsonParser._errors));
+      throw(new JsonParseException(jsonParser._errors));
     }
     return(retVal);
   }
@@ -105,6 +108,11 @@ public class JSONParser {
     URI uri = parseURI();
     if (uri != null ) {
       return uri;
+    }
+
+    Object enumValue = parseEnumValue();
+    if (enumValue != null ) {
+      return enumValue;
     }
 
     String str = parseString();
@@ -162,6 +170,23 @@ public class JSONParser {
         } catch (URISyntaxException e) {
           //TODO parse error
         }
+      }
+    }
+    return null;
+  }
+
+  private Object parseEnumValue() {
+    if (_currentType instanceof IEnumType) {
+      String s = parseString();
+      if (s != null) {
+        List<IEnumValue> values = ((IEnumType) _currentType).getEnumValues();
+        for (IEnumValue value : values) {
+          if (value.getValue().equals(s)) {
+            return value;
+          }
+        }
+        _errors.add(new JsonParseError("Bad Enum Value for " + _currentType + " : " + s));
+        return s;
       }
     }
     return null;

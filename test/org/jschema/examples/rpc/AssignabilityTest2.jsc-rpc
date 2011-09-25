@@ -1,0 +1,22 @@
+{
+  "url" : "http://localhost:12321/assignability2",
+  "typedefs@" : {
+    "Type1" : { "Name" : "string",
+                "Integer" : "int",
+                "Number" : "number",
+                "Enum" : {"enum" : ["a", "b", "c" ] },
+                "Self" : "Type1"
+              }
+  },
+
+  "functions" : [
+    { "name" : "func1",
+      "args" : [ {"t" : "Type1"} ],
+      "returns" : "Type1"
+    },
+    { "name" : "func2",
+      "args" : [ {"t" : [ "Type1" ]} ],
+      "returns" : [ "Type1" ]
+    }
+  ]
+}

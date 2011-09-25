@@ -1,10 +1,8 @@
 package org.jschema.typeloader;
 
-import gw.lang.reflect.IType;
-import gw.lang.reflect.ITypeInfo;
-import gw.lang.reflect.ITypeLoader;
-import gw.lang.reflect.TypeSystem;
+import gw.lang.reflect.*;
 
+import java.util.HashSet;
 import java.util.Map;
 
 public class JSchemaType extends JSchemaTypeBase implements IJsonType {
@@ -43,10 +41,57 @@ public class JSchemaType extends JSchemaTypeBase implements IJsonType {
     IType byFullNameIfValid = TypeSystem.getByFullNameIfValid(getNamespace());
     if (byFullNameIfValid instanceof JSchemaType) {
       return ((JSchemaType) byFullNameIfValid).getSelfType();
-    } else if(byFullNameIfValid == null) {
+    } else if (byFullNameIfValid == null) {
       return this;
     } else {
       return null;
+    }
+  }
+
+  @Override
+  public boolean isAssignableFrom(IType type) {
+    if (super.isAssignableFrom(type)) {
+      return true;
+    } else {
+      return hasSamePropsAsMe(type);
+    }
+  }
+
+  ThreadLocal<HashSet<IType>> activeComparisonsThreadLocal = new ThreadLocal<HashSet<IType>>();
+  private boolean hasSamePropsAsMe(IType type) {
+    if (type instanceof IJSchemaType) {
+
+      boolean instantiatedThreadLocalSet = false;
+      try {
+        HashSet<IType> activeComparisons = activeComparisonsThreadLocal.get();
+        if (activeComparisons == null) {
+          instantiatedThreadLocalSet = true;
+          activeComparisons = new HashSet<IType>();
+          activeComparisonsThreadLocal.set(activeComparisons);
+        } else if (activeComparisons.contains(type)) {
+          return true;
+        }
+
+        activeComparisons.add(type);
+
+        for (IPropertyInfo pi : getTypeInfo().getProperties()) {
+          IPropertyInfo property = type.getTypeInfo().getProperty(pi.getName());
+          if (property == null) {
+            return false;
+          }
+          if (!pi.getFeatureType().isAssignableFrom(property.getFeatureType())) {
+            return false;
+          }
+        }
+      } finally {
+        if (instantiatedThreadLocalSet) {
+          activeComparisonsThreadLocal.set(null);
+        }
+      }
+
+      return true;
+    } else {
+      return false;
     }
   }
 }

@@ -7,10 +7,18 @@ public class JsonParseException extends RuntimeException {
 
   private List<JsonParseError> _errorList;
 
-  public JsonParseException(String msg, List<JsonParseError> errorList)
+  public JsonParseException(List<JsonParseError> errorList)
   {
-    super(msg);
+    super(makeMessage(errorList));
     _errorList = errorList;
+  }
+
+  private static String makeMessage(List<JsonParseError> errorList) {
+    String msg = Integer.toString(errorList.size()) + " errors detected:\n";
+    for (JsonParseError error : errorList) {
+      msg += "  " + error.getMessage();
+    }
+    return msg;
   }
 
   public List<JsonParseError> getErrorList() {
