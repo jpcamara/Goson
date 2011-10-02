@@ -10,7 +10,6 @@ import org.jschema.model.JsonList;
 import org.jschema.model.JsonMap;
 import org.jschema.typeloader.IJSchemaType;
 import org.jschema.util.JSchemaUtils;
-import sun.jvm.hotspot.debugger.posix.elf.ELFSectionHeader;
 
 import java.lang.Object;
 import java.math.BigDecimal;
