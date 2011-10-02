@@ -2,6 +2,7 @@ package org.jschema.typeloader
 
 uses java.util.*
 uses java.lang.*
+uses java.net.*
 
 uses org.jschema.test.*
 
@@ -16,7 +17,7 @@ class JsonTypesTest extends GosonTest {
       :Galleries = {
         new Galleries() {
           :Id = "5704-72157622637971865",
-          :Url = "http://www.flickr.com/photos/george/galleries/72157622637971865",
+          :Url = new URI("http://www.flickr.com/photos/george/galleries/72157622637971865"),
           :Owner = "34427469121@N01",
           :DateCreate = 1,
           :DateUpdate = 1,

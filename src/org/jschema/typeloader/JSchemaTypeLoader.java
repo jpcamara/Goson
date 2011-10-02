@@ -56,6 +56,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
     if (types.isEmpty()) {
       for (JsonFile jshFile : jscFiles.get()) {
         try {
+          jshFile.parseContent();
           addRootType(types, new Stack<Map<String, String>>(), jshFile);
         } catch (Exception e) {
           throw GosuExceptionUtil.forceThrow(e);
@@ -63,6 +64,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
       }
       for (JsonFile jshRpcFile : jscRpcFiles.get()) {
         try {
+          jshRpcFile.parseContent();
           addRpcTypes(types, jshRpcFile);
         } catch (Exception e) {
           throw GosuExceptionUtil.forceThrow(e);
@@ -70,7 +72,8 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
       }
       for (JsonFile jsonFile : jsonFiles.get()) {
         try {
-          convertToJSchemaAndAddRootType(types, new Stack<Map<String, String>>(), jsonFile);
+          jsonFile.parseContent();
+          convertToJSchemaAndAddRootType(types, jsonFile);
         } catch (Exception e) {
           throw GosuExceptionUtil.forceThrow(e);
         }
@@ -79,7 +82,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
     }
   }
 
-  private void convertToJSchemaAndAddRootType(Map<String, IType> types, Stack<Map<String, String>> maps, JsonFile jsonFile) {
+  private void convertToJSchemaAndAddRootType(Map<String, IType> types, JsonFile jsonFile) {
     jsonFile.content = JSchemaUtils.convertJsonToJSchema(jsonFile.content);
     addRootType(types, new Stack<Map<String, String>>(), jsonFile);
     return;
@@ -96,7 +99,6 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
   }
 
   private void addRootType(Map<String, IType> types, Stack<Map<String, String>> typeDefs, JsonFile jshFile) {
-    parseJsonFile(jshFile);
     if (jshFile.content instanceof List) {
       int depth = 0;
       while (jshFile.content instanceof List && ((List) jshFile.content).size() > 0) {
@@ -171,7 +173,6 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
 
   private void addRpcTypes(Map<String, IType> types, JsonFile jshRpcFile)
   {
-    parseJsonFile(jshRpcFile);
     Stack<Map<String, String>> typeDefs = new Stack<Map<String, String>>();
     typeDefs.push(new HashMap<String, String>());
     Map<String, Map<String, Object>> defaultValues = new HashMap<String, Map<String, Object>>();
@@ -281,31 +282,36 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
     return init;
   }
 
-  private void parseJsonFile(JsonFile current) {
-    Scanner s = null;
-    try {
-      StringBuilder jsonString = new StringBuilder();
-      s = new Scanner(current.file.toJavaFile());
-      while (s.hasNextLine()) {
-        jsonString.append(s.nextLine());
-        jsonString.append("\n");
-      }
-      current.stringContent = jsonString.toString();
-      current.content = JSONParser.parseJSONValue(current.stringContent);
-    } catch (FileNotFoundException e) {
-      throw new RuntimeException(e);
-    } catch (JsonParseException e) {
-      System.out.println("Unable to parse JSON file " + current.file.toJavaFile().getAbsolutePath());
-      System.out.println(e.getMessage());
-    } finally {
-      if (s != null) { s.close(); }
-    }
-  }
-
   private static class JsonFile {
     private Object content;
     private String stringContent;
     private String rootTypeName;
     private IFile file;
+
+    @Override
+    public String toString() {
+      return file.getPath().getPathString();
+    }
+
+    public void parseContent() {
+      Scanner s = null;
+      try {
+        StringBuilder jsonString = new StringBuilder();
+        s = new Scanner(file.toJavaFile());
+        while (s.hasNextLine()) {
+          jsonString.append(s.nextLine());
+          jsonString.append("\n");
+        }
+        stringContent = jsonString.toString();
+        content = JSONParser.parseJSONValue(stringContent);
+      } catch (FileNotFoundException e) {
+        throw new RuntimeException(e);
+      } catch (JsonParseException e) {
+        System.out.println("Unable to parse JSON file " + file.toJavaFile().getAbsolutePath());
+        System.out.println(e.getMessage());
+      } finally {
+        if (s != null) { s.close(); }
+      }
+    }
   }
 }

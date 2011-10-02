@@ -478,17 +478,17 @@ class JSchemaRPCTypesTest extends GosonTest {
     server.addEndPoint( new RPCEndPoint( ReturnsArrays, new ReturnsArraysImpl(), "/arrs" ) )
     using( server ) {
       assertEquals( {1L, 2L}, ReturnsArrays.intArray() )
-      assertEquals( { new ReturnsArray.Example(){ :Foo = "blah" } }, ReturnsArrays.intArray() )
+      assertEquals( { new ReturnsArrays.Example(){ :Foo = "blah" } }, ReturnsArrays.refArray() )
     }
   }
 
   class ReturnsArraysImpl {
-    function intArray() : JsonList<Long> {
+    function intArray() : List<Long> {
       return {1L, 2L}
     }
 
-    function refArray() : JsonList<ReturnsArrays.Example> {
-      return { new ReturnsArray.Example(){ :Foo = "blah" } }
+    function refArray() : List<ReturnsArrays.Example> {
+      return { new ReturnsArrays.Example(){ :Foo = "blah" } }
     }
   }
 

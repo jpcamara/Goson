@@ -7,6 +7,7 @@ uses org.jschema.test.*
 uses org.jschema.examples.Invoice
 
 uses org.jschema.examples.json.TwitterUserTimeline
+uses org.jschema.examples.json.GithubCreate
 
 class InvoiceTest extends GosonTest {
 
@@ -68,6 +69,13 @@ class InvoiceTest extends GosonTest {
                                                  "count"-> 5 } )
     for( tweet in latestTweets ) {
       print( tweet.Text )
+    }
+  }
+
+  function testGithubWhichHasNothingToDoWithInvoiceSoShutUp() {
+    var latestCommits = GithubCreate.get("http://github.com/api/v2/json/commits/list/mojombo/grit/master").Commits
+    for( c in latestCommits ) {
+      assertEquals( Date, statictypeof c.CommittedDate )
     }
   }
 

@@ -458,9 +458,12 @@ public class JSchemaUtils {
 
   public static URI parseURI(String s) {
     try {
-      return new URI(s);
+      URI uri = new URI(s);
+      if (uri.getScheme() != null) {
+        return uri;
+      }
     } catch (URISyntaxException e) {
-      return null;
     }
+    return null;
   }
 }

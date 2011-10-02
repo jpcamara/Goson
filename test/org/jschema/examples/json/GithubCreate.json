@@ -1,0 +1,764 @@
+{
+    "commits": [{
+        "parents": [{
+            "id": "e33fad9e988f6014d9872c264e4f342941d9f6a6"
+        }],
+        "author": {
+            "name": "Vicent Marti",
+            "login": "tanoku",
+            "email": "tanoku@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/ff015074ef35bd94cba943f9c0f98e161ab5851c",
+        "id": "ff015074ef35bd94cba943f9c0f98e161ab5851c",
+        "committed_date": "2011-08-19T22:50:25-07:00",
+        "authored_date": "2011-08-19T22:46:50-07:00",
+        "message": "100% Git-compliant actor creation\n\nSome more tweaks here:\n\n\t- Do not use `strftime`, because it's not assured\n\tto be cross-platform\n\n\t- Use C-like string formatting for Great Glory\n\tWhen Printing Numbers.\n\n\t- Always print an email address -- even if we don't\n\thave one. A missing email field will crash `fsck`.",
+        "tree": "74aa881a22754b94c99135a4e19276f5fe9c3b47",
+        "committer": {
+            "name": "Vicent Marti",
+            "login": "tanoku",
+            "email": "tanoku@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "a9dbc43a2f8b82ce7698fa118466177a2929e45e"
+        }],
+        "author": {
+            "name": "Vicent Marti",
+            "login": "tanoku",
+            "email": "tanoku@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/e33fad9e988f6014d9872c264e4f342941d9f6a6",
+        "id": "e33fad9e988f6014d9872c264e4f342941d9f6a6",
+        "committed_date": "2011-08-17T12:03:40-07:00",
+        "authored_date": "2011-08-16T16:16:12-07:00",
+        "message": "Properly print time offsets",
+        "tree": "901605a5fd9e4e3a1e3ecdcee3ace0506cad86be",
+        "committer": {
+            "name": "Chris Wanstrath",
+            "login": "defunkt",
+            "email": "chris@ozmm.org"
+        }
+    },
+    {
+        "parents": [{
+            "id": "568935ddda3168ddbe876163ace842eeb3d62e0a"
+        }],
+        "author": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/a9dbc43a2f8b82ce7698fa118466177a2929e45e",
+        "id": "a9dbc43a2f8b82ce7698fa118466177a2929e45e",
+        "committed_date": "2011-07-10T15:27:04-07:00",
+        "authored_date": "2011-07-10T14:24:38-07:00",
+        "message": "handle newlines in author / committer\n\nThis shouldn't technically be allowed but we've seen a few cases of\nit in existing repositories on github.com so let's just deal with\nit.",
+        "tree": "c5a02730f0e11c91859094f787e24ce79aa9ff97",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "cb2644c4e8b472b7d4021ccf6e6d5496a29269b0"
+        },
+        {
+            "id": "8e2715471201a764bb172775dd9892e469c6fc28"
+        }],
+        "author": {
+            "name": "Aman Gupta",
+            "login": "tmm1",
+            "email": "aman@tmm1.net"
+        },
+        "url": "/mojombo/grit/commit/568935ddda3168ddbe876163ace842eeb3d62e0a",
+        "id": "568935ddda3168ddbe876163ace842eeb3d62e0a",
+        "committed_date": "2011-07-01T16:02:45-07:00",
+        "authored_date": "2011-07-01T16:02:45-07:00",
+        "message": "Merge pull request #78 from kevinsawicki/patch-1\n\nFix typo in tree method doc",
+        "tree": "e94a442e94304a68712ca64ca75a5f66a592c954",
+        "committer": {
+            "name": "Aman Gupta",
+            "login": "tmm1",
+            "email": "aman@tmm1.net"
+        }
+    },
+    {
+        "parents": [{
+            "id": "cb2644c4e8b472b7d4021ccf6e6d5496a29269b0"
+        }],
+        "author": {
+            "name": "Kevin Sawicki",
+            "login": "kevinsawicki",
+            "email": "kevin@github.com"
+        },
+        "url": "/mojombo/grit/commit/8e2715471201a764bb172775dd9892e469c6fc28",
+        "id": "8e2715471201a764bb172775dd9892e469c6fc28",
+        "committed_date": "2011-07-01T09:59:50-07:00",
+        "authored_date": "2011-07-01T09:59:50-07:00",
+        "message": "Fix typo in tree method doc",
+        "tree": "e94a442e94304a68712ca64ca75a5f66a592c954",
+        "committer": {
+            "name": "Kevin Sawicki",
+            "login": "kevinsawicki",
+            "email": "kevin@github.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "e1160265209b7add18657e5e19841aec6b07853c"
+        }],
+        "author": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/cb2644c4e8b472b7d4021ccf6e6d5496a29269b0",
+        "id": "cb2644c4e8b472b7d4021ccf6e6d5496a29269b0",
+        "committed_date": "2011-06-22T00:00:02-07:00",
+        "authored_date": "2011-06-22T00:00:02-07:00",
+        "message": "remove tests for stuff @schacon removed",
+        "tree": "fd7e741a86d867c31e95042203747d9294e0e62e",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "f19c39b117036834c372f956fd5f466d576120f7"
+        }],
+        "author": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/e1160265209b7add18657e5e19841aec6b07853c",
+        "id": "e1160265209b7add18657e5e19841aec6b07853c",
+        "committed_date": "2011-06-21T23:57:47-07:00",
+        "authored_date": "2011-06-21T23:21:47-07:00",
+        "message": "Grit::Git check_applies / patch related methods take command hash\n\nThis lets us pass an :env so we can use GIT_ALTERNATE_OBJECT_DIRECTORIES\nto check if a commit applies across repositories.",
+        "tree": "7cfc1f0f4151a31552c71aa9eb17c53d77e92fd8",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "f38eecb1c9a1cd50b5f535a75a5c56e45cd64456"
+        }],
+        "author": {
+            "name": "Scott Chacon",
+            "login": "schacon",
+            "email": "schacon@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/f19c39b117036834c372f956fd5f466d576120f7",
+        "id": "f19c39b117036834c372f956fd5f466d576120f7",
+        "committed_date": "2011-06-21T23:57:39-07:00",
+        "authored_date": "2011-06-16T16:21:05-07:00",
+        "message": "tags api now resty",
+        "tree": "e6b5e92479fdd43a8762c01bd459b87900a25bec",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "67fc8d200884709a1ce49d1c752414726e488f4a"
+        }],
+        "author": {
+            "name": "Scott Chacon",
+            "login": "schacon",
+            "email": "schacon@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/f38eecb1c9a1cd50b5f535a75a5c56e45cd64456",
+        "id": "f38eecb1c9a1cd50b5f535a75a5c56e45cd64456",
+        "committed_date": "2011-06-21T23:57:39-07:00",
+        "authored_date": "2011-06-16T15:11:15-07:00",
+        "message": "start using the GitRuby::GitObject types in the Git data api",
+        "tree": "1ab379180a54f7d9e57a1c84ae16005b92d2c307",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "b0135670e0002fee8491ea1e15e7308817e9a255"
+        }],
+        "author": {
+            "name": "Scott Chacon",
+            "login": "schacon",
+            "email": "schacon@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/67fc8d200884709a1ce49d1c752414726e488f4a",
+        "id": "67fc8d200884709a1ce49d1c752414726e488f4a",
+        "committed_date": "2011-06-21T23:57:39-07:00",
+        "authored_date": "2011-06-16T15:04:15-07:00",
+        "message": "we are not using these anymore. they are confusing",
+        "tree": "da4b0abe055c71132e8166e3c94ef562a9847d7e",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "1c03f3e1f822232aeb00833081418391a44fe3df"
+        }],
+        "author": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/b0135670e0002fee8491ea1e15e7308817e9a255",
+        "id": "b0135670e0002fee8491ea1e15e7308817e9a255",
+        "committed_date": "2011-06-15T12:30:25-07:00",
+        "authored_date": "2011-06-15T12:29:14-07:00",
+        "message": "ruby rev_list passes --verify to native rev_parse in fallback\n\nOtherwise, the git-rev-parse will return whatever is given as an arg\nwhen the ref doesn't exist. e.g.,\n\n  $ git rev-parse some-bad-ref\n  some-bad-ref\n  fatal: ambiguous argument 'some-bad-ref': unknown revision or path not in the working tree.\n\nThe error message is on stderr and git-rev-parse exits with non-zero\nbut the ref name is still output.\n\nThe problem here is that code often calls rev_list like:\n\n    git.rev_list({}, \"some-bad-ref\")\n\nThen rev_list tries to convert some-bad-ref to a SHA1, gets back the\nref string, but continues on anyway. This eventually results in the\nrev_list failing to look up the object because it assumes its a SHA1\nwhen its really a ref string.",
+        "tree": "1ee950e8a6c7228b66cbbe6d9e891b78b41c958c",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "a69f33da65a6273570d83a8830a4ae0a2dbebd56"
+        },
+        {
+            "id": "1fa27b9c8a94909441842fe2d2c2e5843bd564b4"
+        }],
+        "author": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/1c03f3e1f822232aeb00833081418391a44fe3df",
+        "id": "1c03f3e1f822232aeb00833081418391a44fe3df",
+        "committed_date": "2011-06-10T01:31:23-07:00",
+        "authored_date": "2011-06-10T01:31:23-07:00",
+        "message": "Merge pull request #71 from injekt/master\n\nFix warnings on 1.9",
+        "tree": "e0f48a1d63bc947d9f217858670b3d259653adb7",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "d4ed1ebe6425a0da4dcc57535b4a59a31859a1f5"
+        },
+        {
+            "id": "23c4b5a384261fdfb706a656e93261e885487903"
+        }],
+        "author": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/a69f33da65a6273570d83a8830a4ae0a2dbebd56",
+        "id": "a69f33da65a6273570d83a8830a4ae0a2dbebd56",
+        "committed_date": "2011-06-10T01:30:59-07:00",
+        "authored_date": "2011-06-10T01:30:59-07:00",
+        "message": "Merge pull request #72 from cesario/master\n\nFix the gemspec",
+        "tree": "ccff6f690e343ab300a6e8e0a7a90d3e36c330ee",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "d4ed1ebe6425a0da4dcc57535b4a59a31859a1f5"
+        }],
+        "author": {
+            "name": "Franck Verrot",
+            "login": "cesario",
+            "email": "franck@verrot.fr"
+        },
+        "url": "/mojombo/grit/commit/23c4b5a384261fdfb706a656e93261e885487903",
+        "id": "23c4b5a384261fdfb706a656e93261e885487903",
+        "committed_date": "2011-06-09T23:37:20-07:00",
+        "authored_date": "2011-06-09T23:37:20-07:00",
+        "message": "Remove missing files from gemspec",
+        "tree": "ccff6f690e343ab300a6e8e0a7a90d3e36c330ee",
+        "committer": {
+            "name": "Franck Verrot",
+            "login": "cesario",
+            "email": "franck@verrot.fr"
+        }
+    },
+    {
+        "parents": [{
+            "id": "bd908d7963c297d0e8b957014e534bffeeb63d44"
+        }],
+        "author": {
+            "name": "Lee Jarvis",
+            "login": "injekt",
+            "email": "lee@jarvis.co"
+        },
+        "url": "/mojombo/grit/commit/1fa27b9c8a94909441842fe2d2c2e5843bd564b4",
+        "id": "1fa27b9c8a94909441842fe2d2c2e5843bd564b4",
+        "committed_date": "2011-06-09T13:45:38-07:00",
+        "authored_date": "2011-06-09T13:45:38-07:00",
+        "message": "remove commented out lazy_reader",
+        "tree": "c80880124ce5b734169241cdacc3fe14b9d81242",
+        "committer": {
+            "name": "Lee Jarvis",
+            "login": "injekt",
+            "email": "lee@jarvis.co"
+        }
+    },
+    {
+        "parents": [{
+            "id": "d4ed1ebe6425a0da4dcc57535b4a59a31859a1f5"
+        }],
+        "author": {
+            "name": "Lee Jarvis",
+            "login": "injekt",
+            "email": "lee@jarvis.co"
+        },
+        "url": "/mojombo/grit/commit/bd908d7963c297d0e8b957014e534bffeeb63d44",
+        "id": "bd908d7963c297d0e8b957014e534bffeeb63d44",
+        "committed_date": "2011-06-09T06:58:28-07:00",
+        "authored_date": "2011-06-09T06:58:28-07:00",
+        "message": "fix warnings on Ruby 1.9",
+        "tree": "6593657976c5d083daa3921f0657e519b41e7f45",
+        "committer": {
+            "name": "Lee Jarvis",
+            "login": "injekt",
+            "email": "lee@jarvis.co"
+        }
+    },
+    {
+        "parents": [{
+            "id": "9042243dc486031bb1eb3427ece27db18a06e234"
+        }],
+        "author": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/d4ed1ebe6425a0da4dcc57535b4a59a31859a1f5",
+        "id": "d4ed1ebe6425a0da4dcc57535b4a59a31859a1f5",
+        "committed_date": "2011-06-08T11:17:18-07:00",
+        "authored_date": "2011-06-08T11:17:18-07:00",
+        "message": "get rid of sample hooks in test fixture repo",
+        "tree": "18258b325cfe73df2c35c36f8085727e6a1a164a",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "e4d4461be91a202591e8f401365c047e5300faef"
+        },
+        {
+            "id": "087676cd79e4fca4fb14c7baa8e072dabc6da383"
+        }],
+        "author": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/9042243dc486031bb1eb3427ece27db18a06e234",
+        "id": "9042243dc486031bb1eb3427ece27db18a06e234",
+        "committed_date": "2011-06-08T11:05:43-07:00",
+        "authored_date": "2011-06-08T11:05:43-07:00",
+        "message": "Merge remote branch 'origin/github'",
+        "tree": "12c0fddeb08fe0484069ba7239355c63a3514b79",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "f5838446fb32356548eaa03f374098cabe8d5a94"
+        }],
+        "author": {
+            "name": "Aman Gupta",
+            "login": "tmm1",
+            "email": "aman@tmm1.net"
+        },
+        "url": "/mojombo/grit/commit/e4d4461be91a202591e8f401365c047e5300faef",
+        "id": "e4d4461be91a202591e8f401365c047e5300faef",
+        "committed_date": "2011-06-08T11:01:35-07:00",
+        "authored_date": "2011-06-08T11:01:35-07:00",
+        "message": "bump posix-spawn dependency to latest w/ jruby support",
+        "tree": "c081954188ae2366e19ad9990345e47f5ffc4893",
+        "committer": {
+            "name": "Aman Gupta",
+            "login": "tmm1",
+            "email": "aman@tmm1.net"
+        }
+    },
+    {
+        "parents": [{
+            "id": "1b2fe779964fda9aaa9f417e371923db4a396b22"
+        },
+        {
+            "id": "0822ea6aeef2fc0807688c5b7f0161c1c0577655"
+        }],
+        "author": {
+            "name": "Aman Gupta",
+            "login": "tmm1",
+            "email": "aman@tmm1.net"
+        },
+        "url": "/mojombo/grit/commit/f5838446fb32356548eaa03f374098cabe8d5a94",
+        "id": "f5838446fb32356548eaa03f374098cabe8d5a94",
+        "committed_date": "2011-06-08T11:01:08-07:00",
+        "authored_date": "2011-06-08T11:01:08-07:00",
+        "message": "Merge branch 'posix-spawn'",
+        "tree": "7bf76195c4a96f4a23155b28e9538d1da7d8ec8c",
+        "committer": {
+            "name": "Aman Gupta",
+            "login": "tmm1",
+            "email": "aman@tmm1.net"
+        }
+    },
+    {
+        "parents": [{
+            "id": "12c98749256a099bde2e328b0c943dc2f5bdca7c"
+        }],
+        "author": {
+            "name": "Aman Gupta",
+            "login": "tmm1",
+            "email": "aman@tmm1.net"
+        },
+        "url": "/mojombo/grit/commit/0822ea6aeef2fc0807688c5b7f0161c1c0577655",
+        "id": "0822ea6aeef2fc0807688c5b7f0161c1c0577655",
+        "committed_date": "2011-06-08T10:59:54-07:00",
+        "authored_date": "2011-06-08T10:59:54-07:00",
+        "message": "remove all the grit jruby hacks in favor of updated posix-spawn",
+        "tree": "ff097d18a43a7ce7c43a968a1f4e880740e5b2a6",
+        "committer": {
+            "name": "Aman Gupta",
+            "login": "tmm1",
+            "email": "aman@tmm1.net"
+        }
+    },
+    {
+        "parents": [{
+            "id": "f6dd62114b46b3700b4c06d2c8e2437560faecf4"
+        },
+        {
+            "id": "bc628b07a6415de47cd10f22cb5af2f54e9ef29e"
+        }],
+        "author": {
+            "name": "Tom Preston-Werner",
+            "login": "mojombo",
+            "email": "tom@mojombo.com"
+        },
+        "url": "/mojombo/grit/commit/087676cd79e4fca4fb14c7baa8e072dabc6da383",
+        "id": "087676cd79e4fca4fb14c7baa8e072dabc6da383",
+        "committed_date": "2011-06-08T10:59:41-07:00",
+        "authored_date": "2011-06-08T10:59:41-07:00",
+        "message": "Merge branch 'patch-id' into github",
+        "tree": "74e3877eb439c34ef88c5086cb360cf525c446d0",
+        "committer": {
+            "name": "Tom Preston-Werner",
+            "login": "mojombo",
+            "email": "tom@mojombo.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "1d2e07ca0be00062fa77b3d916c6293456b81939"
+        }],
+        "author": {
+            "name": "Scott Chacon",
+            "login": "schacon",
+            "email": "schacon@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/f6dd62114b46b3700b4c06d2c8e2437560faecf4",
+        "id": "f6dd62114b46b3700b4c06d2c8e2437560faecf4",
+        "committed_date": "2011-06-08T10:45:50-07:00",
+        "authored_date": "2011-05-24T16:04:35-07:00",
+        "message": "tree reading and writing",
+        "tree": "76d16620c74c05f15f9def35ff85ac60079cc888",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "a127face30e11735c8864fba33ae7265e1291c0b"
+        }],
+        "author": {
+            "name": "Scott Chacon",
+            "login": "schacon",
+            "email": "schacon@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/1d2e07ca0be00062fa77b3d916c6293456b81939",
+        "id": "1d2e07ca0be00062fa77b3d916c6293456b81939",
+        "committed_date": "2011-06-08T10:43:14-07:00",
+        "authored_date": "2011-05-27T20:57:15-07:00",
+        "message": "hm, guess we actually need this",
+        "tree": "40e3d915e15b9692e5ade7cfe3e3fad7f69aa29e",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "278750d531a1879b38d323e03fba727f9ca6f3ae"
+        }],
+        "author": {
+            "name": "Scott Chacon",
+            "login": "schacon",
+            "email": "schacon@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/a127face30e11735c8864fba33ae7265e1291c0b",
+        "id": "a127face30e11735c8864fba33ae7265e1291c0b",
+        "committed_date": "2011-06-08T10:43:14-07:00",
+        "authored_date": "2011-05-27T20:46:06-07:00",
+        "message": "reference updating and deleting working",
+        "tree": "b546b1fac331c1ccc5d6830dd1082ea2e91322d4",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "0726010d88ff6fae4cd801d32f39cbc355a5c1c0"
+        }],
+        "author": {
+            "name": "Scott Chacon",
+            "login": "schacon",
+            "email": "schacon@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/278750d531a1879b38d323e03fba727f9ca6f3ae",
+        "id": "278750d531a1879b38d323e03fba727f9ca6f3ae",
+        "committed_date": "2011-06-08T10:43:14-07:00",
+        "authored_date": "2011-05-27T11:36:20-07:00",
+        "message": "git refs api read stuff working and tested",
+        "tree": "b6119332de01b26c3a406d32d635ff55ef839c7a",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "7a39c57d448be10116af5c328ed98f7dbf45c810"
+        }],
+        "author": {
+            "name": "Scott Chacon",
+            "login": "schacon",
+            "email": "schacon@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/0726010d88ff6fae4cd801d32f39cbc355a5c1c0",
+        "id": "0726010d88ff6fae4cd801d32f39cbc355a5c1c0",
+        "committed_date": "2011-06-08T10:43:14-07:00",
+        "authored_date": "2011-05-27T09:11:07-07:00",
+        "message": "tag creation and tests",
+        "tree": "39971418cff4616d6b4e1fecf194a49fca8b4ea0",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "06287377b98dac094e7b42cd1291821d33e4b93c"
+        }],
+        "author": {
+            "name": "Scott Chacon",
+            "login": "schacon",
+            "email": "schacon@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/7a39c57d448be10116af5c328ed98f7dbf45c810",
+        "id": "7a39c57d448be10116af5c328ed98f7dbf45c810",
+        "committed_date": "2011-06-08T10:43:14-07:00",
+        "authored_date": "2011-05-27T08:17:40-07:00",
+        "message": "updates to grit for tag api",
+        "tree": "a1675222c2685ce8fa6b638dbdb4f6d71514bf2b",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "2bedb05d27dc7da5be97aa7c9d2fa5a2da81d2bd"
+        }],
+        "author": {
+            "name": "Scott Chacon",
+            "login": "schacon",
+            "email": "schacon@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/06287377b98dac094e7b42cd1291821d33e4b93c",
+        "id": "06287377b98dac094e7b42cd1291821d33e4b93c",
+        "committed_date": "2011-06-08T10:43:13-07:00",
+        "authored_date": "2011-05-26T10:29:36-07:00",
+        "message": "commit listing and writing api",
+        "tree": "38aa9901e0f760e60ec69943f8e647e0d8c10a8e",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "7fbeffcd53a2f0960d06ab26590cda11567ef99d"
+        }],
+        "author": {
+            "name": "Scott Chacon",
+            "login": "schacon",
+            "email": "schacon@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/2bedb05d27dc7da5be97aa7c9d2fa5a2da81d2bd",
+        "id": "2bedb05d27dc7da5be97aa7c9d2fa5a2da81d2bd",
+        "committed_date": "2011-06-08T10:43:13-07:00",
+        "authored_date": "2011-05-25T20:46:42-07:00",
+        "message": "write_tree can take a sha for a tree and can return the last tree size via an instance var",
+        "tree": "6c9adf4ae175732b24204038f79d278099940779",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "7fbeffcd53a2f0960d06ab26590cda11567ef99d"
+        }],
+        "author": {
+            "name": "Tom Preston-Werner",
+            "login": "mojombo",
+            "email": "tom@mojombo.com"
+        },
+        "url": "/mojombo/grit/commit/bc628b07a6415de47cd10f22cb5af2f54e9ef29e",
+        "id": "bc628b07a6415de47cd10f22cb5af2f54e9ef29e",
+        "committed_date": "2011-05-31T17:04:04-07:00",
+        "authored_date": "2011-05-31T17:04:04-07:00",
+        "message": "Add Commit#patch_id.",
+        "tree": "44878def246389b344fa84f758f16d1c74a4824b",
+        "committer": {
+            "name": "Tom Preston-Werner",
+            "login": "mojombo",
+            "email": "tom@mojombo.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "084d5cf695ee072d4335740971771180f347f9ff"
+        },
+        {
+            "id": "f805ff0287d18eb8ba28c38ab6ac0d1593021988"
+        }],
+        "author": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/1b2fe779964fda9aaa9f417e371923db4a396b22",
+        "id": "1b2fe779964fda9aaa9f417e371923db4a396b22",
+        "committed_date": "2011-05-30T15:24:54-07:00",
+        "authored_date": "2011-05-30T15:24:54-07:00",
+        "message": "Merge pull request #60 from dkowis/fixing-spaces\n\nFix for files with leading or trailing spaces",
+        "tree": "a7dc09674e51427181c3743065a48ece055cc18c",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "19591b4524d19f216c2933f86b723f759c604b3e"
+        },
+        {
+            "id": "4c592b4846f7c8755d4707637b195b5d60e3ce6e"
+        }],
+        "author": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/084d5cf695ee072d4335740971771180f347f9ff",
+        "id": "084d5cf695ee072d4335740971771180f347f9ff",
+        "committed_date": "2011-05-30T15:22:38-07:00",
+        "authored_date": "2011-05-30T15:22:38-07:00",
+        "message": "Merge pull request #68 from bobbyw/master\n\nDefault parameter for with_timeout incorrect",
+        "tree": "8ac8088624ef0bcb3a7fca4ac0610b0917da183f",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "19591b4524d19f216c2933f86b723f759c604b3e"
+        }],
+        "author": {
+            "name": "Bobby Wilson",
+            "login": "bobbyw",
+            "email": "bobbywilson0@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/4c592b4846f7c8755d4707637b195b5d60e3ce6e",
+        "id": "4c592b4846f7c8755d4707637b195b5d60e3ce6e",
+        "committed_date": "2011-05-30T11:23:05-07:00",
+        "authored_date": "2011-05-30T11:23:05-07:00",
+        "message": "fix default parameter for with_timeout",
+        "tree": "8ac8088624ef0bcb3a7fca4ac0610b0917da183f",
+        "committer": {
+            "name": "Bobby Wilson",
+            "login": "bobbyw",
+            "email": "bobbywilson0@gmail.com"
+        }
+    },
+    {
+        "parents": [{
+            "id": "735a6131b440dc3099b9ef087efb8b095c5b775b"
+        },
+        {
+            "id": "19591b4524d19f216c2933f86b723f759c604b3e"
+        }],
+        "author": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        },
+        "url": "/mojombo/grit/commit/7fbeffcd53a2f0960d06ab26590cda11567ef99d",
+        "id": "7fbeffcd53a2f0960d06ab26590cda11567ef99d",
+        "committed_date": "2011-05-24T10:54:09-07:00",
+        "authored_date": "2011-05-24T10:54:09-07:00",
+        "message": "Merge remote branch 'origin/master' into github",
+        "tree": "98e7efd95f7ae6a2aa3d7123cbfa4758d07818b7",
+        "committer": {
+            "name": "Ryan Tomayko",
+            "login": "rtomayko",
+            "email": "rtomayko@gmail.com"
+        }
+    }]
+}
