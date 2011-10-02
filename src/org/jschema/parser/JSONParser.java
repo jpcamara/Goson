@@ -164,13 +164,14 @@ public class JSONParser {
   private URI parseURI() {
     if (TypeSystem.get(URI.class).equals(_currentType)) {
       String s = parseString();
+      URI uri = null;
       if (s != null) {
-        try {
-          return JSchemaUtils.parseURI(s);
-        } catch (URISyntaxException e) {
-          //TODO parse error
-        }
+        uri = JSchemaUtils.parseURI(s);
       }
+      if (uri == null) {
+        _errors.add(new JsonParseError("Bad URI value : " + s));
+      }
+      return uri;
     }
     return null;
   }

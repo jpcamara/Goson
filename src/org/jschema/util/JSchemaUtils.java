@@ -224,7 +224,13 @@ public class JSchemaUtils {
         json instanceof BigDecimal) {
       return "number";
     } else if (json instanceof String) {
-      return "string";
+      if (parseDate(json.toString()) != null) {
+        return "date";
+      } else if (parseURI(json.toString()) != null) {
+        return "uri";
+      } else {
+        return "string";
+      }
     } else if (json instanceof Boolean) {
       return "boolean";
     } else if (json instanceof Map) {
@@ -450,7 +456,11 @@ public class JSchemaUtils {
     return sb.toString();
   }
 
-  public static URI parseURI(String s) throws URISyntaxException {
-    return new URI(s);
+  public static URI parseURI(String s) {
+    try {
+      return new URI(s);
+    } catch (URISyntaxException e) {
+      return null;
+    }
   }
 }
