@@ -2,16 +2,16 @@
 
 Goson provides tools for working with JSON:
 
-* Tools for parsing and producing JSON
-* A Gosu type loader For JSchema (.jsc), JSON (.json) and JSchema-RPC (.jsc-rpc) documents
+* Tools for parsing, validating and producing JSON
+* A Gosu type loader For [JSchema](http://jschema.org) (`.jsc`), [JSON](http://json.org) (`.json`) and [JSchema-RPC](http://jschema.org/rpc.html) (`.jsc-rpc`) documents
 * A servlet filter that can be used to publish JSchema-RPC end points
 * A simple HTTP server that can be used to publish JSchema-RPC end points
 
-As with other Gosu Type Loaders, you need only to add this jar to your project's classpath to start using the JSchema-based types.
+As with other Gosu type loaders, you need only to add the goson jar to your project's classpath to start using the JSchema-based types.
 
 ## JSchema Example
 
-Let's say that you have the following `.jsc` file in your source directory at `src/jschema/Invoice.jsc`:
+Let's say that you have the following JSchema file in your source directory at `src/jschema/Invoice.jsc`:
 
     {
       "typedefs@" : {
@@ -59,7 +59,7 @@ Creating an Invoice based on this schema in Gosu is quite simple:
     var invoice = new Invoice() {
       :Id = 42,
       :Date = Date.Today,
-      :BillingAddress = new Invoice.Address() {
+      :BillingAddress = new() {
         :Type = BUSINESS,
         :Line1 = "123 Main Street",
         :City = "Menlo Park",
@@ -68,10 +68,10 @@ Creating an Invoice based on this schema in Gosu is quite simple:
         :Zip = 12345
       },
       :Customers = {
-        new Invoice.Customers() {
+        new() {
           :FirstName = "Ted",
           :LastName = "Smith",
-          :Address = new Invoice.Address() {
+          :Address = new() {
             :Type = RESIDENTIAL,
             :Line1 = "1122 G Street",
             :City = "Stockton",
@@ -82,7 +82,7 @@ Creating an Invoice based on this schema in Gosu is quite simple:
         }
       },
       :Items = {
-        new Invoice.Items() { :Name = "Cornmeal", :Amount = 1, :TotalCost = 5.99 }
+        new() { :Name = "Cornmeal", :Amount = 1, :TotalCost = 5.99 }
       }
     }
 
@@ -90,7 +90,7 @@ Note that we are using the [Object Initializer](http://lazygosu.org/misc.html) s
 
 As you can see readable and writable properties are created for each member in the JSchema document, making it easy to create an mutate JSchema-based objects.  As an example, let's add a new item to the invoice:
 
-    invoice.Items.add( new jschema.Invoice.Items() {  :Name = "Rice", :Quantity = 2, :TotalCost = 8.39 } )
+    invoice.Items.add( new() {  :Name = "Rice", :Quantity = 2, :TotalCost = 8.39 } )
 
 And update the invoice ID:
 
@@ -156,15 +156,22 @@ Goson objects maintain pointer to their parent objects, which can be accessed vi
 
 The `parent()` method will be strongly typed where possible, so, for example, the return type of `parent()` on the `jschema.Invoice.Items` type is `jschema.Invoice`, since it is an inline type, whereas for `jschema.Invoice.Address` is it `Object`, since an Address can belong to multiple parents (i.e. both `jschema.Invoice` and `jschema.Invoice.Customers`)
 
-## Going Untyped
+## Raw JSON Objects
 
 The Goson library includes support for working with raw JSON.  This functionality is outlined below.
 
-### Raw JSON Objects
+### Parsing Raw JSON Objects
 
-Goson ships with a general JSON parser that returns objects from the model found in the `org.jschema.model` package.  This models is based on the Java Collections interfaces, `List` and `Map` in particular, but adds the concept of a parent pointer, effectively modeling the JSON tree.  Note this is in contrast to the standard JSON library, which does not implement the java Collections interfaces.
+Goson ships with a general JSON parser that returns objects from the model found in the `org.jschema.model` package.  These model classes are based on the Java Collections interfaces, with `JsonList` extending `List` and `JsonMap` extending `Map`, but add the concept of a parent pointer, effectively modeling the JSON tree.  Note this is in contrast to the standard JSON library, which does not implement the java Collections interfaces.
 
-The easiest way to parse raw JSON is the static method `org.jschema.util.JSchemaUtils.parseJsonObject()` which will return a `org.jschema.model.JsonMap`, which extends `Map&lt;String, Object&gt;`.  You can manipulate this object using the standard `java.util.Map` methods, such as `get()` and `put()`.
+The easiest way to parse raw JSON is the static method `org.jschema.util.JSchemaUtils.parseJsonObject()` which will return a `org.jschema.model.JsonMap`, which extends `Map<String, Object>`.  You can manipulate this object using the standard `java.util.Map` methods, such as `get()` and `put()`:
+
+    var rawJson = JSchemaUtils.parseJsonObject( '{"foo" : 10, "bar" : "a string"}' )
+    
+    print( rawJson.get( "foo") ) // prints '10'
+    
+    print( rawJson.get( "bar") ) // prints 'a string'
+    
 
 In addition to the usual methods on `Map`, `JsonMap` also has:
 
@@ -177,12 +184,27 @@ In addition to the usual methods on `Map`, `JsonMap` also has:
 * `getBoolean(String name)` - returns the value cast to a Boolean.
 * `write()` - returns a JSON serialized version of the object.
 * `prettyPrint()` - returns a JSON serialized version of the object with nice formatting.
-* `parent()` - returns the parent of this map.
+* `parent()` - returns the parent object of this object.
 * `descendents()` - returns the descendents of this map.
 
 `JsonList` has similar methods.
 
-### JSchema Objects Untyped
+### Creating Raw JSON Objects
+
+JSON objects can be created quite easily by using the data structure literal syntax of Gosu:
+
+    var someJson = new JsonMap() {
+      "foo" -> 10,
+      "bar" -> {"this", "is", "a", "list"},
+      "nested_obj" -> {
+        "foo" -> 10,
+        "bar" -> "A string"
+      }
+    }
+    
+    print( someJson.prettyPrint() )
+
+### Taking JSchema Objects Untyped
 
 At runtime, Goson objects are actually simply `org.jschema.model.JsonMap`'s.  You can get at this underlying map for direct manipulation via the `asJSON` method:
 
