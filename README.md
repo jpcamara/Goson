@@ -259,6 +259,17 @@ JSON objects can be created quite easily by using the data structure literal syn
     
     print( someJson.prettyPrint() )
 
+will print this JSON string:
+
+    {
+      "foo" : 10, 
+      "bar" : ["this", "is", "a", "list"], 
+      "nested_obj" : {
+        "foo" : 10, 
+        "bar" : "A string"
+      }
+    }
+
 ## Getting Raw JSON From JSchema Objects
 
 At runtime, Goson objects are actually simply `org.jschema.model.JsonMap`'s.  You can get at this underlying map for direct manipulation via the `asJSON` method:
