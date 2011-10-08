@@ -330,7 +330,7 @@ You can easily publish simple JSchema RPC end points using the build in RPC serv
     
 The `EmployeeServiceImpl` class is a Gosu class that implements all of the methods specified in the JSchema-RPC file.
 
-=### A Slight Digression on RPC
+#### A Slight Digression on RPC
 
 Note that the methods are defined in terms of the JSchema RPC types, so both sides of the wire are using the *same JSchema types*.
 
