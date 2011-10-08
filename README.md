@@ -96,7 +96,7 @@ And update the invoice ID:
 
     invoice.Id = 43
 
-=== Serializing To JSON
+### Serializing To JSON
 
 You can write the JSchema object to a JSON string by calling the `write()` method:
 
@@ -107,7 +107,7 @@ Or, if you want nice whitespace in your JSON, use the `prettyPrint()` method, wh
     print( invoice.prettyPrint() )
     print( invoice.prettyPrint(4) )
 
-== Parsing From JSON
+## Parsing From JSON
 
 To parse JSON content, there are a set of static `parse()` methods on JSchema types:
 
@@ -117,7 +117,7 @@ To parse JSON content, there are a set of static `parse()` methods on JSchema ty
 
     print( "The ID of the Invoice is ${invoice.Id}" )
 
-== Using HTTP
+## Using HTTP
 
 If you have a JSchema document that describes an http end point, you can easily do an HTTP Get or Post to retrieve the value of that document:
 
@@ -127,11 +127,11 @@ If you have a JSchema document that describes an http end point, you can easily 
 
 Both methods allow you to pass arguments via a Map, which is an optional second argument.
 
-== Finding Things
+## Finding Things
 
 JSchema does not have a JPath-like system and instead relies on programming languages to be good enough to make it pleasant to work with JSchema content.
 
-=== Finding Everything
+### Finding Everything
 
 The `descendents()` method returns all nodes at or below the node it is invoked on.  This can be used to search the entire tree:
 
@@ -139,7 +139,7 @@ The `descendents()` method returns all nodes at or below the node it is invoked 
                          .where( \ addr -> addr.State == "CA" )
                          .each( \ addr -> print( "Found CA Address : ${addr}" ) )
 
-=== Finding Specific Things
+### Finding Specific Things
 
 Finding all nodes of a specific type is a common operation, so there is a `find()` method that takes a specific type and returns all descendents (again, inclusive of the root node) of that type.  Using this method, the code above can be simplified to:
 
@@ -147,7 +147,7 @@ Finding all nodes of a specific type is a common operation, so there is a `find(
            .where( \ addr -> addr.State == "CA" )
            .each( \ addr -> print( "Found CA Address : ${addr}" ) )
 
-=== Getting The Parent
+### Getting The Parent
 
 Goson objects maintain pointer to their parent objects, which can be accessed via the `parent()` method:
 
@@ -156,11 +156,11 @@ Goson objects maintain pointer to their parent objects, which can be accessed vi
 
 The `parent()` method will be strongly typed where possible, so, for example, the return type of `parent()` on the `jschema.Invoice.Items` type is `jschema.Invoice`, since it is an inline type, whereas for `jschema.Invoice.Address` is it `Object`, since an Address can belong to multiple parents (i.e. both `jschema.Invoice` and `jschema.Invoice.Customers`)
 
-== Going Untyped
+## Going Untyped
 
 The Goson library includes support for working with raw JSON.  This functionality is outlined below.
 
-=== Raw JSON Objects
+### Raw JSON Objects
 
 Goson ships with a general JSON parser that returns objects from the model found in the `org.jschema.model` package.  This models is based on the Java Collections interfaces, `List` and `Map` in particular, but adds the concept of a parent pointer, effectively modeling the JSON tree.  Note this is in contrast to the standard JSON library, which does not implement the java Collections interfaces.
 
@@ -182,7 +182,7 @@ In addition to the usual methods on `Map`, `JsonMap` also has:
 
 `JsonList` has similar methods.
 
-=== JSchema Objects Untyped
+### JSchema Objects Untyped
 
 At runtime, Goson objects are actually simply `org.jschema.model.JsonMap`'s.  You can get at this underlying map for direct manipulation via the `asJSON` method:
 
@@ -195,13 +195,13 @@ Note that the keys of the map will be raw string values, and *may not* necessari
 
 It is obviously possible to subvert the type system in this manner, and store, say, a string where a boolean is expected, but we are all adults here, right?
 
-== Conversions
+## Conversions
 
 You can convert from one JSchema type to another using the `convertTo(Type)` method.  This will create a new object of the type passed in and fill in the properties of it based on the object that `convertTo()` was called on.
     
 This only works if the type being converted to has a subset of the properties type being converted from.  Presently `convertTo()` will fail at runtime if this is not the case, but we intend to make it a compile time error.
 
-== JSON Types
+## JSON Types
 
 A JSchema-based type can be derived from a sample JSON document.  Twitter, for example, offers an sample document from their User Timeline API here: https://dev.twitter.com/docs/api/1/get/statuses/user_timeline.
 
@@ -222,7 +222,7 @@ While certain type information is lost (e.g. enums are simply strings) it is sti
 
 [JSchema RPC](http://jschema.org/rpc.html) builds on JSchema to allow for the easy specification of RPC end points using JSchema as a core data specification layer.
 
-== JSchema-RPC Example
+## JSchema-RPC Example
 
 JSchema RPC types are defined in `.jsc-rpc` files.  Here is a simple example:
 
@@ -261,7 +261,7 @@ If this content were in the `src/api/EmployeeService.jsc-rpc` file, then the fol
 * `api.EmployeeService.CustomInstance` - A customized version of the endpoint (can be used to change the URL, for example).
 * `api.EmployeeService.Employee` - A JSchema type for the typedef.
 
-== Invoking Remote Methods
+## Invoking Remote Methods
 
 With the file above in your source directory you can invoke a JSchema RPC method like so:
 
@@ -277,7 +277,7 @@ For each method declaration found in the `jsc-rpc` file, there will be a corresp
 
 Note that the `emp` variable is of type `rpc.EmployeeService.Employee`, a JSchema type with all the functionality mentioned above.
 
-== Customized Instances
+## Customized Instances
 
 If you want to change the behavior of an end point in the code, you can use the `with()` method.  As an example, if you wanted to change the URL that an RPC invocation will be done against, you could write this:
 
@@ -300,7 +300,7 @@ The customized service will have all the same RPC methods as the static service.
 * `logger : org.jschema.rpc.RPCLoggerCallback` - A logger to be used while dispatching
 * `wrapper : org.jschema.rpc.RPCInvocationWrapper` - An object that wraps the RPC call
 
-== Global Defaults
+## Global Defaults
 
 You can set the Global Defaults for the RPC system using the `org.jschema.rpc.RPCDefaults` class.  This lets you customize the RPC layer wholesale, rather than doing it one service at a time like we did above.
 
@@ -313,11 +313,11 @@ As an example, we can set the default request hander to be based on Apache HTTPC
 
 Note that the Apache HTTPClient jar does not come with the Goson library and will need to be included separately for `ApacheHTTPClientCallHandler` to work.
 
-== Publishing JSchema-RPC
+## Publishing JSchema-RPC
 
 There are many options for publishing JSchema-RPC in Gosu:
 
-=== The Built In RPC Server
+### The Built In RPC Server
 
 You can easily publish simple JSchema RPC end points using the build in RPC server:
 
@@ -330,7 +330,7 @@ You can easily publish simple JSchema RPC end points using the build in RPC serv
     
 The `EmployeeServiceImpl` class is a Gosu class that implements all of the methods specified in the JSchema-RPC file.
 
-==== A Slight Digression on RPC
+=### A Slight Digression on RPC
 
 Note that the methods are defined in terms of the JSchema RPC types, so both sides of the wire are using the *same JSchema types*.
 
@@ -342,7 +342,7 @@ It just depends.
 
 Our take is that it is better to let the API designer make these decisions in plain-old debuggable code.
 
-=== Ronin
+### Ronin
 
 [Ronin](http://ronin-web.org) makes a great host environment for JSchema-RPC, by using the `org.jschema.rpc.RPCFilter` class in your `RoninConfig` constructor:
 
@@ -374,7 +374,7 @@ Our take is that it is better to let the API designer make these decisions in pl
 
 The code above publishes the `EmployeesApi` and integrated the RPC system into Ronin's excellent logging and tracing subsystems.  (How's that for dependency injection?)
 
-=== Arbitrary Servlets
+### Arbitrary Servlets
 
 Although Ronin is the easiest, you can use the `org.jschema.rpc.RPCFilter` to publish JSchema RPC Endpoints in any Servlet environment that has a properly set up Gosu TypeSystem.
 
