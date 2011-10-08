@@ -9,9 +9,11 @@ Goson provides tools for working with JSON:
 
 As with other Gosu type loaders, you need only to add the goson jar to your project's classpath to start using the JSchema-based types.
 
-## JSchema Example
+# JSchema Support
 
-Let's say that you have the following JSchema file in your source directory at `src/jschema/Invoice.jsc`:
+Goson provides support for JSchema, a simple schema mechanism for JSON.  
+
+Given the following JSchema file in your source directory at `src/jschema/Invoice.jsc`:
 
     {
       "typedefs@" : {
@@ -43,12 +45,14 @@ Let's say that you have the following JSchema file in your source directory at `
        } ]
     }
 
-Given this JSchema file, the Goson type loader will create the following types:
+The Goson type loader will create the following types:
 
 * `jschema.Invoice`
 * `jschema.Invoice.Address`
 * `jschema.Invoice.Customers`
 * `jschema.Invoice.Items`
+
+These types can be used to work with JSON documents described by this JSchema
 
 ## Creating An Invoice
 
@@ -86,17 +90,22 @@ Creating an Invoice based on this schema in Gosu is quite simple:
       }
     }
 
-Note that we are using the [Object Initializer](http://lazygosu.org/misc.html) syntax in gosu to declare this invoice.  This is a general feature of Gosu and is not specific to JSchema.
+Note that in this code we are using the [Object Initializer](http://lazygosu.org/misc.html) syntax in Gosu to declare this invoice.  This is a general feature of Gosu and is not specific to JSchema.
 
-As you can see readable and writable properties are created for each member in the JSchema document, making it easy to create an mutate JSchema-based objects.  As an example, let's add a new item to the invoice:
+As you can see properties are created for each member in the JSchema document, making it easy to create an mutate JSchema-based objects.  As an example, let's add a new item to the invoice:
 
-    invoice.Items.add( new() {  :Name = "Rice", :Quantity = 2, :TotalCost = 8.39 } )
+    invoice.Items.add( new() { :Name = "Rice", :Quantity = 2, :TotalCost = 8.39 } )
 
-And update the invoice ID:
+And we can update update the invoice ID like so:
 
     invoice.Id = 43
 
-### Serializing To JSON
+And, of course, we can use the enhancement methods that Gosu provides on lists for data structure manipulation:
+
+    invoice.Items.where( \ i -> i.TotalCost > 5.00 )
+                 .each( \ i -> print( i.Name ) )
+
+## Serializing To A JSON String
 
 You can write the JSchema object to a JSON string by calling the `write()` method:
 
@@ -119,17 +128,17 @@ To parse JSON content, there are a set of static `parse()` methods on JSchema ty
 
 ## Using HTTP
 
-If you have a JSchema document that describes an http end point, you can easily do an HTTP Get or Post to retrieve the value of that document:
+If you have a JSchema document that describes an http end point, you can easily do an HTTP `Get` or `Post` to retrieve a document from the URL:
 
     var invoiceViaGet = Invoice.get( "http://example.com/invoices", { "id" -> 42 } )
 
     var invoiceViaPost = Invoice.post( "http://example.com/invoices", { "id" -> 42 } )
 
-Both methods allow you to pass arguments via a Map, which is an optional second argument.
+Both methods allow you to pass arguments via a Map, as an optional second argument.
 
 ## Finding Things
 
-JSchema does not have a JPath-like system and instead relies on programming languages to be good enough to make it pleasant to work with JSchema content.
+JSchema does not have a JPath-like system, instead relying on programming languages to provide such functionality.
 
 ### Finding Everything
 
@@ -156,11 +165,57 @@ Goson objects maintain pointer to their parent objects, which can be accessed vi
 
 The `parent()` method will be strongly typed where possible, so, for example, the return type of `parent()` on the `jschema.Invoice.Items` type is `jschema.Invoice`, since it is an inline type, whereas for `jschema.Invoice.Address` is it `Object`, since an Address can belong to multiple parents (i.e. both `jschema.Invoice` and `jschema.Invoice.Customers`)
 
-## Raw JSON Objects
+## Conversions
+
+You can convert from one JSchema type to another using the `convertTo(Type)` method.  This will create a new object of the type passed in and fill in the properties of it based on the object that `convertTo()` was called on.
+
+Let's say you have two different schemas, `Schema1.jsc`:
+
+    {
+      "name" : "string",
+      "age" : "int"      
+    }
+
+And `Schema2.jsc`:
+
+    {
+      "name" : "string",
+      "age" : "int",
+      "title" : "string"
+    }
+
+You could convert an object of type `Schema2` to `Schema1` like so:
+
+    var schema2obj = Schema2.get( "http://someserver.com" )
+    
+    var schema1obj = schema2obj.convertTo(Schema1)
+
+Note that this only works if the type being converted to has a subset of the properties type being converted from.  Presently `convertTo()` will fail at runtime if this is not the case, but we intend to make it a compile time error.
+
+# JSON Types
+
+Unfortunately, most JSON content providers do not provide JSchema schemas for their content.  Instead they typically give example JSON documents.   Fortunately, it is simple to derived a JSchema from a sample JSON document, and Goson will do this on the fly for you if you put a JSON document in your source directory.
+
+Asn an example, Twitter offers an sample document from their User Timeline API here: [https://dev.twitter.com/docs/api/1/get/statuses/user_timeline.](https://dev.twitter.com/docs/api/1/get/statuses/user_timeline.)
+
+If you download this sample to `src/jschema/TwitterUserTimeline.json`, you can write the following code:
+
+    var latestTweets = jschema.TwitterUserTimeline.get("http://api.twitter.com/1/statuses/user_timeline.json",
+                                                       { "include_entities" -> true,
+                                                         "include_rts" -> true,
+                                                         "screen_name" -> "carson_gross",
+                                                         "count"-> 5 } )
+    for( tweet in latestTweets ) {
+      print( tweet.Text )
+    }
+
+Some type information is lost (e.g. enums are simply strings), but it is still much more pleasant to work with this API than the untyped alternative.
+
+# Raw JSON Objects
 
 The Goson library includes support for working with raw JSON.  This functionality is outlined below.
 
-### Parsing Raw JSON Objects
+## Parsing Raw JSON Objects
 
 Goson ships with a general JSON parser that returns objects from the model found in the `org.jschema.model` package.  These model classes are based on the Java Collections interfaces, with `JsonList` extending `List` and `JsonMap` extending `Map`, but add the concept of a parent pointer, effectively modeling the JSON tree.  Note this is in contrast to the standard JSON library, which does not implement the java Collections interfaces.
 
@@ -189,7 +244,7 @@ In addition to the usual methods on `Map`, `JsonMap` also has:
 
 `JsonList` has similar methods.
 
-### Creating Raw JSON Objects
+## Creating Raw JSON Objects
 
 JSON objects can be created quite easily by using the data structure literal syntax of Gosu:
 
@@ -204,7 +259,7 @@ JSON objects can be created quite easily by using the data structure literal syn
     
     print( someJson.prettyPrint() )
 
-### Taking JSchema Objects Untyped
+## Getting Raw JSON From JSchema Objects
 
 At runtime, Goson objects are actually simply `org.jschema.model.JsonMap`'s.  You can get at this underlying map for direct manipulation via the `asJSON` method:
 
@@ -217,30 +272,7 @@ Note that the keys of the map will be raw string values, and *may not* necessari
 
 It is obviously possible to subvert the type system in this manner, and store, say, a string where a boolean is expected, but we are all adults here, right?
 
-## Conversions
-
-You can convert from one JSchema type to another using the `convertTo(Type)` method.  This will create a new object of the type passed in and fill in the properties of it based on the object that `convertTo()` was called on.
-    
-This only works if the type being converted to has a subset of the properties type being converted from.  Presently `convertTo()` will fail at runtime if this is not the case, but we intend to make it a compile time error.
-
-## JSON Types
-
-A JSchema-based type can be derived from a sample JSON document.  Twitter, for example, offers an sample document from their User Timeline API here: https://dev.twitter.com/docs/api/1/get/statuses/user_timeline.
-
-If you download this sample to `src/jschema/TwitterUserTimeline.json`, you can write the following code:
-
-    var latestTweets = jschema.TwitterUserTimeline.get("http://api.twitter.com/1/statuses/user_timeline.json",
-                                                       { "include_entities" -> true,
-                                                         "include_rts" -> true,
-                                                         "screen_name" -> "carson_gross",
-                                                         "count"-> 5 } )
-    for( tweet in latestTweets ) {
-      print( tweet.Text )
-    }
-
-While certain type information is lost (e.g. enums are simply strings) it is still much more pleasant than the untyped alternative.
-
-= JSchema RPC
+# JSchema RPC
 
 [JSchema RPC](http://jschema.org/rpc.html) builds on JSchema to allow for the easy specification of RPC end points using JSchema as a core data specification layer.
 
@@ -299,9 +331,9 @@ For each method declaration found in the `jsc-rpc` file, there will be a corresp
 
 Note that the `emp` variable is of type `rpc.EmployeeService.Employee`, a JSchema type with all the functionality mentioned above.
 
-## Customized Instances
+## Customizing RPC Instances
 
-If you want to change the behavior of an end point in the code, you can use the `with()` method.  As an example, if you wanted to change the URL that an RPC invocation will be done against, you could write this:
+If you want to change the behavior of an RPC object you can use the `with()` method.  As an example, if you wanted to change the URL that an RPC invocation will be done against, you could write this:
 
     var customizedRPCService = api.EmployeeController.with( :url = "http://someotherserver/api/employees" )
 
@@ -313,7 +345,7 @@ If you want to change the behavior of an end point in the code, you can use the 
       print( "Updated the age of ${myEmp.FirstName}")
     }
 
-The customized service will have all the same RPC methods as the static service.  The following customizations are available:
+The following customizations are available:
 
 * `handler : org.jschema.rpc.RPCCallHandler` - Handles the HTTP invocation
 * `url : String` - The root URL to invoke against
@@ -328,12 +360,11 @@ You can set the Global Defaults for the RPC system using the `org.jschema.rpc.RP
 
 As an example, we can set the default request hander to be based on Apache HTTPClient with this code:
 
-    org.jschema.rpc.RPCDefaults.setDefaultHandler(new org.jschema.rpc.ApacheHTTPClientCallHandler())
+    RPCDefaults.setDefaultHandler(new ApacheHTTPClientCallHandler())
 
-`ApacheHTTPClientCallHandler` is based on the Apache HTTPClient and is more advanced
-    than the default handler (for example, it supports https).
+`ApacheHTTPClientCallHandler` is based on the Apache HTTPClient and is more advanced than the default handler (for example, it supports `https`).
 
-Note that the Apache HTTPClient jar does not come with the Goson library and will need to be included separately for `ApacheHTTPClientCallHandler` to work.
+Note that the Apache HTTPClient jar does not ship with the Goson library and will need to be included separately for `ApacheHTTPClientCallHandler` to work.
 
 ## Publishing JSchema-RPC
 
@@ -364,7 +395,7 @@ It just depends.
 
 Our take is that it is better to let the API designer make these decisions in plain-old debuggable code.
 
-### Ronin
+## Ronin
 
 [Ronin](http://ronin-web.org) makes a great host environment for JSchema-RPC, by using the `org.jschema.rpc.RPCFilter` class in your `RoninConfig` constructor:
 
@@ -396,7 +427,7 @@ Our take is that it is better to let the API designer make these decisions in pl
 
 The code above publishes the `EmployeesApi` and integrated the RPC system into Ronin's excellent logging and tracing subsystems.  (How's that for dependency injection?)
 
-### Arbitrary Servlets
+## Arbitrary Servlets
 
 Although Ronin is the easiest, you can use the `org.jschema.rpc.RPCFilter` to publish JSchema RPC Endpoints in any Servlet environment that has a properly set up Gosu TypeSystem.
 
