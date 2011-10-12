@@ -113,6 +113,8 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
   }
   
   private void addTypes(Map<String, IType> types, Stack<Map<String, String>> typeDefs, String name, Object o) {
+    // Handles this "customers" : [{ "name" : "string", "id" : "int"}]
+    // i.e. an type def in an array field def
     while (o instanceof List && !((List)o).isEmpty()) {
       o = ((List)o).get(0);
     }
@@ -128,6 +130,8 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
           processTypeDefs(types, typeDefs, name, jsonMap);
           for (Object key : jsonMap.keySet()) {
             if (!JSchemaUtils.JSCHEMA_TYPEDEFS_KEY.equals(key)) {
+              // RECURSION. This will call for every field in the definition. We rely on the if(o instanceof Map) thing up
+              // there to cause those calls to be ignored.
               addTypes(types, typeDefs, name + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(key.toString()),
                 jsonMap.get(key));
             }
@@ -303,7 +307,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
           jsonString.append("\n");
         }
         stringContent = jsonString.toString();
-        content = JSONParser.parseJSONValue(stringContent);
+        content = JSONParser.parseJSON(stringContent);
       } catch (FileNotFoundException e) {
         throw new RuntimeException(e);
       } catch (JsonParseException e) {
