@@ -6,6 +6,8 @@ import gw.util.GosuStringUtil;
 import org.jschema.model.JsonList;
 import org.jschema.model.JsonMap;
 import org.jschema.parser.JSONParser;
+import org.jschema.parser.JSchemaParser;
+import org.jschema.parser.JsonParseException;
 import org.jschema.typeloader.IJSchemaType;
 
 import java.math.BigDecimal;
@@ -67,20 +69,44 @@ public class JSchemaUtils {
   }
 
   public static JsonMap parseJsonObject(String json) {
-    return (JsonMap) JSONParser.parseJSONValue(json, null);
+    JSONParser parser = new JSONParser(json);
+    return (JsonMap) parser.parseJSONDocument();
   }
 
-  public static JsonList parseJsonArray(String json) {
-    return (JsonList) JSONParser.parseJSONValue(json, null);
+  public static JsonList parseJsonArray(String json)
+  {
+    JSONParser parser = new JSONParser(json);
+    return (JsonList) parser.parseJSONDocument();
   }
 
-  public static Object parseJson(String json) {
-    return JSONParser.parseJSONValue(json, null);
+  public static Object parseJsonDocument(String json)
+  {
+    JSONParser parser = new JSONParser(json);
+    Object retVal = parser.parseJSONDocument();
+    return(retVal);
   }
 
-  public static Object parseJson(String json, IType rootType) {
-    return JSONParser.parseJSONValue(json, rootType);
+  public static Object parseJson(String json)
+  {
+    JSONParser parser = new JSONParser(json);
+    Object retVal = parser.parseJSONFragment();
+    return(retVal);
   }
+
+  public static Object parseJson(String json, IType rootType)
+  {
+    JSONParser parser = new JSONParser(json, rootType);
+    Object retVal = parser.parseJSONFragment();
+    return(retVal);
+  }
+
+  public static Object parseJSchema(String jschema)
+  {
+    JSchemaParser parser = new JSchemaParser(jschema);
+    Object retVal = parser.parseJSchema();
+    return(retVal);
+  }
+
 
   public static String serializeJson(Object json) {
     return serializeJson(json, -1);

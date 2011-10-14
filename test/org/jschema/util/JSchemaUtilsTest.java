@@ -1,9 +1,7 @@
 package org.jschema.util;
 
 import junit.framework.TestCase;
-import org.jschema.model.JsonList;
 import org.jschema.model.JsonMap;
-import org.jschema.parser.JSONParser;
 
 import java.io.InputStreamReader;
 import java.util.*;
@@ -28,7 +26,7 @@ public class JSchemaUtilsTest extends TestCase {
       if (scan != null) { scan.close(); }
     }
 
-    Map json = (Map) JSONParser.parseJSONValue(content);
+    Map json = (Map) JSchemaUtils.parseJson(content);
     json = (Map)JSchemaUtils.convertJsonToJSchema(json);
     Map someType = (Map)json.get("some_type");
     Map nested = (Map)someType.get("nested_type");

@@ -10,6 +10,7 @@ import gw.util.GosuExceptionUtil;
 import gw.util.Pair;
 import gw.util.concurrent.LazyVar;
 import org.jschema.parser.JSONParser;
+import org.jschema.parser.JSchemaParser;
 import org.jschema.parser.JsonParseException;
 import org.jschema.typeloader.rpc.JSchemaCustomizedRPCType;
 import org.jschema.typeloader.rpc.JSchemaRPCType;
@@ -307,7 +308,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
           jsonString.append("\n");
         }
         stringContent = jsonString.toString();
-        content = JSONParser.parseJSON(stringContent);
+        content = JSchemaUtils.parseJSchema(stringContent);
       } catch (FileNotFoundException e) {
         throw new RuntimeException(e);
       } catch (JsonParseException e) {
