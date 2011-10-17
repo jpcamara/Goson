@@ -79,4 +79,29 @@ public class JSchemaParserTest extends GosonTest {
     }
   }
 
+  public void testDuplicateTypesdefsInSameBlockAreErrors()
+  {
+    String schema = "{ \n" +
+            " \"typedefs@\" : {\n" +
+            "    \"MyNewType\" : {\n" +
+            "       \"line1\" : \"string\"\n" +
+            "    },\n" +
+            "    \"MyNewType\" : {\n" +
+            "       \"line2\" : \"string\"\n" +
+            "     }\n" +
+            "    \n" +
+            " }\n" +
+            "}";
+    JSchemaParser parser = new JSchemaParser(schema);
+    try{
+      parser.parseJSchema();
+      fail("Exception not thrown");
+    }
+    catch(JsonParseException jpe){
+      System.out.println(jpe.toString());
+      // Gulp
+    }
+  }
+
+
 }

@@ -205,7 +205,7 @@ public class JSONParser {
     return null;
   }
 
-  private String parseString() {
+  protected String parseString() {
     if (_currentToken.isString()) {
       JSONToken value = _currentToken;
       consumeToken();
@@ -280,7 +280,7 @@ public class JSONParser {
     return null;
   }
 
-  private Map parseObject() {
+  protected Map parseObject() {
     if (match("{")) {
       if (match("}")) {
         return Collections.EMPTY_MAP;
@@ -334,12 +334,13 @@ public class JSONParser {
     return null;
   }
 
-  protected void putWithSemantics(JsonMap map, String key, Object value)
+  protected Object putWithSemantics(JsonMap map, String key, Object value)
   {
-    map.put(key, value);
+    Object retVal = map.put(key, value);
+    return(retVal);
   }
 
-  private boolean match(String val) {
+  protected boolean match(String val) {
     boolean match = _currentToken.match(val);
     if (match) {
       consumeToken();
@@ -351,7 +352,7 @@ public class JSONParser {
     _currentToken = _currentToken.nextToken();
   }
 
-  private void badToken() {
+  protected void badToken() {
     JsonParseError error = new JsonParseError("Unexpected token '" + _currentToken.getValue() + "' at line " + _currentToken.getLine() + ", column " + _currentToken.getColumn());
     _errors.add(error);
   }

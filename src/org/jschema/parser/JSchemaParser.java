@@ -1,13 +1,20 @@
 package org.jschema.parser;
 
+import gw.internal.gosu.parser.TypeLord;
+import gw.lang.reflect.IType;
+import gw.lang.reflect.java.IJavaType;
 import org.jschema.model.JsonMap;
+import org.jschema.typeloader.IJSchemaType;
 import org.jschema.util.JSchemaUtils;
 import sun.java2d.SunGraphicsEnvironment;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
 public class JSchemaParser extends JSONParser {
+
+  private boolean _processingTypedefs;
 
   public JSchemaParser(String jschema) {
     super(jschema, null);
@@ -20,14 +27,92 @@ public class JSchemaParser extends JSONParser {
   }
 
   @Override
-  protected void putWithSemantics(JsonMap map, String key, Object value)
+  protected Object putWithSemantics(JsonMap map, String key, Object value)
   {
+    Object retVal = null;
     if(JSchemaUtils.JSCHEMA_TYPEDEFS_KEY.equals(key)){
       processTypedefs(map, key, value);
     }
     else{
-      super.putWithSemantics(map, key, value);
+      retVal = super.putWithSemantics(map, key, value);
+      if(retVal != null && _processingTypedefs == true){
+        // TODO: Centralize this error handling
+        JSONToken errorToken = _currentToken;
+        int errorLine = -1;
+        int errorCol = -1;
+        while(errorToken != null && errorToken.match("typedefs@") == false){
+          errorToken = errorToken.previous();
+        }
+        if(errorToken != null){
+          errorLine = errorToken.getLine();
+          errorCol = errorToken.getColumn();
+        }
+
+        JsonParseError error = new JsonParseError("duplicate type " + key + " declared at line " + errorLine + " column " + errorCol);
+        _errors.add(error);
+      }
     }
+    return(retVal);
+  }
+
+  protected Map parseObject() {
+    if (match("{")) {
+      if (match("}")) {
+        return Collections.EMPTY_MAP;
+      } else {
+        JsonMap map = new JsonMap(_currentType);
+
+        IType ctxType = _currentType;
+
+        IJSchemaType jschemaType = null;
+        if (_currentType instanceof IJSchemaType) {
+          jschemaType = (IJSchemaType) _currentType;
+        }
+
+        IType mapValueType = null;
+        if (ctxType != null && IJavaType.MAP.isAssignableFrom(ctxType)) {
+          IType parameterizedType = TypeLord.findParameterizedType(ctxType, IJavaType.MAP.getGenericType());
+          if (parameterizedType != null) {
+            mapValueType = parameterizedType.getTypeParameters()[1];
+          }
+        }
+
+        try {
+          do {
+            String key = parseString();
+            if (key == null) {
+              badToken();
+            }
+
+            if (!match(":")) {
+              badToken();
+            }
+
+            if (jschemaType != null) {
+              _currentType = jschemaType.getTypeForJsonSlot(key);
+            } else if (mapValueType != null) {
+              _currentType = mapValueType;
+            }
+            if(JSchemaUtils.JSCHEMA_TYPEDEFS_KEY.equals(key)){
+              _processingTypedefs = true;
+            }
+            Object value = parseValueImpl();
+            putWithSemantics(map, key, value);
+            if(JSchemaUtils.JSCHEMA_TYPEDEFS_KEY.equals(key)){
+              _processingTypedefs = false;
+            }
+          } while (match(","));
+        } finally {
+          _currentType = ctxType;
+        }
+
+        if (!match("}")) {
+          badToken();
+        }
+        return map;
+      }
+    }
+    return null;
   }
 
   private void processTypedefs(JsonMap map, String key, Object value)
