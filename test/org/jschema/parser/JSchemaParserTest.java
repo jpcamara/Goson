@@ -103,5 +103,41 @@ public class JSchemaParserTest extends GosonTest {
     }
   }
 
+  public void testDuplicateFieldDefsAreErrors()
+  {
 
+    String badSchema = "{\n" +
+            "  \"sometype\" : {\n" +
+            "    \"field1\" : \"int\",\n" +
+            "    \"field1\" : \"int\"\n" +
+            "  }\n" +
+            "}";
+
+    JSchemaParser parser = new JSchemaParser(badSchema);
+    try{
+      parser.parseJSchema();
+      fail("Exception not thrown");
+    }
+    catch(JsonParseException jpe){
+      System.out.println(jpe);
+    }
+
+    badSchema = "{\n" +
+            "  \"map_of\" : {\n" +
+            "    \"field2\" : \"int\",\n" +
+            "    \"field2\" : \"int\"\n" +
+            "  }\n" +
+            "}";
+
+    parser = new JSchemaParser(badSchema);
+    try{
+      parser.parseJSchema();
+      fail("Exception not thrown");
+    }
+    catch(JsonParseException jpe){
+      System.out.println(jpe);
+    }
+
+
+  }
 }

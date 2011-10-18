@@ -41,6 +41,11 @@ public class JSONToken {
     return this == EOF;
   }
 
+  public JSONToken previousToken()
+  {
+    return(_previous);
+  }
+
   public JSONToken nextToken() {
     return _next;
   }
@@ -124,10 +129,6 @@ public class JSONToken {
     }
   }
 
-  public JSONToken previous() {
-    return _previous;
-  }
-
   public int getLine() {
     return _line;
   }
@@ -167,7 +168,7 @@ public class JSONToken {
       if (!current.match(tokens[i])) {
         return false;
       }
-      current = current.previous();
+      current = current.previousToken();
     }
     return true;
   }

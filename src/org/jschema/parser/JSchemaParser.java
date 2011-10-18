@@ -6,7 +6,6 @@ import gw.lang.reflect.java.IJavaType;
 import org.jschema.model.JsonMap;
 import org.jschema.typeloader.IJSchemaType;
 import org.jschema.util.JSchemaUtils;
-import sun.java2d.SunGraphicsEnvironment;
 
 import java.util.Collections;
 import java.util.Map;
@@ -35,21 +34,29 @@ public class JSchemaParser extends JSONParser {
     }
     else{
       retVal = super.putWithSemantics(map, key, value);
-      if(retVal != null && _processingTypedefs == true){
-        // TODO: Centralize this error handling
-        JSONToken errorToken = _currentToken;
-        int errorLine = -1;
-        int errorCol = -1;
-        while(errorToken != null && errorToken.match("typedefs@") == false){
-          errorToken = errorToken.previous();
-        }
-        if(errorToken != null){
-          errorLine = errorToken.getLine();
-          errorCol = errorToken.getColumn();
-        }
+      if(retVal != null){
+        if(_processingTypedefs == true){
+          // TODO: Centralize this error handling
+          JSONToken errorToken = _currentToken;
+          int errorLine = -1;
+          int errorCol = -1;
+          while(errorToken != null && errorToken.match(JSchemaUtils.JSCHEMA_TYPEDEFS_KEY) == false){
+            errorToken = errorToken.previousToken();
+          }
+          if(errorToken != null){
+            errorLine = errorToken.getLine();
+            errorCol = errorToken.getColumn();
+          }
 
-        JsonParseError error = new JsonParseError("duplicate type " + key + " declared at line " + errorLine + " column " + errorCol);
-        _errors.add(error);
+          JsonParseError error = new JsonParseError("duplicate type " + key + " declared at line " + errorLine + " column " + errorCol);
+          _errors.add(error);
+        }
+        else{
+          int errorLine = _currentToken.previousToken().getLine();
+          int errorCol = _currentToken.previousToken().getColumn();
+          JsonParseError error = new JsonParseError("duplicate type " + key + " declared at line " + errorLine + " column " + errorCol);
+          _errors.add(error);
+        }
       }
     }
     return(retVal);
@@ -123,8 +130,8 @@ public class JSchemaParser extends JSONParser {
       JSONToken errorToken = _currentToken;
       int errorLine = -1;
       int errorCol = -1;
-      while(errorToken != null && errorToken.match("typedefs@") == false){
-        errorToken = errorToken.previous();
+      while(errorToken != null && errorToken.match(JSchemaUtils.JSCHEMA_TYPEDEFS_KEY) == false){
+        errorToken = errorToken.previousToken();
       }
       if(errorToken != null){
         errorLine = errorToken.getLine();
@@ -148,8 +155,8 @@ public class JSchemaParser extends JSONParser {
             JSONToken errorToken = _currentToken;
             int errorLine = -1;
             int errorCol = -1;
-            while(errorToken != null && errorToken.match("typedefs@") == false){
-              errorToken = errorToken.previous();
+            while(errorToken != null && errorToken.match(JSchemaUtils.JSCHEMA_TYPEDEFS_KEY) == false){
+              errorToken = errorToken.previousToken();
             }
             if(errorToken != null){
               errorLine = errorToken.getLine();
