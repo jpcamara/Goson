@@ -7,7 +7,9 @@ import org.jschema.model.JsonMap;
 import org.jschema.typeloader.IJSchemaType;
 import org.jschema.util.JSchemaUtils;
 
+import java.text.MessageFormat;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,23 +34,22 @@ public class JSchemaParser extends JSONParser {
     if(JSchemaUtils.JSCHEMA_TYPEDEFS_KEY.equals(key)){
       processTypedefs(map, key, value);
     }
+    else if(JSchemaUtils.JSCHEMA_FUNCTIONS_KEY.equals(key)){
+      if(value instanceof List == false){
+        ErrorInfo errorInfo = new ErrorInfo(JSchemaUtils.JSCHEMA_FUNCTIONS_KEY);
+        JsonParseError error = new JsonParseError(MessageFormat.format("functions at line {0} column {1} is not followed by an array definition", errorInfo.getErrorLine(), errorInfo.getErrorCol()));
+        _errors.add(error);
+      }
+      else{
+        super.putWithSemantics(map, key, value);
+      }
+    }
     else{
       retVal = super.putWithSemantics(map, key, value);
       if(retVal != null){
         if(_processingTypedefs == true){
-          // TODO: Centralize this error handling
-          JSONToken errorToken = _currentToken;
-          int errorLine = -1;
-          int errorCol = -1;
-          while(errorToken != null && errorToken.match(JSchemaUtils.JSCHEMA_TYPEDEFS_KEY) == false){
-            errorToken = errorToken.previousToken();
-          }
-          if(errorToken != null){
-            errorLine = errorToken.getLine();
-            errorCol = errorToken.getColumn();
-          }
-
-          JsonParseError error = new JsonParseError("duplicate type " + key + " declared at line " + errorLine + " column " + errorCol);
+          ErrorInfo errorInfo = new ErrorInfo(JSchemaUtils.JSCHEMA_TYPEDEFS_KEY);
+          JsonParseError error = new JsonParseError(MessageFormat.format("duplicate type {0} declared at line {1} column {2}", key, errorInfo.getErrorLine(), errorInfo.getErrorCol()));
           _errors.add(error);
         }
         else{
@@ -127,18 +128,8 @@ public class JSchemaParser extends JSONParser {
     JsonParseError error = null;
     if(value instanceof Map == false){
       // Real tight coupling. We've consumed the typedefs@ and the : and we're sitting on whatever is after that.
-      JSONToken errorToken = _currentToken;
-      int errorLine = -1;
-      int errorCol = -1;
-      while(errorToken != null && errorToken.match(JSchemaUtils.JSCHEMA_TYPEDEFS_KEY) == false){
-        errorToken = errorToken.previousToken();
-      }
-      if(errorToken != null){
-        errorLine = errorToken.getLine();
-        errorCol = errorToken.getColumn();
-      }
-
-      error = new JsonParseError("typedefs@ at line " + errorLine + " column " + errorCol + " is not followed by an struct definition");
+      ErrorInfo errorInfo = new ErrorInfo(JSchemaUtils.JSCHEMA_TYPEDEFS_KEY);
+      error = new JsonParseError(MessageFormat.format("typedefs@ at line {0} column {1} is not followed by an struct definition", errorInfo.getErrorLine(), errorInfo.getErrorCol()));
       _errors.add(error);
     }
 
@@ -151,19 +142,8 @@ public class JSchemaParser extends JSONParser {
         Set<? extends String> keys = newTypedefs.keySet();
         for(String newTypeName : keys){
           if(previousTypedefs.containsKey(newTypeName) == true){
-            // TODO: Centralize this error handling
-            JSONToken errorToken = _currentToken;
-            int errorLine = -1;
-            int errorCol = -1;
-            while(errorToken != null && errorToken.match(JSchemaUtils.JSCHEMA_TYPEDEFS_KEY) == false){
-              errorToken = errorToken.previousToken();
-            }
-            if(errorToken != null){
-              errorLine = errorToken.getLine();
-              errorCol = errorToken.getColumn();
-            }
-
-            error = new JsonParseError("duplicate type " + newTypeName + " declared at line " + errorLine + " column " + errorCol);
+            ErrorInfo errorInfo = new ErrorInfo(JSchemaUtils.JSCHEMA_TYPEDEFS_KEY);
+            error = new JsonParseError(MessageFormat.format("duplicate type {0} declared at line {1} column {2}", newTypeName, errorInfo.getErrorLine(), errorInfo.getErrorCol()));
             _errors.add(error);
           }
           else{
@@ -176,5 +156,33 @@ public class JSchemaParser extends JSONParser {
       }
     }
     return;
+  }
+
+  private class ErrorInfo{
+
+    private int _errorLine;
+    private int _errorCol;
+
+    public ErrorInfo(String keyOfErrorToken)
+    {
+      JSONToken errorToken = _currentToken;
+      while(errorToken != null && errorToken.match(keyOfErrorToken) == false){
+        errorToken = errorToken.previousToken();
+      }
+      _errorLine = -1;
+      _errorCol = -1;
+      if(errorToken != null){
+        _errorLine = errorToken.getLine();
+        _errorCol = errorToken.getColumn();
+      }
+    }
+
+    public int getErrorLine() {
+      return _errorLine;
+    }
+
+    public int getErrorCol() {
+      return _errorCol;
+    }
   }
 }

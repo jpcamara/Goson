@@ -9,8 +9,6 @@ import gw.lang.reflect.module.IResourceAccess;
 import gw.util.GosuExceptionUtil;
 import gw.util.Pair;
 import gw.util.concurrent.LazyVar;
-import org.jschema.parser.JSONParser;
-import org.jschema.parser.JSchemaParser;
 import org.jschema.parser.JsonParseException;
 import org.jschema.typeloader.rpc.JSchemaCustomizedRPCType;
 import org.jschema.typeloader.rpc.JSchemaRPCType;
@@ -121,7 +119,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
     }
     if (o instanceof Map) {
       Map<Object, Object> jsonMap = (Map<Object, Object>)o;
-      if (jsonMap.get("enum") != null) {
+      if (jsonMap.get(JSchemaUtils.JSCHEMA_ENUM_KEY) != null) {
         putType(types, name, new JSchemaEnumType(name, this, o));
       } else if (jsonMap.get("map_of") != null) {
         addTypes(types, typeDefs, name, jsonMap.get("map_of"));
@@ -183,7 +181,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
     Map<String, Map<String, Object>> defaultValues = new HashMap<String, Map<String, Object>>();
     if (jshRpcFile.content instanceof Map) {
       processTypeDefs(types, typeDefs, jshRpcFile.rootTypeName, (Map) jshRpcFile.content);
-      Object functions = ((Map) jshRpcFile.content).get("functions");
+      Object functions = ((Map) jshRpcFile.content).get(JSchemaUtils.JSCHEMA_FUNCTIONS_KEY);
       if (functions instanceof List) {
         for (Object function : (List) functions) {
           if (function instanceof Map) {

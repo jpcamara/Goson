@@ -4,6 +4,7 @@ import gw.lang.reflect.IType;
 import gw.lang.reflect.ITypeLoader;
 import gw.lang.reflect.java.IJavaType;
 import org.jschema.typeloader.JSchemaTypeBase;
+import org.jschema.util.JSchemaUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,7 @@ abstract class JSchemaRPCTypeBase extends JSchemaTypeBase implements IJSchemaRPC
   }
 
   public List<Map> getFunctions() {
-    return (List<Map>) _object.get("functions");
+    return (List<Map>) _object.get(JSchemaUtils.JSCHEMA_FUNCTIONS_KEY);
   }
 
   public String getDefaultURL() {

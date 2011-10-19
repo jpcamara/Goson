@@ -135,9 +135,29 @@ public class JSchemaParserTest extends GosonTest {
       fail("Exception not thrown");
     }
     catch(JsonParseException jpe){
+      // gulp
+    }
+  }
+
+  public void testFunctionsKeywordMustBeFollowedByAnArray()
+  {
+    String badSchema = "{\n" +
+            "  \"url\" : \"http://localhost:12321/validation\",\n" +
+            "\n" +
+            "  \"functions\" : {\n" +
+            "    \"name\" : \"intArgVoidReturn\",\n" +
+            "      \"args\" : [ {\"arg1\" : \"int\"} ]\n" +
+            "  }\n" +
+            "}";
+
+    JSchemaParser parser = new JSchemaParser(badSchema);
+    try{
+      parser.parseJSchema();
+      fail("Exception not thrown");
+    }
+    catch(JsonParseException jpe){
       System.out.println(jpe);
     }
-
-
   }
+
 }

@@ -24,10 +24,9 @@ public class JSchemaUtils {
   public static final String JSCHEMA_TRACE_KEY = "trace@";
   public static final String JSCHEMA_EXCEPTION_TYPE_KEY = "exception_type@";
   public static final String JSCHEMA_TYPEDEFS_KEY = "typedefs@";
-  public static final String JSCHEMA_REF_KEY = "ref@";
   public static final String JSCHEMA_ENUM_KEY = "enum";
   public static final String JSCHEMA_MAP_KEY = "map_of";
-
+  public static final String JSCHEMA_FUNCTIONS_KEY = "functions";
 
   //TODO use Character.isJavaIdentifierPart() to scrub bad characters?
   public static String convertJSONStringToGosuIdentifier(String name) {
