@@ -4,6 +4,8 @@ import gw.lang.reflect.java.IJavaType;
 import org.jschema.parser.JSONParser;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -12,12 +14,11 @@ import java.util.Scanner;
  * Utility for inputting json files and outputting json schemas
  */
 public class JSONToJSchema {
-  public static void main(String[] arguments) {
+  public static void main(String[] arguments) throws IOException {
     List<String> args = java.util.Arrays.asList(arguments);
     validateArgs(args);
 
     File jsonFile = new File(args.get(1));
-//    File jschemaFile = new File(args.get(3));
     String jsonContent = null;
 
     Scanner scan = null;
@@ -32,7 +33,13 @@ public class JSONToJSchema {
     }
 
     Map json = (Map) JSONParser.parseJSONValue(jsonContent, IJavaType.MAP);
-    System.out.println(JSchemaUtils.convertJsonToJSchema(json));
+    Map jschema = (Map) JSchemaUtils.convertJsonToJSchema(json);
+    if (args.size() == 2) {
+      System.out.println(jschema);
+    } else {
+      writeFile(args.get(3), JSchemaUtils.serializeJson(jschema));
+    }
+
   }
 
   private static void validateArgs(List<String> args) {
@@ -51,7 +58,18 @@ public class JSONToJSchema {
         throw new IllegalArgumentException("third argument should be [-jschema].");
       }
     }
+  }
 
-
+  private static void writeFile(String fileName, String content) throws IOException {
+    File outputFile = new File(fileName);
+    if (!outputFile.exists()) {
+      outputFile.createNewFile();
+    }
+    FileWriter write = new FileWriter(outputFile);
+    try {
+      write.append(content);
+    } finally {
+      write.close();
+    }
   }
 }
