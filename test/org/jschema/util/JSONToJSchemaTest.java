@@ -40,7 +40,7 @@ public class JSONToJSchemaTest extends GosonTest {
     JSONToJSchema.main(new String[] {"-json", JSON_FILE});
     System.setOut(SYS_OUT);
     System.out.println(output.toString());
-    JsonMap schema = (JsonMap)JSONParser.parseJSON(output.toString());
+//    JsonMap schema = (JsonMap)JSONParser.parseJSON(output.toString());
     assertTrue(!output.toString().isEmpty());
   }
 
