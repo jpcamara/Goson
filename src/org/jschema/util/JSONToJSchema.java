@@ -36,7 +36,7 @@ public class JSONToJSchema {
     Map json = (Map) JSONParser.parseJSONValue(jsonContent, IJavaType.MAP);
     Map jschema = (Map) JSchemaUtils.convertJsonToJSchema(json);
     if (args.size() == 2) {
-      System.out.println(jschema);
+      System.out.println(JSchemaUtils.serializeJson(jschema));
     } else {
       writeFile(args.get(3), JSchemaUtils.serializeJson(jschema));
     }
