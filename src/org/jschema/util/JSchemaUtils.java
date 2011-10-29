@@ -160,7 +160,7 @@ public class JSchemaUtils {
       }
       return stringBuilder.append("}");
     } else {
-      throw new IllegalArgumentException("Do not know how to serialize object : " + json);
+      return buildJSON(stringBuilder, json.toString(), indent, depth);
     }
   }
 
