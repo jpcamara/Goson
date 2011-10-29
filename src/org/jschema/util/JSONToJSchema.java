@@ -33,7 +33,7 @@ public class JSONToJSchema {
       scan.close();
     }
 
-    Map json = (Map) JSONParser.parseJSONValue(jsonContent, IJavaType.MAP);
+    Map json = (Map) new JSONParser(jsonContent, IJavaType.MAP).parseJSONFragment();
     Map jschema = (Map) JSchemaUtils.convertJsonToJSchema(json);
     if (args.size() == 2) {
       System.out.println(JSchemaUtils.serializeJson(jschema));
