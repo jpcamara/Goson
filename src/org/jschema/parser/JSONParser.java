@@ -14,74 +14,37 @@ import org.jschema.util.JSchemaUtils;
 import java.lang.Object;
 import java.math.BigDecimal;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.*;
 
 public class JSONParser {
 
-  private JSONToken _currentToken;
-  private IType _currentType;
-  private List<JsonParseError> _errors = new ArrayList<JsonParseError>();
+  protected JSONToken _currentToken;
+  protected IType _currentType;
+  protected List<JsonParseError> _errors = new ArrayList<JsonParseError>();
 
-  private JSONParser(String json, IType rootType) {
+  public JSONParser(String json, IType rootType) {
     _currentToken = JSONToken.tokenize(json).removeTokens(JSONTokenType.COMMENT);
     _currentType = rootType;
+    return;
   }
 
-  /**
-   * Parses a JSON document fragment. In fact this can parse an entire JSON document, but it
-   * doesn't demand that the formal arg json conform to the JSON grammar defined in the
-   * RFC
-   *
-   * @param json - Document fragment to parse
-   * @param rootType - The expected type of the resulting parse
-   * @return Really? You have to ask this?
-   */
-  public static Object parseJSONValue(String json, IType rootType)
-  {
-    JSONParser jsonParser = new JSONParser(json, rootType);
-    Object retVal = jsonParser.parseValue();
-    if(jsonParser._errors.size() != 0){
-      throw(new JsonParseException(jsonParser._errors));
-    }
-    return(retVal);
-
-  }
-
-  public static Object parseJSONValue(String json)
-  {
-    return parseJSONValue(json, null);
+  public JSONParser(String json) {
+    this(json, null);
+    return;
   }
 
   /**
    * Parses a complete JSON document, which must start either an object ('{') or an array ('[')
-   * @param json The document text
-   * @param rootType The possibly null type that is the Gosu type of the resultant object
    *
    * @return An object representative of the json document
    *
    * @throws JsonParseException if something goes wrong
    */
-  public static Object parseJSON(String json, IType rootType)
-  {
-    JSONParser jsonParser = new JSONParser(json, rootType);
-    Object retVal = jsonParser.start();
-    if(jsonParser._errors.size() != 0){
-      throw(new JsonParseException(jsonParser._errors));
-    }
-    return(retVal);
-  }
 
-  public static Object parseJSON(String json){
-    return(parseJSON(json, null));
-  }
-
-  /**
-   * JSON RFC requires that a JSON document starts with an object or an array decl.
-   */
-  private Object start()
+  public Object parseJSONDocument()
   {
     Object retVal;
+    _errors.clear();
     retVal = parseObject();
     if (retVal == null ) {
       retVal = parseArray();
@@ -94,11 +57,34 @@ public class JSONParser {
     else{
       badToken();
     }
+
+    if(_errors.size() != 0){
+      throw(new JsonParseException(_errors));
+    }
     return(retVal);
   }
 
-  private Object parseValue() {
+  /**
+   * Parses a JSON document fragment. In fact this can parse an entire JSON document, but it
+   * doesn't demand that the formal arg json conform to the JSON grammar defined in the
+   * RFC
+   *
+   * @return Really? You have to ask this?
+   */
 
+  public Object parseJSONFragment()
+  {
+    Object retVal;
+    _errors.clear();
+    retVal = parseValueImpl();
+    if(_errors.size() != 0){
+      throw(new JsonParseException(_errors));
+    }
+    return(retVal);
+  }
+
+  protected Object parseValueImpl()
+  {
     Date date = parseDate();
     if (date != null ) {
       return date;
@@ -219,7 +205,7 @@ public class JSONParser {
     return null;
   }
 
-  private String parseString() {
+  protected String parseString() {
     if (_currentToken.isString()) {
       JSONToken value = _currentToken;
       consumeToken();
@@ -280,7 +266,7 @@ public class JSONParser {
             }
           }
           do {
-            lst.add(parseValue());
+            lst.add(parseValueImpl());
           } while (match(","));
         } finally {
           _currentType = lstType;
@@ -294,7 +280,7 @@ public class JSONParser {
     return null;
   }
 
-  private Map parseObject() {
+  protected Map parseObject() {
     if (match("{")) {
       if (match("}")) {
         return Collections.EMPTY_MAP;
@@ -319,7 +305,6 @@ public class JSONParser {
         try {
           do {
             String key = parseString();
-
             if (key == null) {
               badToken();
             }
@@ -333,7 +318,8 @@ public class JSONParser {
             } else if (mapValueType != null) {
               _currentType = mapValueType;
             }
-            map.put(key, parseValue());
+            Object value = parseValueImpl();
+            putWithSemantics(map, key, value);
           } while (match(","));
         } finally {
           _currentType = ctxType;
@@ -348,7 +334,13 @@ public class JSONParser {
     return null;
   }
 
-  private boolean match(String val) {
+  protected Object putWithSemantics(JsonMap map, String key, Object value)
+  {
+    Object retVal = map.put(key, value);
+    return(retVal);
+  }
+
+  protected boolean match(String val) {
     boolean match = _currentToken.match(val);
     if (match) {
       consumeToken();
@@ -360,9 +352,8 @@ public class JSONParser {
     _currentToken = _currentToken.nextToken();
   }
 
-  private void badToken() {
+  protected void badToken() {
     JsonParseError error = new JsonParseError("Unexpected token '" + _currentToken.getValue() + "' at line " + _currentToken.getLine() + ", column " + _currentToken.getColumn());
     _errors.add(error);
   }
-
 }

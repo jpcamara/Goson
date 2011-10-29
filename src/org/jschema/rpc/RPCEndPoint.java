@@ -14,6 +14,7 @@ import org.jschema.util.JSchemaUtils;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -24,6 +25,7 @@ public class RPCEndPoint {
   private Object _impl;
   private String _rootPath;
   private IType _implType;
+  private Map<IType, Map<String, IMethodInfo>> _methodCache;
 
   public RPCEndPoint(IJSchemaRPCType rpcType, Object impl, String rootPath) {
     _rpcType = rpcType;
@@ -31,6 +33,7 @@ public class RPCEndPoint {
     _implType = TypeSystem.getFromObject(impl);
     _rootPath = rootPath;
     validate();
+    _methodCache = new HashMap<IType, Map<String, IMethodInfo>>();
     return;
   }
 
@@ -197,7 +200,6 @@ public class RPCEndPoint {
         String s = args.get(parameter.getName());
         Object value;
         if (s != null) {
-          // TODO: This should be parseJSONValue.
           value = JSchemaUtils.parseJson(s, parameter.getFeatureType());
         } else {
           value = _rpcType.getDefaultValue(method, parameter.getName());
@@ -217,12 +219,22 @@ public class RPCEndPoint {
   }
 
   private IMethodInfo findMethodNamed(String method, IType type) {
-    for (IMethodInfo mi : type.getTypeInfo().getMethods()) {
-      if (mi.getDisplayName().equals(method)) {
-        return mi;
-      }
+    Map<String, IMethodInfo> methodMap = _methodCache.get(type);
+    if(methodMap == null){
+      methodMap = new HashMap<String, IMethodInfo>();
+      _methodCache.put(type, methodMap);
     }
-    return null;
+    IMethodInfo retVal = methodMap.get(method);
+    if(retVal == null){
+      for (IMethodInfo mi : type.getTypeInfo().getMethods()) {
+        if (mi.getDisplayName().equals(method)) {
+          retVal =  mi;
+          break;
+        }
+      }
+      methodMap.put(method, retVal);
+    }
+    return(retVal);
   }
 
   private String scrubbedTrace(Exception e) {
