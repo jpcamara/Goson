@@ -297,7 +297,7 @@ public class JSONParser {
         IType mapValueType = null;
         if (ctxType != null && IJavaType.MAP.isAssignableFrom(ctxType)) {
           IType parameterizedType = TypeLord.findParameterizedType(ctxType, IJavaType.MAP.getGenericType());
-          if (parameterizedType != null) {
+          if (parameterizedType != null && parameterizedType.getTypeParameters() != null) {
             mapValueType = parameterizedType.getTypeParameters()[1];
           }
         }

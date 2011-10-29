@@ -33,7 +33,9 @@ function compile() {
             :destdir = classesDir,
             :includeantruntime = false)
   classesDir.file("META-INF").mkdir()
-  classesDir.file("META-INF/MANIFEST.MF").write("Gosu-Typeloaders: org.jschema.typeloader.JSchemaTypeLoader\n\n")
+  classesDir.file("META-INF/MANIFEST.MF")//Main-Class: org.jschema.util.JSONToJSchema\n\n
+    .write("Main-Class: org.jschema.util.JSONToJSchema\n" + 
+           "Gosu-Typeloaders: org.jschema.typeloader.JSchemaTypeLoader\n\n")
 }
 
 @Depends("compile")
