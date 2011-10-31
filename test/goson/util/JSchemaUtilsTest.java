@@ -1,7 +1,7 @@
-package org.jschema.util;
+package goson.util;
 
 import junit.framework.TestCase;
-import org.jschema.model.JsonMap;
+import goson.model.JsonMap;
 
 import java.io.InputStreamReader;
 import java.util.*;
@@ -18,7 +18,7 @@ public class JSchemaUtilsTest extends TestCase {
     String content = null;
     Scanner scan = null;
     try {
-      InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/org/jschema/examples/RegularJson.json"));
+      InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/goson/examples/RegularJson.json"));
       scan = new Scanner(reader);
       scan.useDelimiter("\\Z");
       content = scan.next();

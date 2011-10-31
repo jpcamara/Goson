@@ -1,13 +1,13 @@
-package org.jschema.typeloader
+package goson.typeloader
 
 uses java.util.*
 uses java.lang.*
-uses org.jschema.test.*
+uses goson.test.*
 
-uses org.jschema.examples.Invoice
+uses goson.examples.Invoice
 
-uses org.jschema.examples.json.TwitterUserTimeline
-uses org.jschema.examples.json.GithubCreate
+uses goson.examples.json.TwitterUserTimeline
+uses goson.examples.json.GithubCreate
 
 class InvoiceTest extends GosonTest {
 
@@ -45,15 +45,15 @@ class InvoiceTest extends GosonTest {
     print( invoice.prettyPrint() )
     print( invoice.prettyPrint( 4 ) )
 
-    invoice.descendents().whereTypeIs(org.jschema.examples.Invoice.Address)
+    invoice.descendents().whereTypeIs(goson.examples.Invoice.Address)
                      .where( \ addr -> addr.State == "CA" )
                      .each( \ addr -> print( "Found CA Address : ${addr}" ) )
 
-    invoice.find(org.jschema.examples.Invoice.Address)
+    invoice.find(goson.examples.Invoice.Address)
            .where( \ addr -> addr.State == "CA" )
            .each( \ addr -> print( "Found CA Address : ${addr}" ) )
 
-    invoice.find(org.jschema.examples.Invoice.Address)
+    invoice.find(goson.examples.Invoice.Address)
            .each( \ addr -> print( "Address Parent : ${addr.parent()}" ) )
 
     var map = invoice.asJSON()

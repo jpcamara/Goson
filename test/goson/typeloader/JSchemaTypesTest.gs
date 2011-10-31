@@ -1,38 +1,38 @@
-package org.jschema.typeloader
+package goson.typeloader
 
 uses java.util.*
 uses java.lang.*
 uses java.net.*
 
-uses org.jschema.test.*
+uses goson.test.*
 
-uses org.jschema.examples.fullexample.Example
-uses org.jschema.examples.fullexample.Example.SomeType
-uses org.jschema.examples.fullexample.Example.SomeType.TypeInArray
-uses org.jschema.examples.fullexample.Example.SomeType.EnumEx
-uses org.jschema.examples.fullexample.Example.SomeType.NestedType
-uses org.jschema.examples.fullexample.Example.SomeType.NestedType.NestedTypeInArray
+uses goson.examples.fullexample.Example
+uses goson.examples.fullexample.Example.SomeType
+uses goson.examples.fullexample.Example.SomeType.TypeInArray
+uses goson.examples.fullexample.Example.SomeType.EnumEx
+uses goson.examples.fullexample.Example.SomeType.NestedType
+uses goson.examples.fullexample.Example.SomeType.NestedType.NestedTypeInArray
 
-uses org.jschema.examples.twitter.status.StatusResponse
-uses org.jschema.examples.twitter.status.StatusResponse.User
+uses goson.examples.twitter.status.StatusResponse
+uses goson.examples.twitter.status.StatusResponse.User
 
-uses org.jschema.examples.google.geocode.GeocodeResponse
-uses org.jschema.examples.google.geocode.GeocodeResponse.Results
-uses org.jschema.examples.google.geocode.GeocodeResponse.Results.Types
-uses org.jschema.examples.google.geocode.GeocodeResponse.Results.Geometry
-uses org.jschema.examples.google.geocode.GeocodeResponse.Results.Geometry.Location
+uses goson.examples.google.geocode.GeocodeResponse
+uses goson.examples.google.geocode.GeocodeResponse.Results
+uses goson.examples.google.geocode.GeocodeResponse.Results.Types
+uses goson.examples.google.geocode.GeocodeResponse.Results.Geometry
+uses goson.examples.google.geocode.GeocodeResponse.Results.Geometry.Location
 
-uses org.jschema.examples.PeopleId
-uses org.jschema.examples.PeopleId.IdToPeople
-uses org.jschema.examples.PeopleId.IdToPeople.EyeColor
-uses org.jschema.examples.NameAndAge
-uses org.jschema.examples.SelfTest
-uses org.jschema.examples.URITest
-uses org.jschema.examples.AutoCreateAndInsertTest
-uses org.jschema.examples.cloning.*
+uses goson.examples.PeopleId
+uses goson.examples.PeopleId.IdToPeople
+uses goson.examples.PeopleId.IdToPeople.EyeColor
+uses goson.examples.NameAndAge
+uses goson.examples.SelfTest
+uses goson.examples.URITest
+uses goson.examples.AutoCreateAndInsertTest
+uses goson.examples.cloning.*
 
-uses org.jschema.examples.people1.Peeps
-uses org.jschema.examples.people1.Peeps.People
+uses goson.examples.people1.Peeps
+uses goson.examples.people1.Peeps.People
 
 class JSchemaTypesTest extends GosonTest {
 
@@ -152,7 +152,7 @@ class JSchemaTypesTest extends GosonTest {
 
     var status = new StatusResponse() {
       :InReplyToStatusId = 1232,
-      //TODO :User = new org.jschema.examples.twitter.status.StatusResponse.User() why won't this work?
+      //TODO :User = new goson.examples.twitter.status.StatusResponse.User() why won't this work?
       :User = new User() {
         :Name = "jpcamara",
         :CreatedAt = new java.util.Date(),

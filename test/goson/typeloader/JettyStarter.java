@@ -1,12 +1,12 @@
-package org.jschema.typeloader;
+package goson.typeloader;
 
 import com.sun.tools.internal.xjc.api.Mapping;
 import gw.lang.IReentrant;
 import gw.util.GosuExceptionUtil;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.*;
-import org.jschema.rpc.RPCEndPoint;
-import org.jschema.rpc.RPCFilter;
+import goson.rpc.RPCEndPoint;
+import goson.rpc.RPCFilter;
 
 import javax.servlet.GenericServlet;
 import javax.servlet.ServletException;

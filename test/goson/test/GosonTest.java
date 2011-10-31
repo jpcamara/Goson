@@ -1,4 +1,4 @@
-package org.jschema.test;
+package goson.test;
 
 import junit.framework.TestCase;
 

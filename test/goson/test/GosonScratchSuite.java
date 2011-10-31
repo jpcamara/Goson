@@ -1,4 +1,4 @@
-package org.jschema.test;
+package goson.test;
 
 import gw.lang.reflect.IHasJavaClass;
 import gw.lang.reflect.TypeSystem;
@@ -11,10 +11,10 @@ public class GosonScratchSuite extends TestSuite {
 
   private static String[] getTests() {
     return new String[]{
-//      "org.jschema.parser.JSONParserTest",
-//      "org.jschema.typeloader.JSchemaTypesTest",
-      "org.jschema.typeloader.InvoiceTest",
-      "org.jschema.util.JSchemaUtilsTest"
+//      "goson.parser.JSONParserTest",
+//      "goson.typeloader.JSchemaTypesTest",
+      "goson.typeloader.InvoiceTest",
+      "goson.util.JSchemaUtilsTest"
     };
   }
 

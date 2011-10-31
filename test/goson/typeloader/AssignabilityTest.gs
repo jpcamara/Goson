@@ -1,11 +1,11 @@
-package org.jschema.typeloader
+package goson.typeloader
 
 uses java.util.*
 uses java.lang.*
 uses java.math.*
-uses org.jschema.test.*
-uses org.jschema.rpc.*
-uses org.jschema.examples.rpc.*
+uses goson.test.*
+uses goson.rpc.*
+uses goson.examples.rpc.*
 
 class AssignabilityTest extends GosonTest {
 

@@ -1,14 +1,14 @@
-package org.jschema.rpc
+package goson.rpc
 
 uses java.util.*
 uses java.lang.*
 uses java.math.*
-uses org.jschema.test.*
-uses org.jschema.rpc.*
-uses org.jschema.model.*
-uses org.jschema.examples.rpc.ValidationBasis
-uses org.jschema.examples.rpc.ReturnArgValidation
-uses org.jschema.examples.rpc.ArgTypeValidation
+uses goson.test.*
+uses goson.rpc.*
+uses goson.model.*
+uses goson.examples.rpc.ValidationBasis
+uses goson.examples.rpc.ReturnArgValidation
+uses goson.examples.rpc.ArgTypeValidation
 
 class RPCEndPointTest extends GosonTest {
 

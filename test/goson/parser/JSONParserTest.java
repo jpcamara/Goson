@@ -1,9 +1,9 @@
-package org.jschema.parser;
+package goson.parser;
 
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.java.IJavaType;
-import org.jschema.test.GosonTest;
-import org.jschema.util.JSchemaUtils;
+import goson.test.GosonTest;
+import goson.util.JSchemaUtils;
 
 import java.math.BigDecimal;
 import java.net.URI;

@@ -1,10 +1,10 @@
-package org.jschema.parser;
+package goson.parser;
 
 import com.sun.xml.internal.bind.v2.model.core.TypeInfo;
 import org.eclipse.jetty.util.ajax.JSON;
-import org.jschema.model.JsonMap;
-import org.jschema.test.GosonTest;
-import org.jschema.util.JSchemaUtils;
+import goson.model.JsonMap;
+import goson.test.GosonTest;
+import goson.util.JSchemaUtils;
 
 import java.util.Map;
 

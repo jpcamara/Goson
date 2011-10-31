@@ -1,18 +1,18 @@
-package org.jschema.typeloader
+package goson.typeloader
 
 uses java.util.*
 uses java.lang.*
 uses java.math.*
-uses org.jschema.test.*
-uses org.jschema.rpc.*
-uses org.jschema.examples.rpc.Defaults
-uses org.jschema.examples.rpc.Sample1
-uses org.jschema.examples.rpc.ThrowsExceptions
-uses org.jschema.examples.rpc.Sample1.GetEmployee
-uses org.jschema.examples.rpc.Sample1.UpdateEmployee.Employee
-uses org.jschema.examples.rpc.Sample2
-uses org.jschema.examples.rpc.Adder
-uses org.jschema.examples.rpc.ReturnsArrays
+uses goson.test.*
+uses goson.rpc.*
+uses goson.examples.rpc.Defaults
+uses goson.examples.rpc.Sample1
+uses goson.examples.rpc.ThrowsExceptions
+uses goson.examples.rpc.Sample1.GetEmployee
+uses goson.examples.rpc.Sample1.UpdateEmployee.Employee
+uses goson.examples.rpc.Sample2
+uses goson.examples.rpc.Adder
+uses goson.examples.rpc.ReturnsArrays
 
 class JSchemaRPCTypesTest extends GosonTest {
 
@@ -236,8 +236,8 @@ class JSchemaRPCTypesTest extends GosonTest {
         fail("Should have thrown an NPE")
       } catch (npe : java.lang.NullPointerException) {
         var stackTrace = npe.StackTraceAsString
-        assertTrue( stackTrace.contains("at org.jschema.typeloader.JSchemaRPCTypesTest$ThrowsImpl.npeException") )
-        assertTrue( stackTrace.contains("at org.jschema.examples.rpc.ThrowsExceptions.npeException()") )
+        assertTrue( stackTrace.contains("at goson.typeloader.JSchemaRPCTypesTest$ThrowsImpl.npeException") )
+        assertTrue( stackTrace.contains("at goson.examples.rpc.ThrowsExceptions.npeException()") )
       }
     }
  }

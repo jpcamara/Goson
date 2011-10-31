@@ -1,4 +1,4 @@
-package org.jschema.test;
+package goson.test;
 
 import gw.lang.init.GosuInitialization;
 import gw.lang.reflect.IHasJavaClass;
@@ -6,7 +6,7 @@ import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.shell.Gosu;
 import junit.framework.TestSuite;
-import org.jschema.typeloader.JSchemaTypeLoader;
+import goson.typeloader.JSchemaTypeLoader;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public class GosonSuite extends TestSuite {
     ArrayList<String> allTestNames = new ArrayList<String>();
     for (CharSequence nameCharSeq : TypeSystem.getAllTypeNames()) {
       String name = nameCharSeq.toString();
-      if (name.startsWith("org.jschema") && name.endsWith("Test")) {
+      if (name.startsWith("goson") && name.endsWith("Test")) {
         allTestNames.add(name);
       }
     }
@@ -62,7 +62,7 @@ public class GosonSuite extends TestSuite {
       TypeSystem.refresh(true);
 
       //verify that the JSON types are around
-      IType exampleType = TypeSystem.getByFullNameIfValid("org.jschema.examples.NameAndAge");
+      IType exampleType = TypeSystem.getByFullNameIfValid("goson.examples.NameAndAge");
       if (exampleType == null) {
         throw new IllegalStateException("The Goson Test Environment is not set up correctly: could not find the NameAndAge type");
       }

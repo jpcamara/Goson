@@ -1,14 +1,14 @@
-package org.jschema.typeloader
+package goson.typeloader
 
 uses java.util.*
 uses java.lang.*
 uses java.net.*
 
-uses org.jschema.test.*
+uses goson.test.*
 
-uses org.jschema.examples.flickr.GalleriesList
-uses org.jschema.examples.flickr.GalleriesList.Galleries
-uses org.jschema.examples.RegularJson
+uses goson.examples.flickr.GalleriesList
+uses goson.examples.flickr.GalleriesList.Galleries
+uses goson.examples.RegularJson
 
 class JsonTypesTest extends GosonTest {
 
