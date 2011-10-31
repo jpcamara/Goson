@@ -59,6 +59,7 @@ These types can be used to work with JSON documents described by this JSchema
 Creating an Invoice based on this schema in Gosu is quite simple:
 
     uses jschema.Invoice
+    uses java.util.Date
   
     var invoice = new Invoice() {
       :Id = 42,
@@ -217,9 +218,9 @@ The Goson library includes support for working with raw JSON.  This functionalit
 
 ## Parsing Raw JSON Objects
 
-Goson ships with a general JSON parser that returns objects from the model found in the `org.jschema.model` package.  These model classes are based on the Java Collections interfaces, with `JsonList` extending `List` and `JsonMap` extending `Map`, but add the concept of a parent pointer, effectively modeling the JSON tree.  Note this is in contrast to the standard JSON library, which does not implement the java Collections interfaces.
+Goson ships with a general JSON parser that returns objects from the model found in the `goson.model` package.  These model classes are based on the Java Collections interfaces, with `JsonList` extending `List` and `JsonMap` extending `Map`, but add the concept of a parent pointer, effectively modeling the JSON tree.  Note this is in contrast to the standard JSON library, which does not implement the java Collections interfaces.
 
-The easiest way to parse raw JSON is the static method `org.jschema.util.JSchemaUtils.parseJsonObject()` which will return a `org.jschema.model.JsonMap`, which extends `Map<String, Object>`.  You can manipulate this object using the standard `java.util.Map` methods, such as `get()` and `put()`:
+The easiest way to parse raw JSON is the static method `goson.util.JSchemaUtils.parseJsonObject()` which will return a `goson.model.JsonMap`, which extends `Map<String, Object>`.  You can manipulate this object using the standard `java.util.Map` methods, such as `get()` and `put()`:
 
     var rawJson = JSchemaUtils.parseJsonObject( '{"foo" : 10, "bar" : "a string"}' )
     
@@ -272,7 +273,7 @@ will print this JSON string:
 
 ## Getting Raw JSON From JSchema Objects
 
-At runtime, Goson objects are actually simply `org.jschema.model.JsonMap`'s.  You can get at this underlying map for direct manipulation via the `asJSON` method:
+At runtime, Goson objects are actually simply `goson.model.JsonMap`'s.  You can get at this underlying map for direct manipulation via the `asJSON` method:
 
     var map = invoice.asJSON()
 
@@ -358,16 +359,16 @@ If you want to change the behavior of an RPC object you can use the `with()` met
 
 The following customizations are available:
 
-* `handler : org.jschema.rpc.RPCCallHandler` - Handles the HTTP invocation
+* `handler : goson.rpc.RPCCallHandler` - Handles the HTTP invocation
 * `url : String` - The root URL to invoke against
-* `method : org.jschema.rpc.HttpMethod` - GET or POST
+* `method : goson.rpc.HttpMethod` - GET or POST
 * `includeNulls : Boolean` - Include local null values when invoking remotely (rarely needed)
-* `logger : org.jschema.rpc.RPCLoggerCallback` - A logger to be used while dispatching
-* `wrapper : org.jschema.rpc.RPCInvocationWrapper` - An object that wraps the RPC call
+* `logger : goson.rpc.RPCLoggerCallback` - A logger to be used while dispatching
+* `wrapper : goson.rpc.RPCInvocationWrapper` - An object that wraps the RPC call
 
 ## Global Defaults
 
-You can set the Global Defaults for the RPC system using the `org.jschema.rpc.RPCDefaults` class.  This lets you customize the RPC layer wholesale, rather than doing it one service at a time like we did above.
+You can set the Global Defaults for the RPC system using the `goson.rpc.RPCDefaults` class.  This lets you customize the RPC layer wholesale, rather than doing it one service at a time like we did above.
 
 As an example, we can set the default request hander to be based on Apache HTTPClient with this code:
 
@@ -408,7 +409,7 @@ Our take is that it is better to let the API designer make these decisions in pl
 
 ## Ronin
 
-[Ronin](http://ronin-web.org) makes a great host environment for JSchema-RPC, by using the `org.jschema.rpc.RPCFilter` class in your `RoninConfig` constructor:
+[Ronin](http://ronin-web.org) makes a great host environment for JSchema-RPC, by using the `goson.rpc.RPCFilter` class in your `RoninConfig` constructor:
 
     construct(m : ApplicationMode, an : RoninServlet) {
       super(m, an)
@@ -440,6 +441,6 @@ The code above publishes the `EmployeesApi` and integrated the RPC system into R
 
 ## Arbitrary Servlets
 
-Although Ronin is the easiest, you can use the `org.jschema.rpc.RPCFilter` to publish JSchema RPC Endpoints in any Servlet environment that has a properly set up Gosu TypeSystem.
+Although Ronin is the easiest, you can use the `goson.rpc.RPCFilter` to publish JSchema RPC Endpoints in any Servlet environment that has a properly set up Gosu TypeSystem.
 
-`RPCFilter` takes a single config parameter, `config`, which should be the neame of a class that implements `org.jschema.rpc.RPCFilter.Config` and has a default constructor.  This config object supplies the list of endpoints to the filter.
+`RPCFilter` takes a single config parameter, `config`, which should be the name of a class that implements `goson.rpc.RPCFilter.Config` and has a default constructor.  This config object supplies the list of endpoints to the filter.
