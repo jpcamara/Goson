@@ -33,9 +33,9 @@ function compile() {
             :destdir = classesDir,
             :includeantruntime = false)
   classesDir.file("META-INF").mkdir()
-  classesDir.file("META-INF/MANIFEST.MF")//Main-Class: org.jschema.util.JSONToJSchema\n\n
-    .write("Main-Class: org.jschema.util.JSONToJSchema\n" + 
-           "Gosu-Typeloaders: org.jschema.typeloader.JSchemaTypeLoader\n\n")
+  classesDir.file("META-INF/MANIFEST.MF")//Main-Class: goson.util.JSONToJSchema\n\n
+    .write("Main-Class: goson.util.JSONToJSchema\n" +
+           "Gosu-Typeloaders: goson.typeloader.JSchemaTypeLoader\n\n")
 }
 
 @Depends("compile")
@@ -69,7 +69,7 @@ function test() {
       formatterElement
     },
     :testList = {
-      new org.apache.tools.ant.taskdefs.optional.junit.JUnitTest("org.jschema.test.GosonSuite")
+      new org.apache.tools.ant.taskdefs.optional.junit.JUnitTest("goson.test.GosonSuite")
     })
 }
 

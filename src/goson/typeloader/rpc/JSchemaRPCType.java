@@ -1,4 +1,4 @@
-package org.jschema.typeloader.rpc;
+package goson.typeloader.rpc;
 
 import gw.lang.reflect.ITypeLoader;
 

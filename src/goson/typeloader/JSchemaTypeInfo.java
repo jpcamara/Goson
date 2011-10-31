@@ -1,4 +1,4 @@
-package org.jschema.typeloader;
+package goson.typeloader;
 
 import gw.internal.gosu.parser.AnnotationInfo;
 import gw.lang.Autoinsert;
@@ -9,11 +9,11 @@ import gw.lang.reflect.*;
 import gw.lang.reflect.IRelativeTypeInfo.Accessibility;
 import gw.lang.reflect.java.IJavaType;
 import gw.util.concurrent.LazyVar;
-import org.jschema.model.JsonList;
-import org.jschema.model.JsonMap;
-import org.jschema.model.JsonObject;
-import org.jschema.rpc.SimpleRPCCallHandler;
-import org.jschema.util.JSchemaUtils;
+import goson.model.JsonList;
+import goson.model.JsonMap;
+import goson.model.JsonObject;
+import goson.rpc.SimpleRPCCallHandler;
+import goson.util.JSchemaUtils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

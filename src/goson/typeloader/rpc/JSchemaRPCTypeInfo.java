@@ -1,8 +1,8 @@
-package org.jschema.typeloader.rpc;
+package goson.typeloader.rpc;
 
 import gw.lang.parser.ISymbol;
 import gw.lang.reflect.*;
-import org.jschema.rpc.*;
+import goson.rpc.*;
 
 import java.util.*;
 import java.util.concurrent.Callable;

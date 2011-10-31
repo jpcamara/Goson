@@ -1,4 +1,4 @@
-package org.jschema.parser;
+package goson.parser;
 
 public class JsonParseError {
   private String _message;

@@ -1,14 +1,14 @@
-package org.jschema.util;
+package goson.util;
 
 import gw.lang.reflect.*;
 import gw.util.GosuEscapeUtil;
 import gw.util.GosuStringUtil;
-import org.jschema.model.JsonList;
-import org.jschema.model.JsonMap;
-import org.jschema.parser.JSONParser;
-import org.jschema.parser.JSchemaParser;
-import org.jschema.parser.JsonParseException;
-import org.jschema.typeloader.IJSchemaType;
+import goson.model.JsonList;
+import goson.model.JsonMap;
+import goson.parser.JSONParser;
+import goson.parser.JSchemaParser;
+import goson.parser.JsonParseException;
+import goson.typeloader.IJSchemaType;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

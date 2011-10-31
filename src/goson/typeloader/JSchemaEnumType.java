@@ -1,8 +1,8 @@
-package org.jschema.typeloader;
+package goson.typeloader;
 
 import gw.lang.reflect.*;
 import gw.lang.reflect.gs.IGosuObject;
-import org.jschema.util.JSchemaUtils;
+import goson.util.JSchemaUtils;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package org.jschema.rpc;
+package goson.rpc;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -6,7 +6,7 @@ import com.sun.net.httpserver.HttpServer;
 import gw.lang.IReentrant;
 import gw.util.GosuExceptionUtil;
 import gw.util.StreamUtil;
-import org.jschema.util.JSchemaUtils;
+import goson.util.JSchemaUtils;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;

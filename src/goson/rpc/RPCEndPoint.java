@@ -1,4 +1,4 @@
-package org.jschema.rpc;
+package goson.rpc;
 
 import gw.lang.reflect.IMethodInfo;
 import gw.lang.reflect.IParameterInfo;
@@ -6,11 +6,11 @@ import gw.lang.reflect.IType;
 import gw.lang.reflect.ITypeInfo;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.java.IJavaType;
-import org.jschema.model.JsonList;
-import org.jschema.model.JsonMap;
-import org.jschema.typeloader.rpc.IJSchemaRPCType;
-import org.jschema.typeloader.rpc.JSchemaRPCTypeInfoBase;
-import org.jschema.util.JSchemaUtils;
+import goson.model.JsonList;
+import goson.model.JsonMap;
+import goson.typeloader.rpc.IJSchemaRPCType;
+import goson.typeloader.rpc.JSchemaRPCTypeInfoBase;
+import goson.util.JSchemaUtils;
 
 import java.net.URI;
 import java.util.ArrayList;

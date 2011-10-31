@@ -1,9 +1,9 @@
-package org.jschema.model;
+package goson.model;
 
 import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.gs.IGosuObject;
-import org.jschema.util.JSchemaUtils;
+import goson.util.JSchemaUtils;
 
 import java.util.Iterator;
 import java.util.LinkedList;

@@ -1,9 +1,9 @@
-package org.jschema.typeloader;
+package goson.typeloader;
 
 import gw.lang.reflect.IType;
 import gw.lang.reflect.ITypeLoader;
 import gw.lang.reflect.TypeSystem;
-import org.jschema.model.JsonList;
+import goson.model.JsonList;
 
 import java.util.Collections;
 import java.util.Map;

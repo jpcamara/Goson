@@ -1,4 +1,4 @@
-package org.jschema.parser;
+package goson.parser;
 
 
 import java.util.List;

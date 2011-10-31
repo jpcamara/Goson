@@ -1,10 +1,10 @@
-package org.jschema.typeloader.rpc;
+package goson.typeloader.rpc;
 
 import gw.lang.reflect.IType;
 import gw.lang.reflect.ITypeLoader;
 import gw.lang.reflect.java.IJavaType;
-import org.jschema.typeloader.JSchemaTypeBase;
-import org.jschema.util.JSchemaUtils;
+import goson.typeloader.JSchemaTypeBase;
+import goson.util.JSchemaUtils;
 
 import java.util.List;
 import java.util.Map;

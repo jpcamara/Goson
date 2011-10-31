@@ -1,4 +1,4 @@
-package org.jschema.typeloader.rpc;
+package goson.typeloader.rpc;
 
 import gw.lang.parser.ISymbol;
 import gw.lang.reflect.IAnnotationInfo;
@@ -15,11 +15,11 @@ import gw.lang.reflect.TypeInfoBase;
 import gw.lang.reflect.java.IJavaType;
 import gw.util.GosuExceptionUtil;
 import gw.util.GosuStringUtil;
-import org.jschema.rpc.JSchemaRPCException;
-import org.jschema.rpc.RPCConfig;
-import org.jschema.rpc.RPCInvocationWrapper;
-import org.jschema.rpc.RPCLoggerCallback;
-import org.jschema.util.JSchemaUtils;
+import goson.rpc.JSchemaRPCException;
+import goson.rpc.RPCConfig;
+import goson.rpc.RPCInvocationWrapper;
+import goson.rpc.RPCLoggerCallback;
+import goson.util.JSchemaUtils;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -260,7 +260,7 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
       boolean foundRPCCode = false;
       for (int i = 0; i < stackTrace.length; i++) {
         StackTraceElement stackTraceElement = stackTrace[i];
-        if (stackTraceElement.getClassName().startsWith("org.jschema.typeloader.rpc")) {
+        if (stackTraceElement.getClassName().startsWith("goson.typeloader.rpc")) {
           foundRPCCode = true;
           //skip
         } else if (!foundRPCCode) {

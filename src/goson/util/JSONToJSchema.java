@@ -1,7 +1,7 @@
-package org.jschema.util;
+package goson.util;
 
 import gw.lang.reflect.java.IJavaType;
-import org.jschema.parser.JSONParser;
+import goson.parser.JSONParser;
 
 import java.io.File;
 import java.io.FileWriter;

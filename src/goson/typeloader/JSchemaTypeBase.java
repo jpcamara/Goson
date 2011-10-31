@@ -1,12 +1,12 @@
-package org.jschema.typeloader;
+package goson.typeloader;
 
 import gw.lang.reflect.*;
 import gw.lang.reflect.java.IJavaType;
 import gw.util.GosuClassUtil;
 import gw.util.concurrent.LazyVar;
-import org.jschema.model.JsonList;
-import org.jschema.model.JsonMap;
-import org.jschema.util.JSchemaUtils;
+import goson.model.JsonList;
+import goson.model.JsonMap;
+import goson.util.JSchemaUtils;
 
 import java.net.URI;
 import java.util.Collections;

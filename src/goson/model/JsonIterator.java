@@ -1,4 +1,4 @@
-package org.jschema.model;
+package goson.model;
 
 import java.util.Iterator;
 

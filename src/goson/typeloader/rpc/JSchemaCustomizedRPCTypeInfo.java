@@ -1,7 +1,7 @@
-package org.jschema.typeloader.rpc;
+package goson.typeloader.rpc;
 
-import org.jschema.rpc.CustomRPCInstance;
-import org.jschema.rpc.RPCConfig;
+import goson.rpc.CustomRPCInstance;
+import goson.rpc.RPCConfig;
 
 import java.util.*;
 

@@ -1,4 +1,4 @@
-package org.jschema.parser;
+package goson.parser;
 
 import gw.internal.gosu.parser.TypeLord;
 import gw.lang.reflect.IEnumType;
@@ -6,10 +6,10 @@ import gw.lang.reflect.IEnumValue;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.java.IJavaType;
-import org.jschema.model.JsonList;
-import org.jschema.model.JsonMap;
-import org.jschema.typeloader.IJSchemaType;
-import org.jschema.util.JSchemaUtils;
+import goson.model.JsonList;
+import goson.model.JsonMap;
+import goson.typeloader.IJSchemaType;
+import goson.util.JSchemaUtils;
 
 import java.lang.Object;
 import java.math.BigDecimal;

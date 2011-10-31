@@ -1,4 +1,4 @@
-package org.jschema.rpc;
+package goson.rpc;
 
 import gw.util.GosuExceptionUtil;
 

@@ -1,4 +1,4 @@
-package org.jschema.typeloader;
+package goson.typeloader;
 
 import gw.fs.IFile;
 import gw.lang.reflect.IType;
@@ -9,10 +9,10 @@ import gw.lang.reflect.module.IResourceAccess;
 import gw.util.GosuExceptionUtil;
 import gw.util.Pair;
 import gw.util.concurrent.LazyVar;
-import org.jschema.parser.JsonParseException;
-import org.jschema.typeloader.rpc.JSchemaCustomizedRPCType;
-import org.jschema.typeloader.rpc.JSchemaRPCType;
-import org.jschema.util.JSchemaUtils;
+import goson.parser.JsonParseException;
+import goson.typeloader.rpc.JSchemaCustomizedRPCType;
+import goson.typeloader.rpc.JSchemaRPCType;
+import goson.util.JSchemaUtils;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;

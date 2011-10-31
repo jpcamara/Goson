@@ -1,4 +1,4 @@
-package org.jschema.typeloader;
+package goson.typeloader;
 
 import gw.lang.reflect.*;
 

@@ -1,4 +1,4 @@
-package org.jschema.parser;
+package goson.parser;
 
 
 public enum JSONTokenType {
