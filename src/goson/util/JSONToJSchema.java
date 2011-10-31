@@ -1,12 +1,13 @@
 package goson.util;
 
-import gw.lang.reflect.java.IJavaType;
 import goson.parser.JSONParser;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -18,6 +19,7 @@ public class JSONToJSchema {
   public static void main(String[] arguments) throws IOException {
     List<String> args = java.util.Arrays.asList(arguments);
     validateArgs(args);
+//    loadGosu();
 
     File jsonFile = new File(args.get(1));
     String jsonContent = null;
@@ -33,14 +35,13 @@ public class JSONToJSchema {
       scan.close();
     }
 
-    Map json = (Map) new JSONParser(jsonContent, IJavaType.MAP).parseJSONFragment();
+    Map json = (Map) new JSONParser(jsonContent).parseJSONFragment();
     Map jschema = (Map) JSchemaUtils.convertJsonToJSchema(json);
     if (args.size() == 2) {
       System.out.println(JSchemaUtils.serializeJson(jschema));
     } else {
       writeFile(args.get(3), JSchemaUtils.serializeJson(jschema));
     }
-
   }
 
   private static void validateArgs(List<String> args) {
@@ -60,6 +61,24 @@ public class JSONToJSchema {
       }
     }
   }
+
+//  private static void loadGosu() {
+//    String gosuHome = System.getenv("GOSU_HOME");
+//    if (gosuHome == null) {
+//      throw new RuntimeException("GOSU_HOME needs to be set for the utility to work properly");
+//    }
+//    try {
+//      URLClassLoader loader = URLClassLoader.newInstance(new URL[] {
+//              new File(gosuHome + "/ext/").toURI().toURL(),
+//              new File(gosuHome + "/jars/").toURI().toURL()
+//      }, JSONToJSchema.class.getClassLoader());
+//      Class.forName("gw.lang.reflect.IType", true, loader);
+//    } catch (MalformedURLException e) {
+//      throw new RuntimeException("GOSU_HOME needs to be set for the utility to work properly", e);
+//    } catch (ClassNotFoundException e) {
+//      throw new RuntimeException("GOSU_HOME needs to be set for the utility to work properly", e);
+//    }
+//  }
 
   private static void writeFile(String fileName, String content) throws IOException {
     File outputFile = new File(fileName);

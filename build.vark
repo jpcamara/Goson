@@ -17,6 +17,7 @@ if (gosuHome == null) {
 } 
 var gosuDir = file("${gosuHome}/jars")
 var gosuExtDir = file("${gosuHome}/jars")
+var jarName = "goson-0.1.jar"
 
 function deps() {
   Ivy.retrieve(:sync = true, :log = "download-only")
@@ -76,9 +77,20 @@ function test() {
 @Depends("compile")
 function jar() {
   Ant.mkdir(:dir = distDir)
-  Ant.jar(:destfile = distDir.file("goson.jar"),
+  Ant.jar(:destfile = distDir.file("${jarName}"),
           :manifest = classesDir.file("META-INF/MANIFEST.MF"),
           :basedir = classesDir)
+}
+
+@Depends("jar")
+function runJar() {
+  Ant.java(
+    :jar = file("build/dist/${jarName}"),
+    :args = "-json test/goson/examples/json/GithubCreate.json -jschema sample.jsc",
+    :fork = true
+  )
+  print(file("sample.jsc").exists())
+  Ant.delete(:file = file("sample.jsc"))
 }
 
 function clean() {
