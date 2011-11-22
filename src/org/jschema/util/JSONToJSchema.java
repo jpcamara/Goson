@@ -1,6 +1,7 @@
 package org.jschema.util;
 
 import gw.lang.reflect.java.IJavaType;
+import gw.lang.reflect.java.JavaTypes;
 import org.jschema.parser.JSONParser;
 
 import java.io.File;
@@ -33,7 +34,7 @@ public class JSONToJSchema {
       scan.close();
     }
 
-    Map json = (Map) new JSONParser(jsonContent, IJavaType.MAP).parseJSONFragment();
+    Map json = (Map) new JSONParser(jsonContent, JavaTypes.MAP()).parseJSONFragment();
     Map jschema = (Map) JSchemaUtils.convertJsonToJSchema(json);
     if (args.size() == 2) {
       System.out.println(JSchemaUtils.serializeJson(jschema));

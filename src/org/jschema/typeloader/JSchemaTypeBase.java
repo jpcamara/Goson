@@ -2,17 +2,15 @@ package org.jschema.typeloader;
 
 import gw.lang.reflect.*;
 import gw.lang.reflect.java.IJavaType;
+import gw.lang.reflect.java.JavaTypes;
 import gw.util.GosuClassUtil;
-import gw.util.concurrent.LazyVar;
+import gw.util.concurrent.LockingLazyVar;
 import org.jschema.model.JsonList;
 import org.jschema.model.JsonMap;
 import org.jschema.util.JSchemaUtils;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 public abstract class JSchemaTypeBase extends TypeBase implements IJSchemaType {
@@ -20,22 +18,22 @@ public abstract class JSchemaTypeBase extends TypeBase implements IJSchemaType {
 
   private static final Map<String, IJavaType> TYPES = new HashMap<String, IJavaType>();
   static {
-    TYPES.put("number", IJavaType.BIGDECIMAL);
-    TYPES.put("int", IJavaType.LONG);
-    TYPES.put("string", IJavaType.STRING);
-    TYPES.put("date", IJavaType.DATE);
+    TYPES.put("number", JavaTypes.BIG_DECIMAL());
+    TYPES.put("int", JavaTypes.LONG());
+    TYPES.put("string", JavaTypes.STRING());
+    TYPES.put("date", JavaTypes.DATE());
     TYPES.put("uri", (IJavaType) TypeSystem.get(URI.class));
-    TYPES.put("boolean", IJavaType.BOOLEAN);
-    TYPES.put("enum", IJavaType.ENUM);
-    TYPES.put("map_of", IJavaType.MAP);
-    TYPES.put("object", IJavaType.OBJECT);
+    TYPES.put("boolean", JavaTypes.BOOLEAN());
+    TYPES.put("enum", JavaTypes.ENUM());
+    TYPES.put("map_of", JavaTypes.MAP());
+    TYPES.put("object", JavaTypes.OBJECT());
   }
 
   private String relativeName;
   private String packageName;
   private String fullName;
   private ITypeLoader loader;
-  private LazyVar<ITypeInfo> typeInfo;
+  private LockingLazyVar<ITypeInfo> typeInfo;
   private Logger logger = Logger.getLogger(getClass().getName());
   private Map<String, IType> _innerClasses;
 
@@ -44,7 +42,7 @@ public abstract class JSchemaTypeBase extends TypeBase implements IJSchemaType {
     this.packageName = GosuClassUtil.getPackage(name);
     this.fullName = name;
     this.loader = typeloader;
-    this.typeInfo = new LazyVar<ITypeInfo>() {
+    this.typeInfo = new LockingLazyVar<ITypeInfo>() {
       @Override
       protected ITypeInfo init() {
         return initTypeInfo(object);
@@ -62,6 +60,16 @@ public abstract class JSchemaTypeBase extends TypeBase implements IJSchemaType {
 
   public void addInnerClass(IType innerClass) {
     _innerClasses.put(innerClass.getRelativeName(), innerClass);
+  }
+
+  @Override
+  public List<? extends IType> getInnerClasses() {
+    return new ArrayList<IType>(_innerClasses.values());
+  }
+
+  @Override
+  public List<? extends IType> getLoadedInnerClasses() {
+    return getInnerClasses();
   }
 
   @Override
@@ -89,7 +97,7 @@ public abstract class JSchemaTypeBase extends TypeBase implements IJSchemaType {
       return TypeSystem.get(JsonList.class).getParameterizedType(resolveInnerType(fqn, ((List) value).get(0)));
     }
     //TODO cgross - this should be a verification error
-    return IJavaType.OBJECT;
+    return JavaTypes.OBJECT();
   }
 
   @Override
@@ -133,7 +141,7 @@ public abstract class JSchemaTypeBase extends TypeBase implements IJSchemaType {
 
   @Override
   public IType getSupertype() {
-    return IJavaType.OBJECT;
+    return JavaTypes.OBJECT();
   }
 
   @Override

@@ -1,7 +1,7 @@
 package org.jschema.parser;
 
 import gw.lang.reflect.TypeSystem;
-import gw.lang.reflect.java.IJavaType;
+import gw.lang.reflect.java.JavaTypes;
 import org.jschema.test.GosonTest;
 import org.jschema.util.JSchemaUtils;
 
@@ -120,10 +120,10 @@ public class JSONParserTest extends GosonTest {
     URI email = new URI("mailto:test@test.com");
     assertEquals(email, JSchemaUtils.parseJson(JSchemaUtils.serializeJson(email), TypeSystem.get(URI.class)));
 
-    Object val = JSchemaUtils.parseJson("[\"http://example.com\"]", IJavaType.LIST.getParameterizedType(TypeSystem.get(URI.class)));
+    Object val = JSchemaUtils.parseJson("[\"http://example.com\"]", JavaTypes.LIST().getParameterizedType(TypeSystem.get(URI.class)));
     assertEquals(Arrays.asList(new URI("http://example.com")), val);
 
-    Object val2 = JSchemaUtils.parseJson("{\"foo\" : \"http://example.com\"}", IJavaType.MAP.getParameterizedType(IJavaType.STRING, TypeSystem.get(URI.class)));
+    Object val2 = JSchemaUtils.parseJson("{\"foo\" : \"http://example.com\"}", JavaTypes.MAP().getParameterizedType(JavaTypes.STRING(), TypeSystem.get(URI.class)));
     Map m = new HashMap();
     m.put("foo", new URI("http://example.com"));
     assertEquals(m, val2);
@@ -135,53 +135,53 @@ public class JSONParserTest extends GosonTest {
   }
 
   public void testDateParsing() {
-    assertEquals(makeDate(1999, 1, 1, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 1, 1, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-01\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 1, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 1, 2, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-01-02\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T00:00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T00:00:00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T00:00:00.00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T00:00:00.00Z\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T00:00:00.00+00:00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T00:00:00.00-00:00\"", IJavaType.DATE));
+    assertEquals(makeDate(1999, 1, 1, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 1, 1, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-01\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 1, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 1, 2, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-01-02\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T00:00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T00:00:00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T00:00:00.00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T00:00:00.00Z\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T00:00:00.00+00:00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 0, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T00:00:00.00-00:00\"", JavaTypes.DATE()));
 
-    assertEquals(makeDate(1999, 12, 31, 1, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:00:00.00-00:00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 23, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:00:00.00-00:00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 1, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:00:00.00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 23, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:00:00.00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 1, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:00:00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 23, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:00:00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 1, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 23, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:00\"", IJavaType.DATE));
+    assertEquals(makeDate(1999, 12, 31, 1, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:00:00.00-00:00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 23, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:00:00.00-00:00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 1, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:00:00.00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 23, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:00:00.00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 1, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:00:00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 23, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:00:00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 1, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 23, 0, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:00\"", JavaTypes.DATE()));
 
-    assertEquals(makeDate(1999, 12, 31, 1, 1, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:01:00.00-00:00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 23, 59, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:59:00.00-00:00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 1, 1, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:01:00.00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 23, 59, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:59:00.00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 1, 1, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:01:00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 23, 59, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:59:00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 1, 1, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:01\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 23, 59, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:59\"", IJavaType.DATE));
+    assertEquals(makeDate(1999, 12, 31, 1, 1, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:01:00.00-00:00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 23, 59, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:59:00.00-00:00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 1, 1, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:01:00.00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 23, 59, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:59:00.00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 1, 1, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:01:00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 23, 59, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:59:00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 1, 1, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:01\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 23, 59, 0, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:59\"", JavaTypes.DATE()));
 
-    assertEquals(makeDate(1999, 12, 31, 1, 1, 1, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:01:01.00-00:00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 23, 59, 59, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:59:59.00-00:00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 1, 1, 1, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:01:01.00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 23, 59, 59, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:59:59.00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 1, 1, 1, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:01:01\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 23, 59, 59, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:59:59\"", IJavaType.DATE));
+    assertEquals(makeDate(1999, 12, 31, 1, 1, 1, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:01:01.00-00:00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 23, 59, 59, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:59:59.00-00:00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 1, 1, 1, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:01:01.00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 23, 59, 59, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:59:59.00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 1, 1, 1, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:01:01\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 23, 59, 59, 0, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:59:59\"", JavaTypes.DATE()));
 
-    assertEquals(makeDate(1999, 12, 31, 1, 1, 1, 10, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:01:01.01-00:00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 23, 59, 59, 999, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:59:59.999-00:00\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 1, 1, 1, 10, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:01:01.01\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 23, 59, 59, 999, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:59:59.999\"", IJavaType.DATE));
+    assertEquals(makeDate(1999, 12, 31, 1, 1, 1, 10, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:01:01.01-00:00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 23, 59, 59, 999, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:59:59.999-00:00\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 1, 1, 1, 10, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T01:01:01.01\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 23, 59, 59, 999, 0, 0), JSchemaUtils.parseJson("\"1999-12-31T23:59:59.999\"", JavaTypes.DATE()));
 
-    assertEquals(makeDate(1999, 12, 31, 1, 1, 1, 10, -10, 30), JSchemaUtils.parseJson("\"1999-12-31T01:01:01.01-10:30\"", IJavaType.DATE));
-    assertEquals(makeDate(1999, 12, 31, 23, 59, 59, 999, 10, 30), JSchemaUtils.parseJson("\"1999-12-31T23:59:59.999+10:30\"", IJavaType.DATE));
+    assertEquals(makeDate(1999, 12, 31, 1, 1, 1, 10, -10, 30), JSchemaUtils.parseJson("\"1999-12-31T01:01:01.01-10:30\"", JavaTypes.DATE()));
+    assertEquals(makeDate(1999, 12, 31, 23, 59, 59, 999, 10, 30), JSchemaUtils.parseJson("\"1999-12-31T23:59:59.999+10:30\"", JavaTypes.DATE()));
 
     try{
-      JSchemaUtils.parseJson("\"1999-12-31T23:59.999+10:30\"", IJavaType.DATE);
+      JSchemaUtils.parseJson("\"1999-12-31T23:59.999+10:30\"", JavaTypes.DATE());
       fail("Exception not thrown");
     }
     catch(JsonParseException jpe){
@@ -206,7 +206,7 @@ public class JSONParserTest extends GosonTest {
   public void testParserGathersError()
   {
     try{
-      JSchemaUtils.parseJson("\"1999-12-31T23:59.999+10:30\"", IJavaType.DATE);
+      JSchemaUtils.parseJson("\"1999-12-31T23:59.999+10:30\"", JavaTypes.DATE());
       fail("Exception not thrown");
     }
     catch(JsonParseException jpe){

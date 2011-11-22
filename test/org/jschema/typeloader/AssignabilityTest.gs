@@ -3,7 +3,7 @@ package org.jschema.typeloader
 uses java.util.*
 uses java.lang.*
 uses java.math.*
-uses org.jschema.test.*
+uses org.jschema.test.GosonTest
 uses org.jschema.rpc.*
 uses org.jschema.examples.rpc.*
 

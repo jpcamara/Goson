@@ -56,7 +56,7 @@ public class GosonSuite extends TestSuite {
 
       // check to see if there is a JSchemaTypeLoader around, and create one if not
       if (TypeSystem.getTypeLoader(JSchemaTypeLoader.class) == null) {
-        TypeSystem.pushGlobalTypeLoader(new JSchemaTypeLoader(TypeSystem.getCurrentModule()));
+        TypeSystem.pushTypeLoader(new JSchemaTypeLoader(TypeSystem.getCurrentModule()));
       }
 
       TypeSystem.refresh(true);

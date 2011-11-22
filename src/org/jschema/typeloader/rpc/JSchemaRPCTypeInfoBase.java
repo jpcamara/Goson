@@ -13,6 +13,7 @@ import gw.lang.reflect.ParameterInfoBuilder;
 import gw.lang.reflect.PropertyInfoBuilder;
 import gw.lang.reflect.TypeInfoBase;
 import gw.lang.reflect.java.IJavaType;
+import gw.lang.reflect.java.JavaTypes;
 import gw.util.GosuExceptionUtil;
 import gw.util.GosuStringUtil;
 import org.jschema.rpc.JSchemaRPCException;
@@ -105,7 +106,7 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
       Object returnTypeSpec = function.get("returns");
       final IType returnType;
       if (returnTypeSpec == null) {
-        returnType = IJavaType.pVOID;
+        returnType = JavaTypes.pVOID();
       } else {
         returnType = getOwnersType().resolveInnerType(functionTypeName, returnTypeSpec);
       }

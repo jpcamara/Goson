@@ -5,13 +5,12 @@ import gw.lang.reflect.IEnumType;
 import gw.lang.reflect.IEnumValue;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeSystem;
-import gw.lang.reflect.java.IJavaType;
+import gw.lang.reflect.java.JavaTypes;
 import org.jschema.model.JsonList;
 import org.jschema.model.JsonMap;
 import org.jschema.typeloader.IJSchemaType;
 import org.jschema.util.JSchemaUtils;
 
-import java.lang.Object;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.*;
@@ -137,7 +136,7 @@ public class JSONParser {
   }
 
   private Date parseDate() {
-    if (IJavaType.DATE.equals(_currentType)) {
+    if (JavaTypes.DATE().equals(_currentType)) {
       String s = parseString();
       if (s != null) {
         return JSchemaUtils.parseDate(s);
@@ -186,7 +185,7 @@ public class JSONParser {
     if (_currentToken.isNumber()) {
       String value = _currentToken.getValue();
       consumeToken();
-      if (value.contains(".") || value.contains("e") || value.contains("E") || IJavaType.BIGDECIMAL.equals(_currentType)) {
+      if (value.contains(".") || value.contains("e") || value.contains("E") || JavaTypes.BIG_DECIMAL().equals(_currentType)) {
         if (leadingNegative) {
           return new BigDecimal("-" + value);
         } else {
@@ -260,7 +259,7 @@ public class JSONParser {
         IType lstType = _currentType;
         try {
           if (lstType != null) {
-            IType parameterizedType = TypeLord.findParameterizedType(lstType, IJavaType.LIST.getGenericType());
+            IType parameterizedType = TypeLord.findParameterizedType(lstType, JavaTypes.LIST().getGenericType());
             if (parameterizedType != null) {
              _currentType = parameterizedType.getTypeParameters()[0];
             }
@@ -295,8 +294,8 @@ public class JSONParser {
         }
 
         IType mapValueType = null;
-        if (ctxType != null && IJavaType.MAP.isAssignableFrom(ctxType)) {
-          IType parameterizedType = TypeLord.findParameterizedType(ctxType, IJavaType.MAP.getGenericType());
+        if (ctxType != null && JavaTypes.MAP().isAssignableFrom(ctxType)) {
+          IType parameterizedType = TypeLord.findParameterizedType(ctxType, JavaTypes.MAP().getGenericType());
           if (parameterizedType != null && parameterizedType.getTypeParameters() != null) {
             mapValueType = parameterizedType.getTypeParameters()[1];
           }
