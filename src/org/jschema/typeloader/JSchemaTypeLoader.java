@@ -110,7 +110,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
       IType iType = rawTypes.get(name);
       IType outerType = rawTypes.get(iType.getNamespace());
       if (outerType instanceof IJSchemaType) {
-        ((IJSchemaType) outerType).addInnerClass(TypeSystem.getTypeReference(iType));
+        ((IJSchemaType) outerType).addInnerClass(iType);
       }
     }
   }
