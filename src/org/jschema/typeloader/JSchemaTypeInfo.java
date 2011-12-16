@@ -2,9 +2,9 @@ package org.jschema.typeloader;
 
 import gw.internal.gosu.parser.ClassAnnotationInfo;
 import gw.lang.Autoinsert;
+import gw.lang.GosuShop;
 import gw.lang.annotation.Annotations;
 import gw.lang.function.Function0;
-import gw.lang.parser.ISymbol;
 import gw.lang.reflect.*;
 import gw.lang.reflect.IRelativeTypeInfo.Accessibility;
 import gw.lang.reflect.java.JavaTypes;
@@ -66,7 +66,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
         .withParameters(new ParameterInfoBuilder()
           .withType(JavaTypes.INTEGER())
           .withName("indent")
-          .withDefValue(ISymbol.NULL_DEFAULT_VALUE))
+          .withDefValue(GosuShop.getNullExpressionInstance()))
         .withReturnType(JavaTypes.STRING())
         .withStatic(true)
         .withCallHandler(new IMethodCallHandler() {
@@ -216,7 +216,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
         .withName("url"),
         new ParameterInfoBuilder()
           .withType(JavaTypes.MAP().getParameterizedType(JavaTypes.STRING(), JavaTypes.OBJECT()))
-          .withDefValue(ISymbol.NULL_DEFAULT_VALUE)
+          .withDefValue(GosuShop.getNullExpressionInstance())
           .withName("args")
       )
       .withReturnType(producedType)
@@ -237,7 +237,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
         .withName("url"),
         new ParameterInfoBuilder()
           .withType(JavaTypes.MAP().getParameterizedType(JavaTypes.STRING(), JavaTypes.OBJECT()))
-          .withDefValue(ISymbol.NULL_DEFAULT_VALUE)
+          .withDefValue(GosuShop.getNullExpressionInstance())
           .withName("args")
       )
       .withReturnType(producedType)

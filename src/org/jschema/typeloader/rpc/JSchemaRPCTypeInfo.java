@@ -1,11 +1,11 @@
 package org.jschema.typeloader.rpc;
 
-import gw.lang.parser.ISymbol;
+import gw.lang.GosuShop;
 import gw.lang.reflect.*;
 import org.jschema.rpc.*;
 
-import java.util.*;
-import java.util.concurrent.Callable;
+import java.util.List;
+import java.util.Map;
 
 public class JSchemaRPCTypeInfo extends JSchemaRPCTypeInfoBase
 {
@@ -33,27 +33,27 @@ public class JSchemaRPCTypeInfo extends JSchemaRPCTypeInfoBase
         new ParameterInfoBuilder()
           .withName("handler")
           .withType(TypeSystem.get(RPCCallHandler.class))
-          .withDefValue(ISymbol.NULL_DEFAULT_VALUE),
+          .withDefValue(GosuShop.getNullExpressionInstance()),
         new ParameterInfoBuilder()
           .withName("url")
           .withType(TypeSystem.get(String.class))
-          .withDefValue(ISymbol.NULL_DEFAULT_VALUE),
+          .withDefValue(GosuShop.getNullExpressionInstance()),
         new ParameterInfoBuilder()
           .withName("method")
           .withType(TypeSystem.get(HttpMethod.class))
-          .withDefValue(ISymbol.NULL_DEFAULT_VALUE),
+          .withDefValue(GosuShop.getNullExpressionInstance()),
         new ParameterInfoBuilder()
           .withName("includeNulls")
           .withType(TypeSystem.get(Boolean.class))
-          .withDefValue(ISymbol.NULL_DEFAULT_VALUE),
+          .withDefValue(GosuShop.getNullExpressionInstance()),
         new ParameterInfoBuilder()
           .withName("logger")
           .withType(TypeSystem.get(RPCLoggerCallback.class))
-          .withDefValue(ISymbol.NULL_DEFAULT_VALUE),
+          .withDefValue(GosuShop.getNullExpressionInstance()),
         new ParameterInfoBuilder()
           .withName("wrapper")
           .withType(TypeSystem.get(RPCInvocationWrapper.class))
-          .withDefValue(ISymbol.NULL_DEFAULT_VALUE)
+          .withDefValue(GosuShop.getNullExpressionInstance())
       )
       .withReturnType(TypeSystem.getByFullName(getOwnersType().getName() + JSchemaCustomizedRPCType.TYPE_SUFFIX))
       .withCallHandler(new IMethodCallHandler() {

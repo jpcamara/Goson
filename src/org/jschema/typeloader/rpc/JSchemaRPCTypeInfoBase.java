@@ -1,18 +1,7 @@
 package org.jschema.typeloader.rpc;
 
-import gw.lang.parser.ISymbol;
-import gw.lang.reflect.IAnnotationInfo;
-import gw.lang.reflect.IConstructorInfo;
-import gw.lang.reflect.IMethodCallHandler;
-import gw.lang.reflect.IMethodInfo;
-import gw.lang.reflect.IPropertyAccessor;
-import gw.lang.reflect.IPropertyInfo;
-import gw.lang.reflect.IType;
-import gw.lang.reflect.MethodInfoBuilder;
-import gw.lang.reflect.ParameterInfoBuilder;
-import gw.lang.reflect.PropertyInfoBuilder;
-import gw.lang.reflect.TypeInfoBase;
-import gw.lang.reflect.java.IJavaType;
+import gw.lang.GosuShop;
+import gw.lang.reflect.*;
 import gw.lang.reflect.java.JavaTypes;
 import gw.util.GosuExceptionUtil;
 import gw.util.GosuStringUtil;
@@ -23,12 +12,7 @@ import org.jschema.rpc.RPCLoggerCallback;
 import org.jschema.util.JSchemaUtils;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
@@ -97,7 +81,7 @@ public abstract class JSchemaRPCTypeInfoBase extends TypeInfoBase {
             pib.withDescription(argDescription);
           }
           if (defaultValue != null) {
-            pib.withDefValue(ISymbol.NULL_DEFAULT_VALUE);
+            pib.withDefValue(GosuShop.getNullExpressionInstance());
           }
           argBuilders.add(pib);
         }
