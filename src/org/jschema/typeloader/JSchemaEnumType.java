@@ -45,6 +45,15 @@ public class JSchemaEnumType extends JSchemaType implements IJSchemaEnumType {
     return null;
   }
 
+  @Override
+  public List<String> getEnumConstants() {
+    ArrayList<String> strings = new ArrayList<String>();
+    for (IEnumValue iEnumValue : getEnumValues()) {
+      strings.add(iEnumValue.getCode());
+    }
+    return strings;
+  }
+
   public static String enumify(String original) {
     return original.replaceAll("\\s", "_").toUpperCase();
   }
