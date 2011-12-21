@@ -1,6 +1,5 @@
 package org.jschema.typeloader;
 
-import com.sun.tools.internal.xjc.api.Mapping;
 import gw.lang.IReentrant;
 import gw.util.GosuExceptionUtil;
 import org.eclipse.jetty.server.Server;
