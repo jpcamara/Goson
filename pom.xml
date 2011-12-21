@@ -22,20 +22,21 @@
       <url>http://gosu-lang.org/m2</url>
     </repository>
   </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <id>gosu-lang.org</id>
+      <name>Official Gosu website</name>
+      <url>http://gosu-lang.org/m2</url>
+    </pluginRepository>
+  </pluginRepositories>
 
   <dependencies>
-    <dependency>
-      <groupId>gw</groupId>
-      <artifactId>gosu</artifactId>
-      <version>0.9-SNAPSHOT</version>
-      <type>pom</type>
-    </dependency>
-    <dependency> <!-- TODO - remove me -->
-      <groupId>gw</groupId>
-      <artifactId>gosu-core</artifactId>
-      <version>0.9-SNAPSHOT</version>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
@@ -79,6 +80,23 @@
       </testResource>
     </testResources>
     <plugins>
+      <plugin>
+        <groupId>org.gosu-lang</groupId>
+        <artifactId>maven-gosu-plugin</artifactId>
+        <version>1.0</version>
+        <executions>
+          <execution>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>insert-gosu-artifact</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <gosuVersion>0.9-SNAPSHOT</gosuVersion>
+          <includeImpl>true</includeImpl> <!-- TODO: remove me -->
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
