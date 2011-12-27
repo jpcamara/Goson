@@ -79,20 +79,37 @@ public class JSONToken {
 
   public JSONToken removeTokens( JSONTokenType... typesToRemove )
   {
-    if( this == EOF )
-    {
-      return this;
+    JSONToken first = null;
+    JSONToken previous = null;
+    JSONToken current = this;
+    while( current != EOF ) {
+      if (!isMatch(current, typesToRemove)) {
+        JSONToken copy = new JSONToken(current._type, current._value, current._line, current._col, current._start, current._end);
+        if (current.nextToken() == EOF) {
+          copy.setNext(EOF);
+        }
+        if (first == null) {
+          first = copy;
+        }
+        if (previous != null) {
+          previous.setNext(copy);
+        }
+        previous = copy;
+      }
+      current = current.nextToken();
     }
+    return first == null ? EOF : first;
+  }
+
+  private boolean isMatch(JSONToken token, JSONTokenType[] typesToRemove) {
     for( JSONTokenType JSONTokenType : typesToRemove )
     {
-      if( this._type == JSONTokenType )
+      if( token._type == JSONTokenType )
       {
-        return nextToken().removeTokens( typesToRemove );
+        return true;
       }
     }
-    JSONToken copy = new JSONToken( _type, _value, _line, _col, _start, _end );
-    copy.setNext( nextToken().removeTokens( typesToRemove ) );
-    return copy;
+    return false;
   }
 
 

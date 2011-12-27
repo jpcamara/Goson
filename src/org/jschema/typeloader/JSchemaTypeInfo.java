@@ -12,6 +12,8 @@ import gw.util.concurrent.LockingLazyVar;
 import org.jschema.model.JsonList;
 import org.jschema.model.JsonMap;
 import org.jschema.model.JsonObject;
+import org.jschema.rpc.RPCDefaults;
+import org.jschema.rpc.RPCLoggerCallback;
 import org.jschema.rpc.SimpleRPCCallHandler;
 import org.jschema.util.JSchemaUtils;
 
@@ -225,7 +227,15 @@ public class JSchemaTypeInfo extends TypeInfoBase {
         @Override
         public Object handleCall(Object ctx, Object... args) {
           Map<String, String> fixedArgs = fixArgs((Map) args[1]);
-          return JSchemaUtils.parseJson(SimpleRPCCallHandler.doGet((String) args[0], fixedArgs), producedType);
+          RPCLoggerCallback logger = RPCDefaults.getLogger();
+          if (logger != null) {
+            logger.log("Calling " + args[0] + " with args " + fixedArgs);
+          }
+          String response = SimpleRPCCallHandler.doGet((String) args[0], fixedArgs);
+          if (logger != null) {
+            logger.log("Got response " + response);
+          }
+          return JSchemaUtils.parseJson(response, producedType);
         }
       })
       .build(owner));
