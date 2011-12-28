@@ -37,6 +37,15 @@
     </pluginRepository>
   </pluginRepositories>
 
+  <distributionManagement>
+    <repository>
+      <uniqueVersion>true</uniqueVersion>
+      <id>gosu-lang.org</id>
+      <url>scp://gosu-lang.org/var/www/html/m2</url>
+      <layout>default</layout>
+    </repository>
+  </distributionManagement>
+
   <dependencies>
     <dependency>
       <groupId>javax.servlet</groupId>
@@ -124,6 +133,13 @@
         </configuration>
       </plugin>
     </plugins>
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+         <artifactId>wagon-ssh</artifactId>
+         <version>2.1</version>
+      </extension>
+    </extensions>
   </build>
 
 </project>
