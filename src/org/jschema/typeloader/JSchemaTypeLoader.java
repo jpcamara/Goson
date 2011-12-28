@@ -239,7 +239,15 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
               }
             }
             // add the return type
-            addTypes(types, typeDefs, functionTypeName, ((Map) function).get("returns"), file, fileMapping);
+            Object returns = ((Map) function).get("returns");
+            if (returns != null) {
+              addTypes(types, typeDefs, functionTypeName, returns, file, fileMapping);
+            }
+
+            if (types.get(functionTypeName) == null) {
+              // add in a dummy type to hold inner classes
+              addTypes(types, typeDefs, functionTypeName, new HashMap(), file, fileMapping);
+            }
           }
         }
       }

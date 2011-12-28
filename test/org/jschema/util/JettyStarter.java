@@ -1,4 +1,4 @@
-package org.jschema.typeloader;
+package org.jschema.util;
 
 import gw.lang.IReentrant;
 import gw.util.GosuExceptionUtil;
