@@ -13,8 +13,15 @@ uses org.jschema.examples.rpc.Sample1.UpdateEmployee.Employee
 uses org.jschema.examples.rpc.Sample2
 uses org.jschema.examples.rpc.Adder
 uses org.jschema.examples.rpc.ReturnsArrays
+uses org.jschema.util.JettyStarter
+uses gw.lang.reflect.*
 
 class JSchemaRPCTypesTest extends GosonTest {
+
+  function testSample1Loads() {
+    var type = TypeSystem.getByFullName("org.jschema.examples.rpc.Sample1")
+    assertTrue(type.Valid)
+  }
 
  function testBootstrapFile() {
    var emp = Sample1

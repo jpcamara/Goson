@@ -82,8 +82,11 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
   public List<IType> refreshedFile(IFile file) {
     List<IType> types = _filesToTypes.get(file);
     if (types == null) {
-      return Collections.emptyList();
-    } else {
+      types = Collections.emptyList();
+    }
+    if (file.getExtension().equals(JSC_EXT) ||
+        file.getExtension().equals(JSC_RPC_EXT) ||
+        file.getExtension().equals(JSON_EXT)) {
       _rawTypes.clear();
       _filesToTypes.clear();
       if (file.getExtension().equals(JSC_EXT)) {
@@ -95,8 +98,8 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
       if (file.getExtension().equals(JSON_EXT)) {
         _jsonFiles.clear();
       }
-      return types;
     }
+    return types;
   }
 
   private void convertToJSchemaAndAddRootType(Map<String, IJSchemaType> rawTypes, JsonFile jsonFile, IFile file, Map<IFile, List<IType>> fileMapping) {
@@ -239,7 +242,15 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
               }
             }
             // add the return type
-            addTypes(types, typeDefs, functionTypeName, ((Map) function).get("returns"), file, fileMapping);
+            Object returns = ((Map) function).get("returns");
+            if (returns != null) {
+              addTypes(types, typeDefs, functionTypeName, returns, file, fileMapping);
+            }
+
+            if (types.get(functionTypeName) == null) {
+              // add in a dummy type to hold inner classes
+              addTypes(types, typeDefs, functionTypeName, new HashMap(), file, fileMapping);
+            }
           }
         }
       }

@@ -153,7 +153,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
           }
         }).build(this));
 
-      ITypeVariableType typeVar2 = TypeSystem.getOrCreateTypeVariableType("T", JavaTypes.OBJECT(), getOwnersType());
+      ITypeVariableType typeVar2 = TypeSystem.getOrCreateTypeVariableType("T", JavaTypes.OBJECT(), TypeSystem.getTypeReference(getOwnersType()));
       IType typeVarType2 = TypeSystem.getTypeFromObject(typeVar2);
       _findMethod = new MethodInfoBuilder()
         .withName("find")
