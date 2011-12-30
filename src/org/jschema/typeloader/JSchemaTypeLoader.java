@@ -81,9 +81,6 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
   @Override
   public List<IType> refreshedFile(IFile file) {
     List<String> typeNames = _filesToTypes.get(file);
-    System.out.println("--------");
-    System.out.println(_filesToTypes);
-    System.out.println(typeNames);
     if (typeNames == null) {
       typeNames = Collections.emptyList();
     }
@@ -109,9 +106,6 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
         types.add(type);
       }
     }
-    System.out.println("---");
-    System.out.println(types);
-    System.out.println("---");
     return types;
   }
 
