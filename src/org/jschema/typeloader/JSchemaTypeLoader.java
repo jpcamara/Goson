@@ -84,7 +84,6 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
   @Override
   public List<IType> refreshedFile(IFile file) {
     List<String> typeNames = getTypeNamesForFile(file);
-    System.out.println("Refreshed file " + file.getPath() + " with types " + typeNames);
     if (file.getExtension().equals(JSC_EXT) ||
         file.getExtension().equals(JSC_RPC_EXT) ||
         file.getExtension().equals(JSON_EXT)) {
@@ -113,7 +112,6 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
   public List<IType> getTypesForFile(IFile file) {
     ArrayList<IType> types = new ArrayList<IType>();
     List<String> typeNamesForFile = getTypeNamesForFile(file);
-    System.out.println("Got types for file " + file.getPath() + " with types " + typeNamesForFile);
     for (String s : typeNamesForFile) {
       IType type = TypeSystem.getByFullNameIfValid(s);
       if (type != null) {
