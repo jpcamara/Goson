@@ -7,7 +7,6 @@ import org.jschema.model.JsonList;
 import org.jschema.model.JsonMap;
 import org.jschema.parser.JSONParser;
 import org.jschema.parser.JSchemaParser;
-import org.jschema.parser.JsonParseException;
 import org.jschema.typeloader.IJSchemaType;
 
 import java.math.BigDecimal;
@@ -35,6 +34,7 @@ public class JSchemaUtils {
 
   public static String convertJSONStringToGosuIdentifier(String name, boolean capitalizeFirst) {
     StringBuilder typeName = new StringBuilder();
+    name = name == null ? "" : name;
     String normalizedName = name.replaceAll("\\s", "_");
     for (String piece : normalizedName.split("_")) {
       if (capitalizeFirst) {
