@@ -8,6 +8,9 @@ import gw.lang.reflect.module.IModule;
 import gw.util.GosuExceptionUtil;
 import gw.util.Pair;
 import gw.util.concurrent.LockingLazyVar;
+import org.jschema.model.JsonMap;
+import org.jschema.parser.JSchemaParser;
+import org.jschema.parser.JsonParseError;
 import org.jschema.parser.JsonParseException;
 import org.jschema.typeloader.rpc.JSchemaCustomizedRPCType;
 import org.jschema.typeloader.rpc.JSchemaRPCType;
@@ -80,10 +83,8 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
 
   @Override
   public List<IType> refreshedFile(IFile file) {
-    List<String> typeNames = _filesToTypes.get(file);
-    if (typeNames == null) {
-      typeNames = Collections.emptyList();
-    }
+    List<String> typeNames = getTypeNamesForFile(file);
+    System.out.println("Refreshed file " + file.getPath() + " with types " + typeNames);
     if (file.getExtension().equals(JSC_EXT) ||
         file.getExtension().equals(JSC_RPC_EXT) ||
         file.getExtension().equals(JSON_EXT)) {
@@ -107,6 +108,28 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
       }
     }
     return types;
+  }
+
+  public List<IType> getTypesForFile(IFile file) {
+    ArrayList<IType> types = new ArrayList<IType>();
+    List<String> typeNamesForFile = getTypeNamesForFile(file);
+    System.out.println("Got types for file " + file.getPath() + " with types " + typeNamesForFile);
+    for (String s : typeNamesForFile) {
+      IType type = TypeSystem.getByFullNameIfValid(s);
+      if (type != null) {
+        types.add(type);
+      }
+    }
+    return types;
+  }
+
+  private List<String> getTypeNamesForFile(IFile file) {
+    maybeInitTypes(); //TODO cgross - this really, really needs to be lazy
+    List<String> typeNames = _filesToTypes.get(file);
+    if (typeNames == null) {
+      typeNames = Collections.emptyList();
+    }
+    return typeNames;
   }
 
   private void convertToJSchemaAndAddRootType(Map<String, IJSchemaType> rawTypes, JsonFile jsonFile, IFile file, Map<IFile, List<String>> fileMapping) {
@@ -133,9 +156,15 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
         jshFile.content = ((List) jshFile.content).get(0);
       }
       addTypes(rawTypes, typeDefs, jshFile.rootTypeName + ".Element", jshFile.content, file, fileMapping);
-      rawTypes.put(jshFile.rootTypeName, new JSchemaListWrapperType(jshFile.rootTypeName, this, depth, jshFile.content));
+      JSchemaListWrapperType rawType = new JSchemaListWrapperType(jshFile.rootTypeName, this, depth, jshFile.content);
+      rawTypes.put(jshFile.rootTypeName, rawType);
+      rawType.addErrors(jshFile.errors);
     } else {
       addTypes(rawTypes, typeDefs, jshFile.rootTypeName, jshFile.content, file, fileMapping);
+      IJSchemaType rootType = rawTypes.get(jshFile.rootTypeName);
+      if (rootType instanceof JSchemaTypeBase) {
+        ((JSchemaTypeBase) rootType).addErrors(jshFile.errors);
+      }
     }
   }
   
@@ -159,8 +188,9 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
             if (!JSchemaUtils.JSCHEMA_TYPEDEFS_KEY.equals(key)) {
               // RECURSION. This will call for every field in the definition. We rely on the if(o instanceof Map) thing up
               // there to cause those calls to be ignored.
-              addTypes(rawTypes, typeDefs, name + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(key.toString()),
-                jsonMap.get(key), file, fileMapping);
+              if (key != null) {
+                addTypes(rawTypes, typeDefs, name + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(key.toString()), jsonMap.get(key), file, fileMapping);
+              }
             }
           }
           putType(rawTypes, name, new JSchemaType(name, this, o, copyTypeDefs(typeDefs)), file, fileMapping);
@@ -220,7 +250,11 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
         for (Object function : (List) functions) {
           if (function instanceof Map) {
             Map functionMap = (Map) function;
-            String str = functionMap.get("name").toString();
+            Object name = functionMap.get("name");
+            if (name == null) {
+              name = "badName";
+            }
+            String str = name.toString();
             String functionTypeName =  jshRpcFile.rootTypeName + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(str);
 
             // add parameter names
@@ -263,6 +297,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
       }
       JSchemaRPCType rpcType = new JSchemaRPCType(jshRpcFile.rootTypeName, this, jshRpcFile.content, typeDefs.peek(), defaultValues, jshRpcFile.stringContent);
       putType(types, rpcType.getName(), rpcType, file, fileMapping);
+      rpcType.addErrors(jshRpcFile.errors);
 
       String customizedTypeName = jshRpcFile.rootTypeName + JSchemaCustomizedRPCType.TYPE_SUFFIX;
       JSchemaCustomizedRPCType rpcType2 = new JSchemaCustomizedRPCType(customizedTypeName, this, jshRpcFile.content, typeDefs.peek(), defaultValues, jshRpcFile.stringContent);
@@ -335,6 +370,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
     private String stringContent;
     private String rootTypeName;
     private IFile file;
+    private List<JsonParseError> errors;
 
     @Override
     public String toString() {
@@ -351,12 +387,18 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
           jsonString.append("\n");
         }
         stringContent = jsonString.toString();
-        content = JSchemaUtils.parseJSchema(stringContent);
       } catch (FileNotFoundException e) {
         throw new RuntimeException(e);
+      }
+      JSchemaParser parser = new JSchemaParser(stringContent);
+      try{
+        content = parser.parseJSchema();
       } catch (JsonParseException e) {
-        System.out.println("Unable to parse JSON file " + file.toJavaFile().getAbsolutePath());
-        System.out.println(e.getMessage());
+        content = parser.getValue();
+        if (content == null) {
+          content = new JsonMap();
+        }
+        errors = parser.getErrors();
       } finally {
         if (s != null) { s.close(); }
       }

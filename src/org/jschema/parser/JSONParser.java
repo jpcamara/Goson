@@ -20,6 +20,7 @@ public class JSONParser {
   protected JSONToken _currentToken;
   protected IType _currentType;
   protected List<JsonParseError> _errors = new ArrayList<JsonParseError>();
+  private Object _retVal;
 
   public JSONParser(String json, IType rootType) {
     _currentToken = JSONToken.tokenize(json).removeTokens(JSONTokenType.COMMENT);
@@ -42,13 +43,12 @@ public class JSONParser {
 
   public Object parseJSONDocument()
   {
-    Object retVal;
     _errors.clear();
-    retVal = parseObject();
-    if (retVal == null ) {
-      retVal = parseArray();
+    _retVal = parseObject();
+    if (_retVal == null ) {
+      _retVal = parseArray();
     }
-    if(retVal != null){
+    if(_retVal != null){
       if(_currentToken.isEOF() == false){
         badToken();
       }
@@ -60,7 +60,11 @@ public class JSONParser {
     if(_errors.size() != 0){
       throw(new JsonParseException(_errors));
     }
-    return(retVal);
+    return(_retVal);
+  }
+
+  public Object getValue() {
+    return _retVal;
   }
 
   /**
@@ -153,7 +157,7 @@ public class JSONParser {
         uri = JSchemaUtils.parseURI(s);
       }
       if (uri == null) {
-        _errors.add(new JsonParseError("Bad URI value : " + s));
+        _errors.add(new JsonParseError("Bad URI value : " + s, _currentToken.getStart(), _currentToken.getEnd()));
       }
       return uri;
     }
@@ -170,7 +174,7 @@ public class JSONParser {
             return value;
           }
         }
-        _errors.add(new JsonParseError("Bad Enum Value for " + _currentType + " : " + s));
+        _errors.add(new JsonParseError("Bad Enum Value for " + _currentType + " : " + s, _currentToken.getStart(), _currentToken.getEnd()));
         return s;
       }
     }
@@ -352,7 +356,8 @@ public class JSONParser {
   }
 
   protected void badToken() {
-    JsonParseError error = new JsonParseError("Unexpected token '" + _currentToken.getValue() + "' at line " + _currentToken.getLine() + ", column " + _currentToken.getColumn());
+    JsonParseError error = new JsonParseError("Unexpected token '" + _currentToken.getValue() + "' at line " + _currentToken.getLine() + ", column " + _currentToken.getColumn(),
+                                              _currentToken.getStart(), _currentToken.getEnd());
     _errors.add(error);
   }
 }
