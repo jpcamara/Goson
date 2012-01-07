@@ -7,6 +7,12 @@
   <version>0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
+  <parent>
+    <groupId>org.gosu-lang</groupId>
+    <artifactId>gosu-project-parent</artifactId>
+    <version>2</version>
+  </parent>
+
   <name>Goson</name>
 
   <repositories>
@@ -21,47 +27,7 @@
       <name>Official Gosu website (releases)</name>
       <url>http://gosu-lang.org/repositories/m2/releases</url>
     </repository>
-    <repository>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <id>gosu-lang.org-snapshots</id>
-      <name>Official Gosu website (snapshots)</name>
-      <url>http://gosu-lang.org/repositories/m2/snapshots</url>
-    </repository>
   </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <id>gosu-lang.org-releases</id>
-      <name>Official Gosu website (releases)</name>
-      <url>http://gosu-lang.org/repositories/m2/releases</url>
-    </pluginRepository>
-  </pluginRepositories>
-
-  <distributionManagement>
-    <repository>
-      <uniqueVersion>false</uniqueVersion>
-      <id>gosu-lang.org-releases</id>
-      <url>scp://gosu-lang.org/var/www/html/repositories/m2/releases</url>
-      <layout>default</layout>
-    </repository>
-    <snapshotRepository>
-      <uniqueVersion>true</uniqueVersion>
-      <id>gosu-lang.org-snapshots</id>
-      <url>scp://gosu-lang.org/var/www/html/repositories/m2/snapshots</url>
-      <layout>default</layout>
-    </snapshotRepository>
-  </distributionManagement>
 
   <dependencies>
     <dependency>
@@ -119,15 +85,6 @@
       <plugin>
         <groupId>org.gosu-lang</groupId>
         <artifactId>maven-gosu-plugin</artifactId>
-        <version>1.1</version>
-        <executions>
-          <execution>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>insert-gosu-artifact</goal>
-            </goals>
-          </execution>
-        </executions>
         <configuration>
           <gosuVersion>0.9-SNAPSHOT</gosuVersion>
           <includeImpl>true</includeImpl> <!-- TODO: remove me -->
@@ -148,7 +105,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>2.3.2</version>
         <configuration>
           <archive>
             <manifest>
@@ -162,13 +118,6 @@
         </configuration>
       </plugin>
     </plugins>
-    <extensions>
-      <extension>
-        <groupId>org.apache.maven.wagon</groupId>
-         <artifactId>wagon-ssh</artifactId>
-         <version>2.1</version>
-      </extension>
-    </extensions>
   </build>
 
 </project>
