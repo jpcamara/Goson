@@ -12,38 +12,55 @@
   <repositories>
     <repository>
       <snapshots>
-        <enabled>true</enabled>
+        <enabled>false</enabled>
       </snapshots>
       <releases>
         <enabled>true</enabled>
       </releases>
-      <id>gosu-lang.org</id>
-      <name>Official Gosu website</name>
-      <url>http://gosu-lang.org/m2</url>
+      <id>gosu-lang.org-releases</id>
+      <name>Official Gosu website (releases)</name>
+      <url>http://gosu-lang.org/repositories/m2/releases</url>
+    </repository>
+    <repository>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <id>gosu-lang.org-snapshots</id>
+      <name>Official Gosu website (snapshots)</name>
+      <url>http://gosu-lang.org/repositories/m2/snapshots</url>
     </repository>
   </repositories>
 
   <pluginRepositories>
     <pluginRepository>
       <snapshots>
-        <enabled>true</enabled>
+        <enabled>false</enabled>
       </snapshots>
       <releases>
         <enabled>true</enabled>
       </releases>
-      <id>gosu-lang.org</id>
-      <name>Official Gosu website</name>
-      <url>http://gosu-lang.org/m2</url>
+      <id>gosu-lang.org-releases</id>
+      <name>Official Gosu website (releases)</name>
+      <url>http://gosu-lang.org/repositories/m2/releases</url>
     </pluginRepository>
   </pluginRepositories>
 
   <distributionManagement>
     <repository>
-      <uniqueVersion>true</uniqueVersion>
-      <id>gosu-lang.org</id>
-      <url>scp://gosu-lang.org/var/www/html/m2</url>
+      <uniqueVersion>false</uniqueVersion>
+      <id>gosu-lang.org-releases</id>
+      <url>scp://gosu-lang.org/var/www/html/repositories/m2/releases</url>
       <layout>default</layout>
     </repository>
+    <snapshotRepository>
+      <uniqueVersion>true</uniqueVersion>
+      <id>gosu-lang.org-snapshots</id>
+      <url>scp://gosu-lang.org/var/www/html/repositories/m2/snapshots</url>
+      <layout>default</layout>
+    </snapshotRepository>
   </distributionManagement>
 
   <dependencies>
@@ -102,7 +119,7 @@
       <plugin>
         <groupId>org.gosu-lang</groupId>
         <artifactId>maven-gosu-plugin</artifactId>
-        <version>1.0</version>
+        <version>1.1</version>
         <executions>
           <execution>
             <phase>process-resources</phase>
