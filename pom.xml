@@ -17,12 +17,6 @@
 
   <repositories>
     <repository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
       <id>gosu-lang.org-releases</id>
       <name>Official Gosu website (releases)</name>
       <url>http://gosu-lang.org/repositories/m2/releases</url>
