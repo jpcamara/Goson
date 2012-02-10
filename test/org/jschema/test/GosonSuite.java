@@ -4,7 +4,7 @@ import gw.lang.init.GosuInitialization;
 import gw.lang.reflect.IHasJavaClass;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeSystem;
-import gw.lang.shell.Gosu;
+import gw.lang.Gosu;
 import junit.framework.TestSuite;
 import org.jschema.typeloader.JSchemaTypeLoader;
 

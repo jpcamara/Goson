@@ -11,7 +11,6 @@ import gw.lang.reflect.IType;
 import gw.lang.reflect.ITypeLoader;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.module.*;
-import gw.lang.shell.Gosu;
 import gw.util.Pair;
 import junit.framework.TestCase;
 import org.jschema.test.GosonTest;
