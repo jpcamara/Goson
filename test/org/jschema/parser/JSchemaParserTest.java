@@ -3,9 +3,11 @@ package org.jschema.parser;
 import org.jschema.model.JsonMap;
 import org.jschema.test.GosonTest;
 import org.jschema.util.JSchemaUtils;
+import org.junit.Ignore;
 
 import java.util.Map;
 
+@Ignore
 public class JSchemaParserTest extends GosonTest {
 
   public void testTypedefsMustBeFollowedByObject()

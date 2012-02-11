@@ -2,10 +2,12 @@ package org.jschema.util;
 
 import junit.framework.TestCase;
 import org.jschema.model.JsonMap;
+import org.junit.Ignore;
 
 import java.io.InputStreamReader;
 import java.util.*;
 
+@Ignore
 public class JSchemaUtilsTest extends TestCase {
 
   public void testBasicNames() throws Exception {

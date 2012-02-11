@@ -14,6 +14,7 @@ import gw.lang.reflect.module.*;
 import gw.util.Pair;
 import junit.framework.TestCase;
 import org.jschema.test.GosonTest;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.omg.CORBA.CTX_RESTRICT_SCOPE;
 
@@ -30,6 +31,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+@Ignore
 public class JSchemaTypeLoaderTest extends GosonTest {
 
   public void testBasicGosonTypes() {

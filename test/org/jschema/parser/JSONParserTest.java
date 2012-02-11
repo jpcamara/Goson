@@ -4,12 +4,14 @@ import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.java.JavaTypes;
 import org.jschema.test.GosonTest;
 import org.jschema.util.JSchemaUtils;
+import org.junit.Ignore;
 
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 
+@Ignore
 public class JSONParserTest extends GosonTest {
 
   public void testBasics() {

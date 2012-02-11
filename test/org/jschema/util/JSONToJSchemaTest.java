@@ -5,9 +5,11 @@ import org.jschema.model.JsonMap;
 import org.jschema.parser.JSONParser;
 import org.jschema.test.GosonSuite;
 import org.jschema.test.GosonTest;
+import org.junit.Ignore;
 
 import java.io.*;
 
+@Ignore
 public class JSONToJSchemaTest extends GosonTest {
   private static final String JSON_FILE = "test/org/jschema/examples/json/GithubCreate.json";
   private static final String JSC_OUTPUT = "result.jsc";
