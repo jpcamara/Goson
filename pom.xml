@@ -23,6 +23,12 @@
     </repository>
   </repositories>
 
+  <scm>
+    <connection>scm:git:git@github.com:bchang/gosu.git</connection>
+    <url>scm:git:git@github.com:bchang/gosu.git</url>
+    <developerConnection>scm:git:git@github.com:bchang/gosu.git</developerConnection>
+  </scm>
+
   <dependencies>
     <dependency>
       <groupId>javax.servlet</groupId>
@@ -80,7 +86,7 @@
         <groupId>org.gosu-lang</groupId>
         <artifactId>maven-gosu-plugin</artifactId>
         <configuration>
-          <gosuVersion>0.9-SNAPSHOT</gosuVersion>
+          <gosuVersion>0.9-8</gosuVersion>
           <includeImpl>true</includeImpl> <!-- TODO: remove me -->
         </configuration>
       </plugin>
