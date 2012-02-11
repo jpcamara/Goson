@@ -27,9 +27,9 @@
   </repositories>
 
   <scm>
-    <connection>scm:git:git@github.com:bchang/gosu.git</connection>
-    <url>scm:git:git@github.com:bchang/gosu.git</url>
-    <developerConnection>scm:git:git@github.com:bchang/gosu.git</developerConnection>
+    <connection>scm:git:git@github.com:gosu-lang/gosu.git</connection>
+    <url>scm:git:git@github.com:gosu-lang/gosu.git</url>
+    <developerConnection>scm:git:git@github.com:gosu-lang/gosu.git</developerConnection>
   </scm>
 
   <dependencies>
