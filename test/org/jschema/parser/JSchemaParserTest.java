@@ -1,7 +1,5 @@
 package org.jschema.parser;
 
-import com.sun.xml.internal.bind.v2.model.core.TypeInfo;
-import org.eclipse.jetty.util.ajax.JSON;
 import org.jschema.model.JsonMap;
 import org.jschema.test.GosonTest;
 import org.jschema.util.JSchemaUtils;
