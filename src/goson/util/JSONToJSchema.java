@@ -1,6 +1,12 @@
 package goson.util;
 
+<<<<<<< HEAD:src/goson/util/JSONToJSchema.java
 import goson.parser.JSONParser;
+=======
+import gw.lang.reflect.java.IJavaType;
+import gw.lang.reflect.java.JavaTypes;
+import org.jschema.parser.JSONParser;
+>>>>>>> 211d39e0b8aceadbf630fc4449761e64d96f71a6:src/org/jschema/util/JSONToJSchema.java
 
 import java.io.File;
 import java.io.FileWriter;
@@ -35,7 +41,11 @@ public class JSONToJSchema {
       scan.close();
     }
 
+<<<<<<< HEAD:src/goson/util/JSONToJSchema.java
     Map json = (Map) new JSONParser(jsonContent).parseJSONFragment();
+=======
+    Map json = (Map) new JSONParser(jsonContent, JavaTypes.MAP()).parseJSONFragment();
+>>>>>>> 211d39e0b8aceadbf630fc4449761e64d96f71a6:src/org/jschema/util/JSONToJSchema.java
     Map jschema = (Map) JSchemaUtils.convertJsonToJSchema(json);
     if (args.size() == 2) {
       System.out.println(JSchemaUtils.serializeJson(jschema));

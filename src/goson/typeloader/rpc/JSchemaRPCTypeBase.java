@@ -3,8 +3,14 @@ package goson.typeloader.rpc;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.ITypeLoader;
 import gw.lang.reflect.java.IJavaType;
+<<<<<<< HEAD:src/goson/typeloader/rpc/JSchemaRPCTypeBase.java
 import goson.typeloader.JSchemaTypeBase;
 import goson.util.JSchemaUtils;
+=======
+import gw.lang.reflect.java.JavaTypes;
+import org.jschema.typeloader.JSchemaTypeBase;
+import org.jschema.util.JSchemaUtils;
+>>>>>>> 211d39e0b8aceadbf630fc4449761e64d96f71a6:src/org/jschema/typeloader/rpc/JSchemaRPCTypeBase.java
 
 import java.util.List;
 import java.util.Map;
@@ -55,6 +61,6 @@ abstract class JSchemaRPCTypeBase extends JSchemaTypeBase implements IJSchemaRPC
   @Override
   public IType getSelfType() {
     //TODO this should be a parse error
-    return IJavaType.OBJECT;
+    return JavaTypes.OBJECT();
   }
 }

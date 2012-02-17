@@ -1,17 +1,16 @@
-package goson.parser;
+package org.jschema.parser;
 
 import gw.internal.gosu.parser.TypeLord;
 import gw.lang.reflect.IEnumType;
 import gw.lang.reflect.IEnumValue;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeSystem;
-import gw.lang.reflect.java.IJavaType;
-import goson.model.JsonList;
-import goson.model.JsonMap;
-import goson.typeloader.IJSchemaType;
-import goson.util.JSchemaUtils;
+import gw.lang.reflect.java.JavaTypes;
+import org.jschema.model.JsonList;
+import org.jschema.model.JsonMap;
+import org.jschema.typeloader.IJSchemaType;
+import org.jschema.util.JSchemaUtils;
 
-import java.lang.Object;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.*;
@@ -21,6 +20,7 @@ public class JSONParser {
   protected JSONToken _currentToken;
   protected IType _currentType;
   protected List<JsonParseError> _errors = new ArrayList<JsonParseError>();
+  private Object _retVal;
 
   public JSONParser(String json, IType rootType) {
     _currentToken = JSONToken.tokenize(json).removeTokens(JSONTokenType.COMMENT);
@@ -43,13 +43,12 @@ public class JSONParser {
 
   public Object parseJSONDocument()
   {
-    Object retVal;
     _errors.clear();
-    retVal = parseObject();
-    if (retVal == null ) {
-      retVal = parseArray();
+    _retVal = parseObject();
+    if (_retVal == null ) {
+      _retVal = parseArray();
     }
-    if(retVal != null){
+    if(_retVal != null){
       if(_currentToken.isEOF() == false){
         badToken();
       }
@@ -61,7 +60,11 @@ public class JSONParser {
     if(_errors.size() != 0){
       throw(new JsonParseException(_errors));
     }
-    return(retVal);
+    return(_retVal);
+  }
+
+  public Object getValue() {
+    return _retVal;
   }
 
   /**
@@ -137,7 +140,7 @@ public class JSONParser {
   }
 
   private Date parseDate() {
-    if (IJavaType.DATE.equals(_currentType)) {
+    if (JavaTypes.DATE().equals(_currentType)) {
       String s = parseString();
       if (s != null) {
         return JSchemaUtils.parseDate(s);
@@ -154,7 +157,7 @@ public class JSONParser {
         uri = JSchemaUtils.parseURI(s);
       }
       if (uri == null) {
-        _errors.add(new JsonParseError("Bad URI value : " + s));
+        _errors.add(new JsonParseError("Bad URI value : " + s, _currentToken.getStart(), _currentToken.getEnd()));
       }
       return uri;
     }
@@ -171,7 +174,7 @@ public class JSONParser {
             return value;
           }
         }
-        _errors.add(new JsonParseError("Bad Enum Value for " + _currentType + " : " + s));
+        _errors.add(new JsonParseError("Bad Enum Value for " + _currentType + " : " + s, _currentToken.getStart(), _currentToken.getEnd()));
         return s;
       }
     }
@@ -186,7 +189,7 @@ public class JSONParser {
     if (_currentToken.isNumber()) {
       String value = _currentToken.getValue();
       consumeToken();
-      if (value.contains(".") || value.contains("e") || value.contains("E") || IJavaType.BIGDECIMAL.equals(_currentType)) {
+      if (value.contains(".") || value.contains("e") || value.contains("E") || JavaTypes.BIG_DECIMAL().equals(_currentType)) {
         if (leadingNegative) {
           return new BigDecimal("-" + value);
         } else {
@@ -260,7 +263,7 @@ public class JSONParser {
         IType lstType = _currentType;
         try {
           if (lstType != null) {
-            IType parameterizedType = TypeLord.findParameterizedType(lstType, IJavaType.LIST.getGenericType());
+            IType parameterizedType = TypeLord.findParameterizedType(lstType, JavaTypes.LIST().getGenericType());
             if (parameterizedType != null) {
              _currentType = parameterizedType.getTypeParameters()[0];
             }
@@ -295,8 +298,8 @@ public class JSONParser {
         }
 
         IType mapValueType = null;
-        if (ctxType != null && IJavaType.MAP.isAssignableFrom(ctxType)) {
-          IType parameterizedType = TypeLord.findParameterizedType(ctxType, IJavaType.MAP.getGenericType());
+        if (ctxType != null && JavaTypes.MAP().isAssignableFrom(ctxType)) {
+          IType parameterizedType = TypeLord.findParameterizedType(ctxType, JavaTypes.MAP().getGenericType());
           if (parameterizedType != null && parameterizedType.getTypeParameters() != null) {
             mapValueType = parameterizedType.getTypeParameters()[1];
           }
@@ -353,7 +356,8 @@ public class JSONParser {
   }
 
   protected void badToken() {
-    JsonParseError error = new JsonParseError("Unexpected token '" + _currentToken.getValue() + "' at line " + _currentToken.getLine() + ", column " + _currentToken.getColumn());
+    JsonParseError error = new JsonParseError("Unexpected token '" + _currentToken.getValue() + "' at line " + _currentToken.getLine() + ", column " + _currentToken.getColumn(),
+                                              _currentToken.getStart(), _currentToken.getEnd());
     _errors.add(error);
   }
 }

@@ -5,17 +5,14 @@ import gw.lang.reflect.gs.IGosuObject;
 import goson.util.JSchemaUtils;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class JSchemaEnumType extends JSchemaType implements IJSchemaEnumType {
 
   private List<IEnumValue> values = new ArrayList<IEnumValue>();
 
   public JSchemaEnumType(String name, ITypeLoader typeloader, final Object object) {
-    super(name, typeloader, object, Collections.EMPTY_MAP);
+    super(name, typeloader, object, new HashMap<String, String>());
     Object obj = ((Map)object).get(JSchemaUtils.JSCHEMA_ENUM_KEY);
     if (obj == null || !(obj instanceof List)) {
       throw new RuntimeException("An enum must be an array of values.");
@@ -43,6 +40,15 @@ public class JSchemaEnumType extends JSchemaType implements IJSchemaEnumType {
       }
     }
     return null;
+  }
+
+  @Override
+  public List<String> getEnumConstants() {
+    ArrayList<String> strings = new ArrayList<String>();
+    for (IEnumValue iEnumValue : getEnumValues()) {
+      strings.add(iEnumValue.getCode());
+    }
+    return strings;
   }
 
   public static String enumify(String original) {

@@ -1,13 +1,21 @@
 package goson.parser;
 
+<<<<<<< HEAD:test/goson/parser/JSchemaParserTest.java
 import com.sun.xml.internal.bind.v2.model.core.TypeInfo;
 import org.eclipse.jetty.util.ajax.JSON;
 import goson.model.JsonMap;
 import goson.test.GosonTest;
 import goson.util.JSchemaUtils;
+=======
+import org.jschema.model.JsonMap;
+import org.jschema.test.GosonTest;
+import org.jschema.util.JSchemaUtils;
+import org.junit.Ignore;
+>>>>>>> 211d39e0b8aceadbf630fc4449761e64d96f71a6:test/org/jschema/parser/JSchemaParserTest.java
 
 import java.util.Map;
 
+@Ignore
 public class JSchemaParserTest extends GosonTest {
 
   public void testTypedefsMustBeFollowedByObject()

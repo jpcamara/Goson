@@ -3,6 +3,7 @@ package goson.typeloader
 uses java.util.*
 uses java.lang.*
 uses java.math.*
+<<<<<<< HEAD:test/goson/typeloader/JSchemaRPCTypesTest.gs
 uses goson.test.*
 uses goson.rpc.*
 uses goson.examples.rpc.Defaults
@@ -13,8 +14,27 @@ uses goson.examples.rpc.Sample1.UpdateEmployee.Employee
 uses goson.examples.rpc.Sample2
 uses goson.examples.rpc.Adder
 uses goson.examples.rpc.ReturnsArrays
+=======
+uses org.jschema.test.*
+uses org.jschema.rpc.*
+uses org.jschema.examples.rpc.Defaults
+uses org.jschema.examples.rpc.Sample1
+uses org.jschema.examples.rpc.ThrowsExceptions
+uses org.jschema.examples.rpc.Sample1.GetEmployee
+uses org.jschema.examples.rpc.Sample1.UpdateEmployee.Employee
+uses org.jschema.examples.rpc.Sample2
+uses org.jschema.examples.rpc.Adder
+uses org.jschema.examples.rpc.ReturnsArrays
+uses org.jschema.util.JettyStarter
+uses gw.lang.reflect.*
+>>>>>>> 211d39e0b8aceadbf630fc4449761e64d96f71a6:test/org/jschema/typeloader/JSchemaRPCTypesTest.gs
 
 class JSchemaRPCTypesTest extends GosonTest {
+
+  function testSample1Loads() {
+    var type = TypeSystem.getByFullName("org.jschema.examples.rpc.Sample1")
+    assertTrue(type.Valid)
+  }
 
  function testBootstrapFile() {
    var emp = Sample1

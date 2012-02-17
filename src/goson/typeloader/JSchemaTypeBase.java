@@ -2,55 +2,63 @@ package goson.typeloader;
 
 import gw.lang.reflect.*;
 import gw.lang.reflect.java.IJavaType;
+import gw.lang.reflect.java.JavaTypes;
 import gw.util.GosuClassUtil;
+<<<<<<< HEAD:src/goson/typeloader/JSchemaTypeBase.java
 import gw.util.concurrent.LazyVar;
 import goson.model.JsonList;
 import goson.model.JsonMap;
 import goson.util.JSchemaUtils;
+=======
+import gw.util.concurrent.LockingLazyVar;
+import org.jschema.model.JsonList;
+import org.jschema.model.JsonMap;
+import org.jschema.parser.JsonParseError;
+import org.jschema.util.JSchemaUtils;
+>>>>>>> 211d39e0b8aceadbf630fc4449761e64d96f71a6:src/org/jschema/typeloader/JSchemaTypeBase.java
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
-public abstract class JSchemaTypeBase extends TypeBase implements IJSchemaType {
+public abstract class JSchemaTypeBase extends TypeBase implements IJSchemaType, IProvidesCustomErrorInfo {
   private static final long serialVersionUID = -8034222055932240161L;
 
   private static final Map<String, IJavaType> TYPES = new HashMap<String, IJavaType>();
   static {
-    TYPES.put("number", IJavaType.BIGDECIMAL);
-    TYPES.put("int", IJavaType.LONG);
-    TYPES.put("string", IJavaType.STRING);
-    TYPES.put("date", IJavaType.DATE);
+    TYPES.put("number", JavaTypes.BIG_DECIMAL());
+    TYPES.put("int", JavaTypes.LONG());
+    TYPES.put("string", JavaTypes.STRING());
+    TYPES.put("date", JavaTypes.DATE());
     TYPES.put("uri", (IJavaType) TypeSystem.get(URI.class));
-    TYPES.put("boolean", IJavaType.BOOLEAN);
-    TYPES.put("enum", IJavaType.ENUM);
-    TYPES.put("map_of", IJavaType.MAP);
-    TYPES.put("object", IJavaType.OBJECT);
+    TYPES.put("boolean", JavaTypes.BOOLEAN());
+    TYPES.put("enum", JavaTypes.ENUM());
+    TYPES.put("map_of", JavaTypes.MAP());
+    TYPES.put("object", JavaTypes.OBJECT());
   }
 
   private String relativeName;
   private String packageName;
   private String fullName;
   private ITypeLoader loader;
-  private LazyVar<ITypeInfo> typeInfo;
+  private LockingLazyVar<ITypeInfo> typeInfo;
   private Logger logger = Logger.getLogger(getClass().getName());
   private Map<String, IType> _innerClasses;
+  private List<CustomErrorInfo> _errors;
 
   public JSchemaTypeBase(String name, ITypeLoader typeloader, final Object object) {
     this.relativeName = GosuClassUtil.getShortClassName(name);
     this.packageName = GosuClassUtil.getPackage(name);
     this.fullName = name;
     this.loader = typeloader;
-    this.typeInfo = new LazyVar<ITypeInfo>() {
+    this.typeInfo = new LockingLazyVar<ITypeInfo>() {
       @Override
       protected ITypeInfo init() {
         return initTypeInfo(object);
       }
     };
     _innerClasses = new HashMap<String, IType>();
+    _errors = new ArrayList<CustomErrorInfo>();
   }
 
   protected abstract ITypeInfo initTypeInfo(Object object);
@@ -62,6 +70,16 @@ public abstract class JSchemaTypeBase extends TypeBase implements IJSchemaType {
 
   public void addInnerClass(IType innerClass) {
     _innerClasses.put(innerClass.getRelativeName(), innerClass);
+  }
+
+  @Override
+  public List<? extends IType> getInnerClasses() {
+    return new ArrayList<IType>(_innerClasses.values());
+  }
+
+  @Override
+  public List<? extends IType> getLoadedInnerClasses() {
+    return getInnerClasses();
   }
 
   @Override
@@ -89,7 +107,7 @@ public abstract class JSchemaTypeBase extends TypeBase implements IJSchemaType {
       return TypeSystem.get(JsonList.class).getParameterizedType(resolveInnerType(fqn, ((List) value).get(0)));
     }
     //TODO cgross - this should be a verification error
-    return IJavaType.OBJECT;
+    return JavaTypes.OBJECT();
   }
 
   @Override
@@ -133,7 +151,7 @@ public abstract class JSchemaTypeBase extends TypeBase implements IJSchemaType {
 
   @Override
   public IType getSupertype() {
-    return IJavaType.OBJECT;
+    return JavaTypes.OBJECT();
   }
 
   @Override
@@ -143,5 +161,18 @@ public abstract class JSchemaTypeBase extends TypeBase implements IJSchemaType {
 
   public String toString() {
     return getName();
+  }
+
+  @Override
+  public List<CustomErrorInfo> getCustomErrors() {
+    return _errors;
+  }
+
+  public void addErrors(List<JsonParseError> errors) {
+    if (errors != null) {
+      for (JsonParseError error : errors) {
+        _errors.add(new CustomErrorInfo(ErrorLevel.ERROR, error.getMessage(), error.getStart(), error.getEnd()));
+      }
+    }
   }
 }

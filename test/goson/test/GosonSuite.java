@@ -4,7 +4,7 @@ import gw.lang.init.GosuInitialization;
 import gw.lang.reflect.IHasJavaClass;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeSystem;
-import gw.lang.shell.Gosu;
+import gw.lang.Gosu;
 import junit.framework.TestSuite;
 import goson.typeloader.JSchemaTypeLoader;
 
@@ -56,7 +56,7 @@ public class GosonSuite extends TestSuite {
 
       // check to see if there is a JSchemaTypeLoader around, and create one if not
       if (TypeSystem.getTypeLoader(JSchemaTypeLoader.class) == null) {
-        TypeSystem.pushGlobalTypeLoader(new JSchemaTypeLoader(TypeSystem.getCurrentModule()));
+        TypeSystem.pushTypeLoader(new JSchemaTypeLoader(TypeSystem.getCurrentModule()));
       }
 
       TypeSystem.refresh(true);

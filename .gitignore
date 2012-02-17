@@ -2,7 +2,6 @@ build
 *.zip
 .DS_Store
 src/.DS_Store
-.idea
-out
 lib
-*.iws
+target
+goson.i??

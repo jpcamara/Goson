@@ -3,9 +3,15 @@ package goson.typeloader
 uses java.util.*
 uses java.lang.*
 uses java.math.*
+<<<<<<< HEAD:test/goson/typeloader/AssignabilityTest.gs
 uses goson.test.*
 uses goson.rpc.*
 uses goson.examples.rpc.*
+=======
+uses org.jschema.test.GosonTest
+uses org.jschema.rpc.*
+uses org.jschema.examples.rpc.*
+>>>>>>> 211d39e0b8aceadbf630fc4449761e64d96f71a6:test/org/jschema/typeloader/AssignabilityTest.gs
 
 class AssignabilityTest extends GosonTest {
 

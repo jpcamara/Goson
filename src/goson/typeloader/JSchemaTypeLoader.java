@@ -5,113 +5,176 @@ import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeLoaderBase;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.module.IModule;
-import gw.lang.reflect.module.IResourceAccess;
 import gw.util.GosuExceptionUtil;
 import gw.util.Pair;
+<<<<<<< HEAD:src/goson/typeloader/JSchemaTypeLoader.java
 import gw.util.concurrent.LazyVar;
 import goson.parser.JsonParseException;
 import goson.typeloader.rpc.JSchemaCustomizedRPCType;
 import goson.typeloader.rpc.JSchemaRPCType;
 import goson.util.JSchemaUtils;
+=======
+import gw.util.concurrent.LockingLazyVar;
+import org.jschema.model.JsonMap;
+import org.jschema.parser.JSchemaParser;
+import org.jschema.parser.JsonParseError;
+import org.jschema.parser.JsonParseException;
+import org.jschema.typeloader.rpc.JSchemaCustomizedRPCType;
+import org.jschema.typeloader.rpc.JSchemaRPCType;
+import org.jschema.util.JSchemaUtils;
+>>>>>>> 211d39e0b8aceadbf630fc4449761e64d96f71a6:src/org/jschema/typeloader/JSchemaTypeLoader.java
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
 public class JSchemaTypeLoader extends TypeLoaderBase {
 
-  private Map<String, IType> types = new HashMap<String, IType>();
+  private Map<String, IJSchemaType> _rawTypes = new HashMap<String, IJSchemaType>();
+  private Map<IFile, List<String>> _filesToTypes = new HashMap<IFile, List<String>>();
 
   private static final String JSC_RPC_EXT = "jsc-rpc";
   private static final String JSC_EXT = "jsc";
   private static final String JSON_EXT = "json";
+  private boolean _initing;
 
   public JSchemaTypeLoader(IModule env) {
     super(env);
   }
 
-  public JSchemaTypeLoader(IModule env, IResourceAccess resourceAccess) {
-    this(env);
-  }
-
   @Override
   public IType getType(String fullyQualifiedName) {
     maybeInitTypes();
-    if (fullyQualifiedName == null || types.get(fullyQualifiedName) == null) {
+    if (fullyQualifiedName == null || _rawTypes.get(fullyQualifiedName) == null) {
       return null;
     }
-    IType iType = types.get( fullyQualifiedName );
-    return TypeSystem.getOrCreateTypeReference( iType );
+    IType iType = _rawTypes.get(fullyQualifiedName);
+    return TypeSystem.getOrCreateTypeReference(iType);
   }
 
+  //TODO cgross - this should be lazy
   private void maybeInitTypes() {
-    if (types.isEmpty()) {
-      for (JsonFile jshFile : jscFiles.get()) {
+    if (!_initing) {
+      if (_rawTypes.isEmpty()) {
+        _initing = true;
         try {
-          jshFile.parseContent();
-          addRootType(types, new Stack<Map<String, String>>(), jshFile);
-        } catch (Exception e) {
-          throw GosuExceptionUtil.forceThrow(e);
+          for (JsonFile jshFile : _jscFiles.get()) {
+            try {
+              jshFile.parseContent();
+              addRootType(_rawTypes, new Stack<Map<String, String>>(), jshFile, jshFile.file, _filesToTypes);
+            } catch (Exception e) {
+              throw GosuExceptionUtil.forceThrow(e);
+            }
+          }
+          for (JsonFile jshRpcFile : _jscRpcFiles.get()) {
+            try {
+              jshRpcFile.parseContent();
+              addRpcTypes(_rawTypes, jshRpcFile, jshRpcFile.file, _filesToTypes);
+            } catch (Exception e) {
+              throw GosuExceptionUtil.forceThrow(e);
+            }
+          }
+          for (JsonFile jsonFile : _jsonFiles.get()) {
+            try {
+              jsonFile.parseContent();
+              convertToJSchemaAndAddRootType(_rawTypes, jsonFile, jsonFile.file, _filesToTypes);
+            } catch (Exception e) {
+              throw GosuExceptionUtil.forceThrow(e);
+            }
+          }
+          initInnerClasses(_rawTypes);
+        } finally {
+          _initing = false;
         }
       }
-      for (JsonFile jshRpcFile : jscRpcFiles.get()) {
-        try {
-          jshRpcFile.parseContent();
-          addRpcTypes(types, jshRpcFile);
-        } catch (Exception e) {
-          throw GosuExceptionUtil.forceThrow(e);
-        }
-      }
-      for (JsonFile jsonFile : jsonFiles.get()) {
-        try {
-          jsonFile.parseContent();
-          convertToJSchemaAndAddRootType(types, jsonFile);
-        } catch (Exception e) {
-          throw GosuExceptionUtil.forceThrow(e);
-        }
-      }
-      initInnerClasses(types);
     }
   }
 
-  private void convertToJSchemaAndAddRootType(Map<String, IType> types, JsonFile jsonFile) {
+  @Override
+  public List<IType> refreshedFile(IFile file) {
+    List<String> typeNames = getTypeNamesForFile(file);
+    if (file.getExtension().equals(JSC_EXT) ||
+        file.getExtension().equals(JSC_RPC_EXT) ||
+        file.getExtension().equals(JSON_EXT)) {
+      _rawTypes.clear();
+      _filesToTypes.clear();
+      if (file.getExtension().equals(JSC_EXT)) {
+        _jscFiles.clear();
+      }
+      if (file.getExtension().equals(JSC_RPC_EXT)) {
+        _jscRpcFiles.clear();
+      }
+      if (file.getExtension().equals(JSON_EXT)) {
+        _jsonFiles.clear();
+      }
+    }
+    ArrayList<IType> types = new ArrayList<IType>();
+    for (String typeName : typeNames) {
+      IType type = TypeSystem.getByFullNameIfValid(typeName);
+      if (type != null) {
+        types.add(type);
+      }
+    }
+    return types;
+  }
+
+  public List<IType> getTypesForFile(IFile file) {
+    ArrayList<IType> types = new ArrayList<IType>();
+    List<String> typeNamesForFile = getTypeNamesForFile(file);
+    for (String s : typeNamesForFile) {
+      IType type = TypeSystem.getByFullNameIfValid(s);
+      if (type != null) {
+        types.add(type);
+      }
+    }
+    return types;
+  }
+
+  private List<String> getTypeNamesForFile(IFile file) {
+    maybeInitTypes(); //TODO cgross - this really, really needs to be lazy
+    List<String> typeNames = _filesToTypes.get(file);
+    if (typeNames == null) {
+      typeNames = Collections.emptyList();
+    }
+    return typeNames;
+  }
+
+  private void convertToJSchemaAndAddRootType(Map<String, IJSchemaType> rawTypes, JsonFile jsonFile, IFile file, Map<IFile, List<String>> fileMapping) {
     jsonFile.content = JSchemaUtils.convertJsonToJSchema(jsonFile.content);
-    addRootType(types, new Stack<Map<String, String>>(), jsonFile);
+    addRootType(rawTypes, new Stack<Map<String, String>>(), jsonFile, file, fileMapping);
     return;
   }
 
-  private void initInnerClasses(Map<String, IType> types) {
-    for (String name : types.keySet()) {
-      IType iType = types.get(name);
-      IType outerType = types.get(iType.getNamespace());
+  private void initInnerClasses(Map<String, IJSchemaType> rawTypes) {
+    for (String name : rawTypes.keySet()) {
+      IType iType = rawTypes.get(name);
+      IType outerType = rawTypes.get(iType.getNamespace());
       if (outerType instanceof IJSchemaType) {
         ((IJSchemaType) outerType).addInnerClass(iType);
       }
     }
   }
 
-  private void addRootType(Map<String, IType> types, Stack<Map<String, String>> typeDefs, JsonFile jshFile) {
+  private void addRootType(Map<String, IJSchemaType> rawTypes, Stack<Map<String, String>> typeDefs, JsonFile jshFile, IFile file, Map<IFile, List<String>> fileMapping) {
     if (jshFile.content instanceof List) {
       int depth = 0;
       while (jshFile.content instanceof List && ((List) jshFile.content).size() > 0) {
         depth++;
         jshFile.content = ((List) jshFile.content).get(0);
       }
-      addTypes(types, typeDefs, jshFile.rootTypeName + ".Element", jshFile.content);
-      types.put(jshFile.rootTypeName, new JSchemaListWrapperType(jshFile.rootTypeName, this, depth, jshFile.content) );
+      addTypes(rawTypes, typeDefs, jshFile.rootTypeName + ".Element", jshFile.content, file, fileMapping);
+      JSchemaListWrapperType rawType = new JSchemaListWrapperType(jshFile.rootTypeName, this, depth, jshFile.content);
+      rawTypes.put(jshFile.rootTypeName, rawType);
+      rawType.addErrors(jshFile.errors);
     } else {
-      addTypes(types, typeDefs, jshFile.rootTypeName, jshFile.content);
+      addTypes(rawTypes, typeDefs, jshFile.rootTypeName, jshFile.content, file, fileMapping);
+      IJSchemaType rootType = rawTypes.get(jshFile.rootTypeName);
+      if (rootType instanceof JSchemaTypeBase) {
+        ((JSchemaTypeBase) rootType).addErrors(jshFile.errors);
+      }
     }
   }
   
-  private void addTypes(Map<String, IType> types, Stack<Map<String, String>> typeDefs, String name, Object o) {
+  private void addTypes(Map<String, IJSchemaType> rawTypes, Stack<Map<String, String>> typeDefs, String name, Object o, IFile file, Map<IFile, List<String>> fileMapping) {
     // Handles this "customers" : [{ "name" : "string", "id" : "int"}]
     // i.e. an type def in an array field def
     while (o instanceof List && !((List)o).isEmpty()) {
@@ -120,22 +183,23 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
     if (o instanceof Map) {
       Map<Object, Object> jsonMap = (Map<Object, Object>)o;
       if (jsonMap.get(JSchemaUtils.JSCHEMA_ENUM_KEY) != null) {
-        putType(types, name, new JSchemaEnumType(name, this, o));
+        putType(rawTypes, name, new JSchemaEnumType(name, this, o), file, fileMapping);
       } else if (jsonMap.get("map_of") != null) {
-        addTypes(types, typeDefs, name, jsonMap.get("map_of"));
+        addTypes(rawTypes, typeDefs, name, jsonMap.get("map_of"), file, fileMapping);
       } else {
         try {
           typeDefs.push(new HashMap<String, String>());
-          processTypeDefs(types, typeDefs, name, jsonMap);
+          processTypeDefs(rawTypes, typeDefs, name, jsonMap, file, fileMapping);
           for (Object key : jsonMap.keySet()) {
             if (!JSchemaUtils.JSCHEMA_TYPEDEFS_KEY.equals(key)) {
               // RECURSION. This will call for every field in the definition. We rely on the if(o instanceof Map) thing up
               // there to cause those calls to be ignored.
-              addTypes(types, typeDefs, name + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(key.toString()),
-                jsonMap.get(key));
+              if (key != null) {
+                addTypes(rawTypes, typeDefs, name + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(key.toString()), jsonMap.get(key), file, fileMapping);
+              }
             }
           }
-          putType(types, name, new JSchemaType(name, this, o, copyTypeDefs(typeDefs)));
+          putType(rawTypes, name, new JSchemaType(name, this, o, copyTypeDefs(typeDefs)), file, fileMapping);
         } finally {
           typeDefs.pop();
         }
@@ -143,8 +207,14 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
     }
   }
 
-  private void putType(Map<String, IType> types, String name, IType type) {
-    types.put(name, TypeSystem.getOrCreateTypeReference(type));
+  private void putType(Map<String, IJSchemaType> rawTypes, String name, IJSchemaType type, IFile file, Map<IFile, List<String>> fileMapping) {
+    rawTypes.put(name, type);
+    List<String> iTypes = fileMapping.get(file);
+    if (iTypes == null) {
+      iTypes = new ArrayList<String>();
+      fileMapping.put(file, iTypes);
+    }
+    iTypes.add(type.getName());
   }
 
   private Map<String, String> copyTypeDefs(Stack<Map<String, String>> typeDefs) {
@@ -155,7 +225,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
     return allTypeDefs;
   }
 
-  private void processTypeDefs(Map<String, IType> types, Stack<Map<String, String>> typeDefs, String name, Map o) {
+  private void processTypeDefs(Map<String, IJSchemaType> types, Stack<Map<String, String>> typeDefs, String name, Map o, IFile file, Map<IFile, List<String>> fileMapping) {
     Object currentTypeDefs = o.get(JSchemaUtils.JSCHEMA_TYPEDEFS_KEY);
     if (currentTypeDefs instanceof Map) {
       Set set = ((Map) currentTypeDefs).keySet();
@@ -165,28 +235,32 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
         String relativeName = JSchemaUtils.convertJSONStringToGosuIdentifier(rawName);
         String fullyQualifiedName = name + "." + relativeName;
         typeDefs.peek().put(rawName, fullyQualifiedName);
-        addTypes(types, typeDefs, fullyQualifiedName, ((Map) currentTypeDefs).get(typeDefTypeName));
+        addTypes(types, typeDefs, fullyQualifiedName, ((Map) currentTypeDefs).get(typeDefTypeName), file, fileMapping);
         for (IJSchemaType previousTypeDef : previousTypeDefs) {
           previousTypeDef.getTypeDefs().put(rawName, fullyQualifiedName);
         }
-        previousTypeDefs.add((IJSchemaType) types.get(fullyQualifiedName));
+        previousTypeDefs.add(types.get(fullyQualifiedName));
       }
     }
   }
 
-  private void addRpcTypes(Map<String, IType> types, JsonFile jshRpcFile)
+  private void addRpcTypes(Map<String, IJSchemaType> types, JsonFile jshRpcFile, IFile file, Map<IFile, List<String>> fileMapping)
   {
     Stack<Map<String, String>> typeDefs = new Stack<Map<String, String>>();
     typeDefs.push(new HashMap<String, String>());
     Map<String, Map<String, Object>> defaultValues = new HashMap<String, Map<String, Object>>();
     if (jshRpcFile.content instanceof Map) {
-      processTypeDefs(types, typeDefs, jshRpcFile.rootTypeName, (Map) jshRpcFile.content);
+      processTypeDefs(types, typeDefs, jshRpcFile.rootTypeName, (Map) jshRpcFile.content, file, fileMapping);
       Object functions = ((Map) jshRpcFile.content).get(JSchemaUtils.JSCHEMA_FUNCTIONS_KEY);
       if (functions instanceof List) {
         for (Object function : (List) functions) {
           if (function instanceof Map) {
             Map functionMap = (Map) function;
-            String str = functionMap.get("name").toString();
+            Object name = functionMap.get("name");
+            if (name == null) {
+              name = "badName";
+            }
+            String str = name.toString();
             String functionTypeName =  jshRpcFile.rootTypeName + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(str);
 
             // add parameter names
@@ -208,27 +282,39 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
                     } else {
                       addTypes(types,
                         typeDefs, functionTypeName + "." + JSchemaUtils.convertJSONStringToGosuIdentifier(key.toString()),
-                        ((Map) arg).get(key));
+                        ((Map) arg).get(key), file, fileMapping);
                     }
                   }
                 }
               }
             }
             // add the return type
-            addTypes(types, typeDefs, functionTypeName, ((Map) function).get("returns"));
+            Object returns = ((Map) function).get("returns");
+            if (returns != null) {
+              addTypes(types, typeDefs, functionTypeName, returns, file, fileMapping);
+            }
+
+            if (types.get(functionTypeName) == null) {
+              // add in a dummy type to hold inner classes
+              addTypes(types, typeDefs, functionTypeName, new HashMap(), file, fileMapping);
+            }
           }
         }
       }
-      types.put(jshRpcFile.rootTypeName, new JSchemaRPCType(jshRpcFile.rootTypeName, this, jshRpcFile.content, typeDefs.peek(), defaultValues, jshRpcFile.stringContent));
+      JSchemaRPCType rpcType = new JSchemaRPCType(jshRpcFile.rootTypeName, this, jshRpcFile.content, typeDefs.peek(), defaultValues, jshRpcFile.stringContent);
+      putType(types, rpcType.getName(), rpcType, file, fileMapping);
+      rpcType.addErrors(jshRpcFile.errors);
+
       String customizedTypeName = jshRpcFile.rootTypeName + JSchemaCustomizedRPCType.TYPE_SUFFIX;
-      types.put(customizedTypeName, new JSchemaCustomizedRPCType(customizedTypeName, this, jshRpcFile.content, typeDefs.peek(), defaultValues, jshRpcFile.stringContent));
+      JSchemaCustomizedRPCType rpcType2 = new JSchemaCustomizedRPCType(customizedTypeName, this, jshRpcFile.content, typeDefs.peek(), defaultValues, jshRpcFile.stringContent);
+      putType(types, rpcType2.getName(), rpcType2, file, fileMapping);
     }
   }
 
   @Override
   public Set<String> getAllTypeNames() {
     maybeInitTypes();
-    return new HashSet<String>( types.keySet() );
+    return new HashSet<String>( _rawTypes.keySet() );
   }
 
   @Override
@@ -244,21 +330,21 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
     return true;
   }
 
-  private LazyVar<List<JsonFile>> jscFiles = new LazyVar<List<JsonFile>>() {
+  private LockingLazyVar<List<JsonFile>> _jscFiles = new LockingLazyVar<List<JsonFile>>() {
     @Override
     protected List<JsonFile> init() {
       return findFilesOfType(JSC_EXT);
     }
   };
 
-  private LazyVar<List<JsonFile>> jscRpcFiles = new LazyVar<List<JsonFile>>() {
+  private LockingLazyVar<List<JsonFile>> _jscRpcFiles = new LockingLazyVar<List<JsonFile>>() {
     @Override
     protected List<JsonFile> init() {
       return findFilesOfType(JSC_RPC_EXT);
     }
   };
 
-  private LazyVar<List<JsonFile>> jsonFiles = new LazyVar<List<JsonFile>>() {
+  private LockingLazyVar<List<JsonFile>> _jsonFiles = new LockingLazyVar<List<JsonFile>>() {
     @Override
     protected List<JsonFile> init() {
       return findFilesOfType(JSON_EXT);
@@ -268,7 +354,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
   private List<JsonFile> findFilesOfType(String extension) {
     List<JsonFile> init = new java.util.ArrayList<JsonFile>();
 
-    List<Pair<String, IFile>> files = getModule().getResourceAccess().findAllFilesByExtension(extension);
+    List<Pair<String, IFile>> files = getModule().getFileRepository().findAllFilesByExtension(extension);
     for (Pair<String, IFile> pair : files) {
       JsonFile current = new JsonFile();
       current.file = pair.getSecond();
@@ -290,6 +376,7 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
     private String stringContent;
     private String rootTypeName;
     private IFile file;
+    private List<JsonParseError> errors;
 
     @Override
     public String toString() {
@@ -306,12 +393,18 @@ public class JSchemaTypeLoader extends TypeLoaderBase {
           jsonString.append("\n");
         }
         stringContent = jsonString.toString();
-        content = JSchemaUtils.parseJSchema(stringContent);
       } catch (FileNotFoundException e) {
         throw new RuntimeException(e);
+      }
+      JSchemaParser parser = new JSchemaParser(stringContent);
+      try{
+        content = parser.parseJSchema();
       } catch (JsonParseException e) {
-        System.out.println("Unable to parse JSON file " + file.toJavaFile().getAbsolutePath());
-        System.out.println(e.getMessage());
+        content = parser.getValue();
+        if (content == null) {
+          content = new JsonMap();
+        }
+        errors = parser.getErrors();
       } finally {
         if (s != null) { s.close(); }
       }

@@ -3,12 +3,20 @@ package goson.util;
 import gw.lang.reflect.*;
 import gw.util.GosuEscapeUtil;
 import gw.util.GosuStringUtil;
+<<<<<<< HEAD:src/goson/util/JSchemaUtils.java
 import goson.model.JsonList;
 import goson.model.JsonMap;
 import goson.parser.JSONParser;
 import goson.parser.JSchemaParser;
 import goson.parser.JsonParseException;
 import goson.typeloader.IJSchemaType;
+=======
+import org.jschema.model.JsonList;
+import org.jschema.model.JsonMap;
+import org.jschema.parser.JSONParser;
+import org.jschema.parser.JSchemaParser;
+import org.jschema.typeloader.IJSchemaType;
+>>>>>>> 211d39e0b8aceadbf630fc4449761e64d96f71a6:src/org/jschema/util/JSchemaUtils.java
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -35,6 +43,7 @@ public class JSchemaUtils {
 
   public static String convertJSONStringToGosuIdentifier(String name, boolean capitalizeFirst) {
     StringBuilder typeName = new StringBuilder();
+    name = name == null ? "" : name;
     String normalizedName = name.replaceAll("\\s", "_");
     for (String piece : normalizedName.split("_")) {
       if (capitalizeFirst) {

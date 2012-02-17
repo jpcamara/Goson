@@ -1,0 +1,22 @@
+{
+  "typedefs@" : {
+    "RecordParseMode" : { "enum" : [ "interval", "once" ] },
+    "FileType"        : { "enum" : [ "file", "directory" ] },
+    "ExclusionType"   : { "enum" : [ "URL", "IPAddr", "Method", "Response" ] },
+    "Exclusion"       : { "ExclusionType" : [ "string" ] }
+  },
+
+  "recordProcessingEnabled" : "boolean",
+  "recordRetainUniqueHours" : "int",
+  "recordStatsInterval"     : "int",
+  "recordTopCount"          : "int",
+  "records" : [
+    {
+      "mode"       : "RecordParseMode",
+      "path"       : "string",
+      "pathtype"   : "FileType",
+      "interval"   : "int",
+      "exclusions" : [ "Exclusion" ]
+    }
+  ]
+} 

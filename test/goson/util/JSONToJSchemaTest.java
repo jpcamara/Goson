@@ -1,13 +1,22 @@
 package goson.util;
 
 import junit.framework.TestCase;
+<<<<<<< HEAD:test/goson/util/JSONToJSchemaTest.java
 import goson.model.JsonMap;
 import goson.parser.JSONParser;
 import goson.test.GosonSuite;
 import goson.test.GosonTest;
+=======
+import org.jschema.model.JsonMap;
+import org.jschema.parser.JSONParser;
+import org.jschema.test.GosonSuite;
+import org.jschema.test.GosonTest;
+import org.junit.Ignore;
+>>>>>>> 211d39e0b8aceadbf630fc4449761e64d96f71a6:test/org/jschema/util/JSONToJSchemaTest.java
 
 import java.io.*;
 
+@Ignore
 public class JSONToJSchemaTest extends GosonTest {
   private static final String JSON_FILE = "test/goson/examples/json/GithubCreate.json";
   private static final String JSC_OUTPUT = "result.jsc";

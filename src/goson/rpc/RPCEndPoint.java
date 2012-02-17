@@ -6,11 +6,20 @@ import gw.lang.reflect.IType;
 import gw.lang.reflect.ITypeInfo;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.java.IJavaType;
+<<<<<<< HEAD:src/goson/rpc/RPCEndPoint.java
 import goson.model.JsonList;
 import goson.model.JsonMap;
 import goson.typeloader.rpc.IJSchemaRPCType;
 import goson.typeloader.rpc.JSchemaRPCTypeInfoBase;
 import goson.util.JSchemaUtils;
+=======
+import gw.lang.reflect.java.JavaTypes;
+import org.jschema.model.JsonList;
+import org.jschema.model.JsonMap;
+import org.jschema.typeloader.rpc.IJSchemaRPCType;
+import org.jschema.typeloader.rpc.JSchemaRPCTypeInfoBase;
+import org.jschema.util.JSchemaUtils;
+>>>>>>> 211d39e0b8aceadbf630fc4449761e64d96f71a6:src/org/jschema/rpc/RPCEndPoint.java
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -114,25 +123,25 @@ public class RPCEndPoint {
     if(jsonReturnType.equals(implReturnType) == false) {
       retVal = false;
       // Allow primitive types for returns...
-      if(jsonReturnType.equals(IJavaType.LONG)){
-        if(implReturnType.equals(IJavaType.pINT) || implReturnType.equals(IJavaType.pLONG) || implReturnType.equals(IJavaType.pBYTE) ||
-           implReturnType.equals(IJavaType.INTEGER) || implReturnType.equals(IJavaType.BYTE)){
+      if(jsonReturnType.equals(JavaTypes.LONG())){
+        if(implReturnType.equals(JavaTypes.pINT()) || implReturnType.equals(JavaTypes.pLONG()) || implReturnType.equals(JavaTypes.pBYTE()) ||
+           implReturnType.equals(JavaTypes.INTEGER()) || implReturnType.equals(JavaTypes.BYTE())){
           retVal = true;
         }
       }
-      else if(jsonReturnType.equals(IJavaType.BIGDECIMAL)){
-        if(implReturnType.equals(IJavaType.pFLOAT) ||  implReturnType.equals(IJavaType.pDOUBLE) ||
-          implReturnType.equals(IJavaType.FLOAT) || implReturnType.equals(IJavaType.DOUBLE)){
+      else if(jsonReturnType.equals(JavaTypes.BIG_DECIMAL())){
+        if(implReturnType.equals(JavaTypes.pFLOAT()) ||  implReturnType.equals(JavaTypes.pDOUBLE()) ||
+          implReturnType.equals(JavaTypes.FLOAT()) || implReturnType.equals(JavaTypes.DOUBLE())){
           retVal = true;
         }
       }
-      else if(jsonReturnType.equals(IJavaType.BOOLEAN)){
-        if(implReturnType.equals(IJavaType.pBOOLEAN)){
+      else if(jsonReturnType.equals(JavaTypes.BOOLEAN())){
+        if(implReturnType.equals(JavaTypes.pBOOLEAN())){
           retVal = true;
         }
       }
       else if(TypeSystem.get(JsonList.class).getGenericType().equals(jsonReturnType.getGenericType()) == true){
-        IType implTypeAsParamType = TypeSystem.findParameterizedType(implReturnType, IJavaType.LIST);
+        IType implTypeAsParamType = TypeSystem.findParameterizedType(implReturnType, JavaTypes.LIST());
         if(implTypeAsParamType != null){
           IType jsonParamType = jsonReturnType.getTypeParameters()[0];
           IType implParamType = implTypeAsParamType.getTypeParameters()[0];
@@ -141,12 +150,12 @@ public class RPCEndPoint {
         }
       }
       else if(TypeSystem.get(JsonMap.class).getGenericType().equals(jsonReturnType.getGenericType()) == true){
-        IType implTypeAsParamType = TypeSystem.findParameterizedType(implReturnType, IJavaType.MAP);
+        IType implTypeAsParamType = TypeSystem.findParameterizedType(implReturnType, JavaTypes.MAP());
         if(implTypeAsParamType != null){
           IType jsonParamType = jsonReturnType.getTypeParameters()[0];
           IType[] implParamTypes = implTypeAsParamType.getTypeParameters();
           // Return maps must be <String, SOMETHING>
-          if(implParamTypes[0].equals(IJavaType.STRING) == true){
+          if(implParamTypes[0].equals(JavaTypes.STRING()) == true){
             retVal = typesAreCompatible(jsonParamType, implParamTypes[1]);
           }
         }
@@ -207,7 +216,7 @@ public class RPCEndPoint {
         paramValues[i] = value;
       }
       Object value = impl.getCallHandler().handleCall(_impl, paramValues);
-      if (!impl.getReturnType().equals(IJavaType.pVOID)) {
+      if (!impl.getReturnType().equals(JavaTypes.pVOID())) {
         return JSchemaUtils.serializeJson(value);
       } else {
         return "";

@@ -1,12 +1,13 @@
 package goson.typeloader;
 
-import gw.internal.gosu.parser.AnnotationInfo;
+import gw.internal.gosu.parser.ClassAnnotationInfo;
 import gw.lang.Autoinsert;
+import gw.lang.GosuShop;
 import gw.lang.annotation.Annotations;
 import gw.lang.function.Function0;
-import gw.lang.parser.ISymbol;
 import gw.lang.reflect.*;
 import gw.lang.reflect.IRelativeTypeInfo.Accessibility;
+<<<<<<< HEAD:src/goson/typeloader/JSchemaTypeInfo.java
 import gw.lang.reflect.java.IJavaType;
 import gw.util.concurrent.LazyVar;
 import goson.model.JsonList;
@@ -14,6 +15,17 @@ import goson.model.JsonMap;
 import goson.model.JsonObject;
 import goson.rpc.SimpleRPCCallHandler;
 import goson.util.JSchemaUtils;
+=======
+import gw.lang.reflect.java.JavaTypes;
+import gw.util.concurrent.LockingLazyVar;
+import org.jschema.model.JsonList;
+import org.jschema.model.JsonMap;
+import org.jschema.model.JsonObject;
+import org.jschema.rpc.RPCDefaults;
+import org.jschema.rpc.RPCLoggerCallback;
+import org.jschema.rpc.SimpleRPCCallHandler;
+import org.jschema.util.JSchemaUtils;
+>>>>>>> 211d39e0b8aceadbf630fc4449761e64d96f71a6:src/org/jschema/typeloader/JSchemaTypeInfo.java
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -27,7 +39,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
   private Map<String, String> propertyNameToJsonSlot = new HashMap<String, String>();
   private List<IPropertyInfo> properties;
 
-  private LazyVar<List<IMethodInfo>> methods = new LazyVar<List<IMethodInfo>>() {
+  private LockingLazyVar<List<IMethodInfo>> methods = new LockingLazyVar<List<IMethodInfo>>() {
     @Override
     protected List<IMethodInfo> init() {
       return buildMethods();
@@ -53,7 +65,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
 
       typeMethods.add(new MethodInfoBuilder()
         .withName("write")
-        .withReturnType(IJavaType.STRING)
+        .withReturnType(JavaTypes.STRING())
         .withCallHandler(new IMethodCallHandler() {
           @Override
           public Object handleCall(Object ctx, Object... args) {
@@ -64,10 +76,10 @@ public class JSchemaTypeInfo extends TypeInfoBase {
       typeMethods.add(new MethodInfoBuilder()
         .withName("prettyPrint")
         .withParameters(new ParameterInfoBuilder()
-          .withType(IJavaType.INTEGER)
+          .withType(JavaTypes.INTEGER())
           .withName("indent")
-          .withDefValue(ISymbol.NULL_DEFAULT_VALUE))
-        .withReturnType(IJavaType.STRING)
+          .withDefValue(GosuShop.getNullExpressionInstance()))
+        .withReturnType(JavaTypes.STRING())
         .withStatic(true)
         .withCallHandler(new IMethodCallHandler() {
           @Override
@@ -92,7 +104,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
         })
         .build(JSchemaTypeInfo.this));
 
-      ITypeVariableType typeVar = TypeSystem.getOrCreateTypeVariableType("T", IJavaType.OBJECT, getOwnersType());
+      ITypeVariableType typeVar = TypeSystem.getOrCreateTypeVariableType("T", JavaTypes.OBJECT(), getOwnersType());
       IType typeVarType = TypeSystem.getTypeFromObject(typeVar);
 
       _convertToMethod = new MethodInfoBuilder()
@@ -151,7 +163,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
           }
         }).build(this));
 
-      ITypeVariableType typeVar2 = TypeSystem.getOrCreateTypeVariableType("T", IJavaType.OBJECT, getOwnersType());
+      ITypeVariableType typeVar2 = TypeSystem.getOrCreateTypeVariableType("T", JavaTypes.OBJECT(), TypeSystem.getTypeReference(getOwnersType()));
       IType typeVarType2 = TypeSystem.getTypeFromObject(typeVar2);
       _findMethod = new MethodInfoBuilder()
         .withName("find")
@@ -159,7 +171,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
         .withParameters(new ParameterInfoBuilder()
           .withName("type")
           .withType(typeVarType2))
-        .withReturnType(IJavaType.LIST.getParameterizedType(typeVar2))
+        .withReturnType(JavaTypes.LIST().getParameterizedType(typeVar2))
         .withCallHandler(new IMethodCallHandler() {
           @Override
           public Object handleCall(Object ctx, Object... args) {
@@ -177,7 +189,7 @@ public class JSchemaTypeInfo extends TypeInfoBase {
   private static void addStaticProductionMethods(List<IMethodInfo> typeMethods, final IType producedType, ITypeInfo owner) {
     typeMethods.add(parseMethod(producedType)
       .withParameters(new ParameterInfoBuilder()
-        .withType(IJavaType.STRING)
+        .withType(JavaTypes.STRING())
         .withName("content"))
       .withCallHandler(new IMethodCallHandler() {
         @Override
@@ -212,11 +224,11 @@ public class JSchemaTypeInfo extends TypeInfoBase {
     typeMethods.add(new MethodInfoBuilder()
       .withName("get")
       .withParameters(new ParameterInfoBuilder()
-        .withType(IJavaType.STRING)
+        .withType(JavaTypes.STRING())
         .withName("url"),
         new ParameterInfoBuilder()
-          .withType(IJavaType.MAP.getParameterizedType(IJavaType.STRING, IJavaType.OBJECT))
-          .withDefValue(ISymbol.NULL_DEFAULT_VALUE)
+          .withType(JavaTypes.MAP().getParameterizedType(JavaTypes.STRING(), JavaTypes.OBJECT()))
+          .withDefValue(GosuShop.getNullExpressionInstance())
           .withName("args")
       )
       .withReturnType(producedType)
@@ -225,7 +237,15 @@ public class JSchemaTypeInfo extends TypeInfoBase {
         @Override
         public Object handleCall(Object ctx, Object... args) {
           Map<String, String> fixedArgs = fixArgs((Map) args[1]);
-          return JSchemaUtils.parseJson(SimpleRPCCallHandler.doGet((String) args[0], fixedArgs), producedType);
+          RPCLoggerCallback logger = RPCDefaults.getLogger();
+          if (logger != null) {
+            logger.log("Calling " + args[0] + " with args " + fixedArgs);
+          }
+          String response = SimpleRPCCallHandler.doGet((String) args[0], fixedArgs);
+          if (logger != null) {
+            logger.log("Got response " + response);
+          }
+          return JSchemaUtils.parseJson(response, producedType);
         }
       })
       .build(owner));
@@ -233,11 +253,11 @@ public class JSchemaTypeInfo extends TypeInfoBase {
     typeMethods.add(new MethodInfoBuilder()
       .withName("post")
       .withParameters(new ParameterInfoBuilder()
-        .withType(IJavaType.STRING)
+        .withType(JavaTypes.STRING())
         .withName("url"),
         new ParameterInfoBuilder()
-          .withType(IJavaType.MAP.getParameterizedType(IJavaType.STRING, IJavaType.OBJECT))
-          .withDefValue(ISymbol.NULL_DEFAULT_VALUE)
+          .withType(JavaTypes.MAP().getParameterizedType(JavaTypes.STRING(), JavaTypes.OBJECT()))
+          .withDefValue(GosuShop.getNullExpressionInstance())
           .withName("args")
       )
       .withReturnType(producedType)
@@ -400,17 +420,16 @@ public class JSchemaTypeInfo extends TypeInfoBase {
   }
 
   private IAnnotationInfo makeListAutoInsertAnnotation() {
-    return new AnnotationInfo(TypeSystem.get(Autoinsert.class), Annotations.create(Autoinsert.class), this);
+    return new ClassAnnotationInfo(Annotations.create(Autoinsert.class), getOwnersType());
   }
 
   private IAnnotationInfo makeAutocreateAnnotation(Function0 function) {
-    IType autocreateType = TypeSystem.getByFullName("gw.lang.Autocreate");
+    final IType autocreateType = TypeSystem.getByFullName("gw.lang.Autocreate");
     List<? extends IConstructorInfo> constructors = autocreateType.getTypeInfo().getConstructors();
     for (IConstructorInfo constructor : constructors) {
       if (constructor.getParameters().length == 1) {
-        return new AnnotationInfo(
-          autocreateType,
-          constructor.getConstructor().newInstance(function), this);
+        final Object val = constructor.getConstructor().newInstance(function);
+        return new AutoCreateAnnotationInfo(autocreateType, val);
       }
     }
     throw new IllegalStateException("Could not find the block constructor for Autocreate");
@@ -525,5 +544,45 @@ public class JSchemaTypeInfo extends TypeInfoBase {
 
   public boolean isListWrapper() {
     return getOwnersType() instanceof JSchemaListWrapperType;
+  }
+
+  private class AutoCreateAnnotationInfo implements IAnnotationInfo {
+    private final IType autocreateType;
+    private final Object val;
+
+    public AutoCreateAnnotationInfo(IType autocreateType, Object val) {
+      this.autocreateType = autocreateType;
+      this.val = val;
+    }
+
+    @Override
+    public IType getType() {
+      return autocreateType;
+    }
+
+    @Override
+    public Object getInstance() {
+      return val;
+    }
+
+    @Override
+    public Object getFieldValue(String s) {
+      return null;
+    }
+
+    @Override
+    public String getName() {
+      return autocreateType.getName();
+    }
+
+    @Override
+    public String getDescription() {
+      return "";
+    }
+
+    @Override
+    public IType getOwnersType() {
+      return JSchemaTypeInfo.this.getOwnersType();
+    }
   }
 }
