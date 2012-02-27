@@ -19,7 +19,7 @@ uses gw.lang.reflect.*
 class JSchemaRPCTypesTest extends GosonTest {
 
   function testSample1Loads() {
-    var type = TypeSystem.getByFullName("org.jschema.examples.rpc.Sample1")
+    var type = TypeSystem.getByFullName("goson.examples.rpc.Sample1")
     assertTrue(type.Valid)
   }
 
@@ -243,8 +243,8 @@ class JSchemaRPCTypesTest extends GosonTest {
         fail("Should have thrown an NPE")
       } catch (npe : java.lang.NullPointerException) {
         var stackTrace = npe.StackTraceAsString
-        assertTrue( stackTrace.contains("at org.jschema.typeloader.JSchemaRPCTypesTest$ThrowsImpl.npeException") )
-        assertTrue( stackTrace.contains("at org.jschema.examples.rpc.ThrowsExceptions.npeException()") )
+        assertTrue( stackTrace.contains("at goson.typeloader.JSchemaRPCTypesTest$ThrowsImpl.npeException") )
+        assertTrue( stackTrace.contains("at goson.examples.rpc.ThrowsExceptions.npeException()") )
       }
     }
   }

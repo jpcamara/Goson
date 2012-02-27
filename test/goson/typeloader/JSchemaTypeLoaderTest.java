@@ -33,38 +33,38 @@ import static org.junit.Assert.assertNotNull;
 public class JSchemaTypeLoaderTest extends GosonTest {
 
     public void testBasicGosonTypes() {
-        IType nameAndAge = TypeSystem.getByFullName("org.jschema.examples.NameAndAge");
+        IType nameAndAge = TypeSystem.getByFullName("goson.examples.NameAndAge");
         assertNotNull(nameAndAge);
     }
 
     public void testNestedGosonTypes() {
-        IType fullExample = TypeSystem.getByFullName("org.jschema.examples.fullexample.Example");
+        IType fullExample = TypeSystem.getByFullName("goson.examples.fullexample.Example");
         assertNotNull(fullExample);
 
-        IType someType = TypeSystem.getByFullName("org.jschema.examples.fullexample.Example.SomeType");
+        IType someType = TypeSystem.getByFullName("goson.examples.fullexample.Example.SomeType");
         assertNotNull(someType);
 
-        IType nestedType = TypeSystem.getByFullName("org.jschema.examples.fullexample.Example.SomeType.NestedType");
+        IType nestedType = TypeSystem.getByFullName("goson.examples.fullexample.Example.SomeType.NestedType");
         assertNotNull(nestedType);
     }
 
     public void testRPCTypes() {
-        assertNotNull(TypeSystem.getByFullName("org.jschema.examples.rpc.Sample1"));
+        assertNotNull(TypeSystem.getByFullName("goson.examples.rpc.Sample1"));
 
-        assertNotNull(TypeSystem.getByFullName("org.jschema.examples.rpc.Sample1.GetEmployee"));
+        assertNotNull(TypeSystem.getByFullName("goson.examples.rpc.Sample1.GetEmployee"));
 
-        assertNull(TypeSystem.getByFullNameIfValid("org.jschema.examples.rpc.Sample1.GetEmployee.Id"));
+        assertNull(TypeSystem.getByFullNameIfValid("goson.examples.rpc.Sample1.GetEmployee.Id"));
 
-        assertNull(TypeSystem.getByFullNameIfValid("org.jschema.examples.rpc.Sample1.UpdateEmployee"));
-        assertNotNull(TypeSystem.getByFullName("org.jschema.examples.rpc.Sample1.UpdateEmployee.Employee"));
+        assertNull(TypeSystem.getByFullNameIfValid("goson.examples.rpc.Sample1.UpdateEmployee"));
+        assertNotNull(TypeSystem.getByFullName("goson.examples.rpc.Sample1.UpdateEmployee.Employee"));
     }
 
     public void testJsonTypes() {
-        assertNotNull(TypeSystem.getByFullName("org.jschema.examples.flickr.GalleriesList"));
+        assertNotNull(TypeSystem.getByFullName("goson.examples.flickr.GalleriesList"));
 
-        assertNotNull(TypeSystem.getByFullName("org.jschema.examples.flickr.GalleriesList.Galleries"));
+        assertNotNull(TypeSystem.getByFullName("goson.examples.flickr.GalleriesList.Galleries"));
 
-        //assertNull(TypeSystem.getByFullNameIfValid("org.jschema.examples.RegularJson"));
+        //assertNull(TypeSystem.getByFullNameIfValid("goson.examples.RegularJson"));
     }
 
 }

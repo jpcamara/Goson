@@ -72,14 +72,14 @@
         </excludes>
       </resource>
     </resources>
-    <testResources>
+    <!--<testResources>
       <testResource>
         <directory>test</directory>
         <excludes>
           <exclude>**/*.java</exclude>
         </excludes>
       </testResource>
-    </testResources>
+    </testResources>-->
     <plugins>
       <plugin>
         <groupId>org.gosu-lang</groupId>
