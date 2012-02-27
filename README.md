@@ -301,7 +301,7 @@ JSchema RPC types are defined in `.jsc-rpc` files.  Here is a simple example:
           "age" : "int",
           "id" : "int"
         }
-      }
+      },
       "functions" : [
         { "name" : "getEmployee",
           "description" : "Returns the employee of the given id",
@@ -315,7 +315,7 @@ JSchema RPC types are defined in `.jsc-rpc` files.  Here is a simple example:
         },
         { "name" : "updateEmployee",
           "description" : "Updates the given employee",
-          "args" : [ { "employee", "Employee" } ],
+          "args" : [ { "employee" : "Employee" } ],
           "return_type" : "boolean"
         }
       ]
