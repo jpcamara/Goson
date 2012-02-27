@@ -6,20 +6,12 @@ import gw.lang.reflect.IType;
 import gw.lang.reflect.ITypeInfo;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.java.IJavaType;
-<<<<<<< HEAD:src/goson/rpc/RPCEndPoint.java
 import goson.model.JsonList;
 import goson.model.JsonMap;
 import goson.typeloader.rpc.IJSchemaRPCType;
 import goson.typeloader.rpc.JSchemaRPCTypeInfoBase;
 import goson.util.JSchemaUtils;
-=======
 import gw.lang.reflect.java.JavaTypes;
-import org.jschema.model.JsonList;
-import org.jschema.model.JsonMap;
-import org.jschema.typeloader.rpc.IJSchemaRPCType;
-import org.jschema.typeloader.rpc.JSchemaRPCTypeInfoBase;
-import org.jschema.util.JSchemaUtils;
->>>>>>> 211d39e0b8aceadbf630fc4449761e64d96f71a6:src/org/jschema/rpc/RPCEndPoint.java
 
 import java.net.URI;
 import java.util.ArrayList;

@@ -1,15 +1,15 @@
-package org.jschema.parser;
+package goson.parser;
 
+import goson.model.JsonList;
+import goson.model.JsonMap;
+import goson.typeloader.IJSchemaType;
+import goson.util.JSchemaUtils;
 import gw.internal.gosu.parser.TypeLord;
 import gw.lang.reflect.IEnumType;
 import gw.lang.reflect.IEnumValue;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.java.JavaTypes;
-import org.jschema.model.JsonList;
-import org.jschema.model.JsonMap;
-import org.jschema.typeloader.IJSchemaType;
-import org.jschema.util.JSchemaUtils;
 
 import java.math.BigDecimal;
 import java.net.URI;

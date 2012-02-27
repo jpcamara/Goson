@@ -7,25 +7,15 @@ import gw.lang.annotation.Annotations;
 import gw.lang.function.Function0;
 import gw.lang.reflect.*;
 import gw.lang.reflect.IRelativeTypeInfo.Accessibility;
-<<<<<<< HEAD:src/goson/typeloader/JSchemaTypeInfo.java
-import gw.lang.reflect.java.IJavaType;
-import gw.util.concurrent.LazyVar;
+import gw.lang.reflect.java.JavaTypes;
+import gw.util.concurrent.LockingLazyVar;
 import goson.model.JsonList;
 import goson.model.JsonMap;
 import goson.model.JsonObject;
+import goson.rpc.RPCDefaults;
+import goson.rpc.RPCLoggerCallback;
 import goson.rpc.SimpleRPCCallHandler;
 import goson.util.JSchemaUtils;
-=======
-import gw.lang.reflect.java.JavaTypes;
-import gw.util.concurrent.LockingLazyVar;
-import org.jschema.model.JsonList;
-import org.jschema.model.JsonMap;
-import org.jschema.model.JsonObject;
-import org.jschema.rpc.RPCDefaults;
-import org.jschema.rpc.RPCLoggerCallback;
-import org.jschema.rpc.SimpleRPCCallHandler;
-import org.jschema.util.JSchemaUtils;
->>>>>>> 211d39e0b8aceadbf630fc4449761e64d96f71a6:src/org/jschema/typeloader/JSchemaTypeInfo.java
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

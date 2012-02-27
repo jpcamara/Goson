@@ -1,11 +1,11 @@
-package org.jschema.parser;
+package goson.parser;
 
+import goson.model.JsonMap;
+import goson.typeloader.IJSchemaType;
+import goson.util.JSchemaUtils;
 import gw.internal.gosu.parser.TypeLord;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.java.JavaTypes;
-import org.jschema.model.JsonMap;
-import org.jschema.typeloader.IJSchemaType;
-import org.jschema.util.JSchemaUtils;
 
 import java.text.MessageFormat;
 import java.util.Collections;

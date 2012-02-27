@@ -110,8 +110,8 @@
               <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
             </manifest>
             <manifestEntries>
-	          <Main-Class>org.jschema.util.JSONToJSchema</Main-Class>
-	          <Gosu-Typeloaders>org.jschema.typeloader.JSchemaTypeLoader</Gosu-Typeloaders>
+	          <Main-Class>goson.util.JSONToJSchema</Main-Class>
+	          <Gosu-Typeloaders>goson.typeloader.JSchemaTypeLoader</Gosu-Typeloaders>
 	        </manifestEntries>
           </archive>
         </configuration>

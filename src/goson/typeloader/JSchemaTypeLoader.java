@@ -1,5 +1,12 @@
 package goson.typeloader;
 
+import goson.model.JsonMap;
+import goson.parser.JSchemaParser;
+import goson.parser.JsonParseError;
+import goson.parser.JsonParseException;
+import goson.typeloader.rpc.JSchemaCustomizedRPCType;
+import goson.typeloader.rpc.JSchemaRPCType;
+import goson.util.JSchemaUtils;
 import gw.fs.IFile;
 import gw.lang.reflect.IType;
 import gw.lang.reflect.TypeLoaderBase;
@@ -7,22 +14,7 @@ import gw.lang.reflect.TypeSystem;
 import gw.lang.reflect.module.IModule;
 import gw.util.GosuExceptionUtil;
 import gw.util.Pair;
-<<<<<<< HEAD:src/goson/typeloader/JSchemaTypeLoader.java
-import gw.util.concurrent.LazyVar;
-import goson.parser.JsonParseException;
-import goson.typeloader.rpc.JSchemaCustomizedRPCType;
-import goson.typeloader.rpc.JSchemaRPCType;
-import goson.util.JSchemaUtils;
-=======
 import gw.util.concurrent.LockingLazyVar;
-import org.jschema.model.JsonMap;
-import org.jschema.parser.JSchemaParser;
-import org.jschema.parser.JsonParseError;
-import org.jschema.parser.JsonParseException;
-import org.jschema.typeloader.rpc.JSchemaCustomizedRPCType;
-import org.jschema.typeloader.rpc.JSchemaRPCType;
-import org.jschema.util.JSchemaUtils;
->>>>>>> 211d39e0b8aceadbf630fc4449761e64d96f71a6:src/org/jschema/typeloader/JSchemaTypeLoader.java
 
 import java.io.FileNotFoundException;
 import java.util.*;

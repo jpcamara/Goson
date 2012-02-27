@@ -1,21 +1,14 @@
 package goson.typeloader;
 
+import goson.parser.JsonParseError;
 import gw.lang.reflect.*;
 import gw.lang.reflect.java.IJavaType;
 import gw.lang.reflect.java.JavaTypes;
 import gw.util.GosuClassUtil;
-<<<<<<< HEAD:src/goson/typeloader/JSchemaTypeBase.java
-import gw.util.concurrent.LazyVar;
 import goson.model.JsonList;
 import goson.model.JsonMap;
 import goson.util.JSchemaUtils;
-=======
 import gw.util.concurrent.LockingLazyVar;
-import org.jschema.model.JsonList;
-import org.jschema.model.JsonMap;
-import org.jschema.parser.JsonParseError;
-import org.jschema.util.JSchemaUtils;
->>>>>>> 211d39e0b8aceadbf630fc4449761e64d96f71a6:src/org/jschema/typeloader/JSchemaTypeBase.java
 
 import java.net.URI;
 import java.util.*;

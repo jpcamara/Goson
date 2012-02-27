@@ -12,99 +12,99 @@ uses goson.examples.rpc.ArgTypeValidation
 
 class RPCEndPointTest extends GosonTest {
 
-// RPCEndPoint.validate() tests.
+  // RPCEndPoint.validate() tests.
 
- function testValidateThrowsForIncompleteImpl()
- {
+  function testValidateThrowsForIncompleteImpl()
+  {
     try{
-        var endPoint = new RPCEndPoint(ValidationBasis, new IncompleteValidation(), "/validation")
-        fail("Exception not thrown")
+      var endPoint = new RPCEndPoint(ValidationBasis, new IncompleteValidation(), "/validation")
+      fail("Exception not thrown")
     }
-    catch(jse : JSchemaRPCException) {
-        // Gulp
-    }
- }
+        catch(jse : JSchemaRPCException) {
+          // Gulp
+        }
+  }
 
- function testValidateThrowsForIncorrectArgType()
- {
-     try{
-         var endPoint = new RPCEndPoint(ValidationBasis, new IncorrectArgTypeValidation(), "/validation")
-         fail("Exception not thrown")
-     }
-     catch(jse : JSchemaRPCException) {
-         // Gulp
-     }
- }
-
- function testValidateThrowsForIncorrectArgCount()
- {
-     try{
-         var endPoint = new RPCEndPoint(ValidationBasis, new IncorrectArgCountValidation(), "/validation")
-         fail("Exception not thrown")
-     }
-     catch(jse : JSchemaRPCException) {
-         // Gulp
-     }
- }
-
- function testValidateThrowsForIncorrectReturnType()
- {
+  function testValidateThrowsForIncorrectArgType()
+  {
     try{
-        var endPoint = new RPCEndPoint(ValidationBasis, new IncorrectReturnValidation(), "/validation")
-        fail("Exception not thrown")
+      var endPoint = new RPCEndPoint(ValidationBasis, new IncorrectArgTypeValidation(), "/validation")
+      fail("Exception not thrown")
     }
-    catch(jse : JSchemaRPCException) {
-        // Gulp
-    }
- }
+        catch(jse : JSchemaRPCException) {
+          // Gulp
+        }
+  }
 
- function testValidateAggregatesMultipleErrors()
- {
-     try{
-        var endPoint = new RPCEndPoint(ValidationBasis, new MultipleErrorValidation(), "/validation")
-        fail("Exception not thrown")
+  function testValidateThrowsForIncorrectArgCount()
+  {
+    try{
+      var endPoint = new RPCEndPoint(ValidationBasis, new IncorrectArgCountValidation(), "/validation")
+      fail("Exception not thrown")
     }
-    catch(rp : JSchemaRPCException){
-        var lines = rp.getMessage().split("\n");
-        assertEquals(4, lines.length)
+        catch(jse : JSchemaRPCException) {
+          // Gulp
+        }
+  }
+
+  function testValidateThrowsForIncorrectReturnType()
+  {
+    try{
+      var endPoint = new RPCEndPoint(ValidationBasis, new IncorrectReturnValidation(), "/validation")
+      fail("Exception not thrown")
     }
+        catch(jse : JSchemaRPCException) {
+          // Gulp
+        }
+  }
 
- }
+  function testValidateAggregatesMultipleErrors()
+  {
+    try{
+      var endPoint = new RPCEndPoint(ValidationBasis, new MultipleErrorValidation(), "/validation")
+      fail("Exception not thrown")
+    }
+        catch(rp : JSchemaRPCException){
+          var lines = rp.getMessage().split("\n");
+          assertEquals(4, lines.length)
+        }
 
- function testReturnTypesArePromiscuousWhores()
- {
+  }
+
+  function testReturnTypesArePromiscuousWhores()
+  {
     var endPoint = new RPCEndPoint(ReturnArgValidation, new ReturnArgValidationImpl1(), "/returntype")
     endPoint = new RPCEndPoint(ReturnArgValidation, new ReturnArgValidationImpl2(), "/returntype")
     endPoint = new RPCEndPoint(ReturnArgValidation, new ReturnArgValidationImpl3(), "/returntype")
     endPoint = new RPCEndPoint(ReturnArgValidation, new ReturnArgValidationImpl4(), "/returntype")
     endPoint = new RPCEndPoint(ReturnArgValidation, new ReturnArgValidationImpl5(), "/returntype")
- }
+  }
 
-   class ReturnArgValidationImpl1
+  class ReturnArgValidationImpl1
   {
     function intArgIntReturn(arg1: Long) : int
     {
-        return(23)
+      return(23)
     }
 
     function intArgNumberReturn(arg1 : Long) : float
     {
-        return(23.23)
+      return(23.23)
     }
 
     function voidArgBooleanReturn() : Boolean
     {
-        return(Boolean.TRUE)
+      return(Boolean.TRUE)
     }
 
     function voidArgArrayReturn() : List<Long>
     {
-        return(null)
+      return(null)
     }
 
     function voidArgMapReturn() : Map<String, Long>
     {
-        return(null)
+      return(null)
     }
   }
 
@@ -112,27 +112,27 @@ class RPCEndPointTest extends GosonTest {
   {
     function intArgIntReturn(arg1: Long) : long
     {
-        return(23L)
+      return(23L)
     }
 
     function intArgNumberReturn(arg1 : Long) : double
     {
-        return(23.23)
+      return(23.23)
     }
 
     function voidArgBooleanReturn() : Boolean
     {
-        return(Boolean.TRUE)
+      return(Boolean.TRUE)
     }
 
     function voidArgArrayReturn() : ArrayList<Long>
     {
-        return(null)
+      return(null)
     }
 
     function voidArgMapReturn() : Map<String, Long>
     {
-        return(null)
+      return(null)
     }
 
   }
@@ -141,59 +141,59 @@ class RPCEndPointTest extends GosonTest {
   {
     function intArgIntReturn(arg1: Long) : byte
     {
-        return(23)
+      return(23)
     }
 
     function intArgNumberReturn(arg1 : Long) : double
     {
-        return(23.23)
+      return(23.23)
     }
 
     function voidArgBooleanReturn() : Boolean
     {
-        return(Boolean.TRUE)
+      return(Boolean.TRUE)
     }
 
     function voidArgArrayReturn() : List<byte>
     {
-        return(null)
+      return(null)
     }
 
     function voidArgMapReturn() : Map<String, byte>
     {
-        return(null)
+      return(null)
     }
 
   }
 
-    class ReturnArgValidationImpl4
+  class ReturnArgValidationImpl4
+  {
+    function intArgIntReturn(arg1: Long) : Integer
     {
-      function intArgIntReturn(arg1: Long) : Integer
-      {
-          return(23)
-      }
+      return(23)
+    }
 
-      function intArgNumberReturn(arg1 : Long) : Double
-      {
-          return(23.23)
-      }
+    function intArgNumberReturn(arg1 : Long) : Double
+    {
+      return(23.23)
+    }
 
-     function voidArgBooleanReturn() : Boolean
-     {
-        return(Boolean.TRUE)
-     }
+    function voidArgBooleanReturn() : Boolean
+    {
+      return(Boolean.TRUE)
+    }
 
-     function voidArgArrayReturn() : List<int>
-     {
-        return(null)
-     }
+    function voidArgArrayReturn() : List<int>
+    {
+      return(null)
+    }
 
     function voidArgMapReturn() : Map<String, int>
     {
-        return(null)
+      return(null)
     }
 
-    }
+  }
 
 
   class RidiculousListDerivation extends ArrayList<int>
@@ -209,152 +209,152 @@ class RPCEndPointTest extends GosonTest {
   {
     function intArgIntReturn(arg1: Long) : Byte
     {
-        return(23)
+      return(23)
     }
 
     function intArgNumberReturn(arg1 : Long) : Float
     {
-        return(23.23)
+      return(23.23)
     }
 
-     function voidArgBooleanReturn() : boolean
-     {
-        return(Boolean.TRUE)
+    function voidArgBooleanReturn() : boolean
+    {
+      return(Boolean.TRUE)
     }
 
     function voidArgArrayReturn() : RidiculousListDerivation
     {
-        return(null)
+      return(null)
     }
 
     function voidArgMapReturn() : RidiculousMapDerivation
     {
-        return(null)
+      return(null)
     }
   }
 
- function testArguementTypesAreAsSluttyAsReturnTypes()
- {
+  function testArguementTypesAreAsSluttyAsReturnTypes()
+  {
     var endPoint = new RPCEndPoint(ArgTypeValidation, new ArgTypeValidationImpl1(), "/argtype")
     endPoint = new RPCEndPoint(ArgTypeValidation, new ArgTypeValidationImpl2(), "/argtype")
     endPoint = new RPCEndPoint(ArgTypeValidation, new ArgTypeValidationImpl3(), "/argtype")
     endPoint = new RPCEndPoint(ArgTypeValidation, new ArgTypeValidationImpl4(), "/argtype")
     endPoint = new RPCEndPoint(ArgTypeValidation, new ArgTypeValidationImpl5(), "/argtype")
- }
+  }
 
- class ArgTypeValidationImpl1{
+  class ArgTypeValidationImpl1{
     function intArgVoidReturn(arg1 : byte)
     {
-        return;
+      return;
     }
 
     function numberArgVoidReturn(arg1 : float)
     {
-        return;
+      return;
     }
- }
+  }
 
 
   class ArgTypeValidationImpl2{
-     function intArgVoidReturn(arg1 : int)
-     {
-         return;
-     }
+    function intArgVoidReturn(arg1 : int)
+    {
+      return;
+    }
 
-     function numberArgVoidReturn(arg1 : double)
-     {
-         return;
-     }
+    function numberArgVoidReturn(arg1 : double)
+    {
+      return;
+    }
   }
 
 
   class ArgTypeValidationImpl3{
-     function intArgVoidReturn(arg1 : long)
-     {
-         return;
-     }
+    function intArgVoidReturn(arg1 : long)
+    {
+      return;
+    }
 
-     function numberArgVoidReturn(arg1 : float)
-     {
-         return;
-     }
+    function numberArgVoidReturn(arg1 : float)
+    {
+      return;
+    }
   }
 
 
- class ArgTypeValidationImpl4{
+  class ArgTypeValidationImpl4{
     function intArgVoidReturn(arg1 : Byte)
     {
-        return;
+      return;
     }
 
     function numberArgVoidReturn(arg1 : Float)
     {
-        return;
+      return;
     }
- }
+  }
 
- class ArgTypeValidationImpl5{
+  class ArgTypeValidationImpl5{
     function intArgVoidReturn(arg1 : Integer)
     {
-        return;
+      return;
     }
 
     function numberArgVoidReturn(arg1 : Double)
     {
-        return;
+      return;
     }
- }
+  }
 
- class MultipleErrorValidation{
+  class MultipleErrorValidation{
     function intArgVoidReturn(arg1 : String) : Boolean
     {
-        return(Boolean.TRUE);
+      return(Boolean.TRUE);
     }
- }
+  }
 
 
- class IncompleteValidation {
+  class IncompleteValidation {
     function intArgVoidReturn(arg1 : Long)
     {
-        return;
+      return;
     }
     // Missing intArgBoolArgBooleanReturn
- }
+  }
 
- class IncorrectArgTypeValidation{
+  class IncorrectArgTypeValidation{
     function intArgVoidReturn(arg1 : Long)
     {
-        return;
+      return;
     }
 
     function intArgBoolArgBooleanReturn(arg1 : String, arg2 : Boolean) : Boolean
     {
-        return(Boolean.TRUE)
+      return(Boolean.TRUE)
     }
- }
+  }
 
- class IncorrectArgCountValidation{
+  class IncorrectArgCountValidation{
     function intArgVoidReturn(arg1 : Long)
     {
-        return;
+      return;
     }
 
     function intArgBoolArgBooleanReturn(arg1 : Long) : Boolean
     {
-        return(Boolean.TRUE)
+      return(Boolean.TRUE)
     }
- }
+  }
 
- class IncorrectReturnValidation{
-     function intArgVoidReturn(arg1 : Long)
-     {
-         return;
-     }
+  class IncorrectReturnValidation{
+    function intArgVoidReturn(arg1 : Long)
+    {
+      return;
+    }
 
-     function intArgBoolArgBooleanReturn(arg1 : Integer, arg2 : Boolean) : Long
-     {
-         return(new Long(1))
-     }
+    function intArgBoolArgBooleanReturn(arg1 : Integer, arg2 : Boolean) : Long
+    {
+      return(new Long(1))
+    }
   }
 
 

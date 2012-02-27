@@ -3,7 +3,6 @@ package goson.typeloader
 uses java.util.*
 uses java.lang.*
 uses java.math.*
-<<<<<<< HEAD:test/goson/typeloader/JSchemaRPCTypesTest.gs
 uses goson.test.*
 uses goson.rpc.*
 uses goson.examples.rpc.Defaults
@@ -14,20 +13,8 @@ uses goson.examples.rpc.Sample1.UpdateEmployee.Employee
 uses goson.examples.rpc.Sample2
 uses goson.examples.rpc.Adder
 uses goson.examples.rpc.ReturnsArrays
-=======
-uses org.jschema.test.*
-uses org.jschema.rpc.*
-uses org.jschema.examples.rpc.Defaults
-uses org.jschema.examples.rpc.Sample1
-uses org.jschema.examples.rpc.ThrowsExceptions
-uses org.jschema.examples.rpc.Sample1.GetEmployee
-uses org.jschema.examples.rpc.Sample1.UpdateEmployee.Employee
-uses org.jschema.examples.rpc.Sample2
-uses org.jschema.examples.rpc.Adder
-uses org.jschema.examples.rpc.ReturnsArrays
-uses org.jschema.util.JettyStarter
+uses goson.util.JettyStarter
 uses gw.lang.reflect.*
->>>>>>> 211d39e0b8aceadbf630fc4449761e64d96f71a6:test/org/jschema/typeloader/JSchemaRPCTypesTest.gs
 
 class JSchemaRPCTypesTest extends GosonTest {
 
@@ -36,192 +23,192 @@ class JSchemaRPCTypesTest extends GosonTest {
     assertTrue(type.Valid)
   }
 
- function testBootstrapFile() {
-   var emp = Sample1
-                .with( :handler = \ method, url, args -> '{ "first_name" : "Joe", "last_name" : "Blow", "age" : 21, "id" : 42 }' )
-                .getEmployee(22)
+  function testBootstrapFile() {
+    var emp = Sample1
+        .with( :handler = \ method, url, args -> '{ "first_name" : "Joe", "last_name" : "Blow", "age" : 21, "id" : 42 }' )
+        .getEmployee(22)
 
-   assertEquals( "Joe", emp.FirstName )
-   assertEquals( "Blow", emp.LastName )
-   assertEquals( 21L, emp.Age )
-   assertEquals( 42L, emp.Id )
- }
+    assertEquals( "Joe", emp.FirstName )
+    assertEquals( "Blow", emp.LastName )
+    assertEquals( 21L, emp.Age )
+    assertEquals( 42L, emp.Id )
+  }
 
- function testBootstrapAdd() {
-   var server = new RPCServer()
-   server.addEndPoint( new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) )
-   using( server ) {
-     assertEquals( 2L, Sample1.add(1, 1) )
-     assertEquals( 0L, Sample1.add(1, -1) )
-     assertEquals( -1L, Sample1.add(0, -1) )
-   }
- }
+  function testBootstrapAdd() {
+    var server = new RPCServer()
+    server.addEndPoint( new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) )
+    using( server ) {
+      assertEquals( 2L, Sample1.add(1, 1) )
+      assertEquals( 0L, Sample1.add(1, -1) )
+      assertEquals( -1L, Sample1.add(0, -1) )
+    }
+  }
 
- function testBootstrapFile2() {
-   var emp = new Employee() {
-                  :FirstName = "Joe",
-                  :LastName = "Blow",
-                  :Age = 21
-                }
-   var result = Sample1
-                .with( :handler = \ method, url, args -> {
-                  assertNotNull(args["employee"])
-                  return 'true'
-                 } )
-                .updateEmployee(emp)
+  function testBootstrapFile2() {
+    var emp = new Employee() {
+    :FirstName = "Joe",
+    :LastName = "Blow",
+    :Age = 21
+  }
+    var result = Sample1
+        .with( :handler = \ method, url, args -> {
+          assertNotNull(args["employee"])
+          return 'true'
+        } )
+        .updateEmployee(emp)
 
-   assertTrue( result )
- }
+    assertTrue( result )
+  }
 
- function testBootstrapFileRemotelyWithGet() {
-   var server = new RPCServer()
-   server.addEndPoint( new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) )
-   using( server ) {
-     var emp = Sample1
-                  .with( :method = GET )
-                  .getEmployee(22)
+  function testBootstrapFileRemotelyWithGet() {
+    var server = new RPCServer()
+    server.addEndPoint( new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) )
+    using( server ) {
+      var emp = Sample1
+          .with( :method = GET )
+          .getEmployee(22)
 
-     assertEquals( "Joe", emp.FirstName )
-     assertEquals( "Blow", emp.LastName )
-     assertEquals( 21L, emp.Age )
-     assertEquals( 42L, emp.Id )
-   }
- }
+      assertEquals( "Joe", emp.FirstName )
+      assertEquals( "Blow", emp.LastName )
+      assertEquals( 21L, emp.Age )
+      assertEquals( 42L, emp.Id )
+    }
+  }
 
- function testBootstrapFileRemotelyWithPost() {
-   var server = new RPCServer()
-   server.addEndPoint( new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) )
-   using( server ) {
-     var emp = Sample1.getEmployee(22)
+  function testBootstrapFileRemotelyWithPost() {
+    var server = new RPCServer()
+    server.addEndPoint( new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) )
+    using( server ) {
+      var emp = Sample1.getEmployee(22)
 
-     assertEquals( "Joe", emp.FirstName )
-     assertEquals( "Blow", emp.LastName )
-     assertEquals( 21L, emp.Age )
-     assertEquals( 42L, emp.Id )
-   }
- }
+      assertEquals( "Joe", emp.FirstName )
+      assertEquals( "Blow", emp.LastName )
+      assertEquals( 21L, emp.Age )
+      assertEquals( 42L, emp.Id )
+    }
+  }
 
- function testBootstrapFileRemotelyWithGetOnJetty() {
-   using( JettyStarter.server( 12321, new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) ) ) {
-     var emp = Sample1
-                  .with( :method = GET )
-                  .getEmployee(22)
+  function testBootstrapFileRemotelyWithGetOnJetty() {
+    using( JettyStarter.server( 12321, new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) ) ) {
+      var emp = Sample1
+          .with( :method = GET )
+          .getEmployee(22)
 
-     assertEquals( "Joe", emp.FirstName )
-     assertEquals( "Blow", emp.LastName )
-     assertEquals( 21L, emp.Age )
-     assertEquals( 42L, emp.Id )
-   }
- }
+      assertEquals( "Joe", emp.FirstName )
+      assertEquals( "Blow", emp.LastName )
+      assertEquals( 21L, emp.Age )
+      assertEquals( 42L, emp.Id )
+    }
+  }
 
- function testBootstrapFileRemotelyWithPostOnJetty() {
-   using( JettyStarter.server( 12321, new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) ) ) {
-     var emp = Sample1
-                  .getEmployee(22)
+  function testBootstrapFileRemotelyWithPostOnJetty() {
+    using( JettyStarter.server( 12321, new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) ) ) {
+      var emp = Sample1
+          .getEmployee(22)
 
-     assertEquals( "Joe", emp.FirstName )
-     assertEquals( "Blow", emp.LastName )
-     assertEquals( 21L, emp.Age )
-     assertEquals( 42L, emp.Id )
-   }
- }
+      assertEquals( "Joe", emp.FirstName )
+      assertEquals( "Blow", emp.LastName )
+      assertEquals( 21L, emp.Age )
+      assertEquals( 42L, emp.Id )
+    }
+  }
 
- function testBootstrapFileRemotelyWithGetUsingApacheHTTPClient() {
-   var server = new RPCServer()
-   server.addEndPoint( new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) )
-   using( server ) {
-     var emp = Sample1
-                  .with( :handler = new ApacheHTTPClientCallHandler(), :method = GET )
-                  .getEmployee(22)
+  function testBootstrapFileRemotelyWithGetUsingApacheHTTPClient() {
+    var server = new RPCServer()
+    server.addEndPoint( new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) )
+    using( server ) {
+      var emp = Sample1
+          .with( :handler = new ApacheHTTPClientCallHandler(), :method = GET )
+          .getEmployee(22)
 
-     assertEquals( "Joe", emp.FirstName )
-     assertEquals( "Blow", emp.LastName )
-     assertEquals( 21L, emp.Age )
-     assertEquals( 42L, emp.Id )
-   }
- }
+      assertEquals( "Joe", emp.FirstName )
+      assertEquals( "Blow", emp.LastName )
+      assertEquals( 21L, emp.Age )
+      assertEquals( 42L, emp.Id )
+    }
+  }
 
- function testBootstrapFileRemotelyWithPostUsingApacheHTTPClient() {
-   var server = new RPCServer()
-   server.addEndPoint( new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) )
-   using( server ) {
-     var emp = Sample1
-                   .with( :handler = new ApacheHTTPClientCallHandler(),
-                          :method = Post )
-                   .getEmployee(22)
+  function testBootstrapFileRemotelyWithPostUsingApacheHTTPClient() {
+    var server = new RPCServer()
+    server.addEndPoint( new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) )
+    using( server ) {
+      var emp = Sample1
+          .with( :handler = new ApacheHTTPClientCallHandler(),
+              :method = Post )
+          .getEmployee(22)
 
-     assertEquals( "Joe", emp.FirstName )
-     assertEquals( "Blow", emp.LastName )
-     assertEquals( 21L, emp.Age )
-     assertEquals( 42L, emp.Id )
-   }
- }
+      assertEquals( "Joe", emp.FirstName )
+      assertEquals( "Blow", emp.LastName )
+      assertEquals( 21L, emp.Age )
+      assertEquals( 42L, emp.Id )
+    }
+  }
 
- function testBootstrapFileRemotelyWithGetUsingApacheHTTPClientOnJetty() {
-   using( JettyStarter.server( 12321, new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) ) ) {
-     var emp = Sample1
-                  .with( :handler = new ApacheHTTPClientCallHandler(),
-                         :method = GET )
-                  .getEmployee(22)
+  function testBootstrapFileRemotelyWithGetUsingApacheHTTPClientOnJetty() {
+    using( JettyStarter.server( 12321, new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) ) ) {
+      var emp = Sample1
+          .with( :handler = new ApacheHTTPClientCallHandler(),
+              :method = GET )
+          .getEmployee(22)
 
-     assertEquals( "Joe", emp.FirstName )
-     assertEquals( "Blow", emp.LastName )
-     assertEquals( 21L, emp.Age )
-     assertEquals( 42L, emp.Id )
-   }
- }
+      assertEquals( "Joe", emp.FirstName )
+      assertEquals( "Blow", emp.LastName )
+      assertEquals( 21L, emp.Age )
+      assertEquals( 42L, emp.Id )
+    }
+  }
 
- function testBootstrapFileRemotelyWithPostUsingApacheHTTPClientOnJetty() {
-   using( JettyStarter.server( 12321, new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) ) ) {
-     var emp = Sample1
-                  .with(:handler = new ApacheHTTPClientCallHandler())
-                  .getEmployee(22)
+  function testBootstrapFileRemotelyWithPostUsingApacheHTTPClientOnJetty() {
+    using( JettyStarter.server( 12321, new RPCEndPoint( Sample1, new Impl1(), "/sample1" ) ) ) {
+      var emp = Sample1
+          .with(:handler = new ApacheHTTPClientCallHandler())
+          .getEmployee(22)
 
-     assertEquals( "Joe", emp.FirstName )
-     assertEquals( "Blow", emp.LastName )
-     assertEquals( 21L, emp.Age )
-     assertEquals( 42L, emp.Id )
-   }
- }
+      assertEquals( "Joe", emp.FirstName )
+      assertEquals( "Blow", emp.LastName )
+      assertEquals( 21L, emp.Age )
+      assertEquals( 42L, emp.Id )
+    }
+  }
 
- class Impl1 {
-   function getEmployee( id : Long ) : GetEmployee {
-     return new GetEmployee() {
-       :FirstName = "Joe",
-       :LastName = "Blow",
-       :Age = 21,
-       :Id = 42
-     }
-   }
+  class Impl1 {
+    function getEmployee( id : Long ) : GetEmployee {
+      return new GetEmployee() {
+      :FirstName = "Joe",
+      :LastName = "Blow",
+      :Age = 21,
+      :Id = 42
+    }
+    }
 
-   function updateEmployee(emp : Employee) : Boolean
-   {
-     return(true)
-   }
+    function updateEmployee(emp : Employee) : Boolean
+    {
+      return(true)
+    }
 
-   function add( i1 : Long , i2 : Long ) : Long {
-     return i1 + i2
-   }
- }
+    function add( i1 : Long , i2 : Long ) : Long {
+      return i1 + i2
+    }
+  }
 
- function testBootstrapWithTypeDef() {
- 
-   var emp = Sample2
-                .with( :handler = \ method, url, args -> '{ "first_name" : "Joe", "last_name" : "Blow", "age" : 21, "id" : 42 }' )
-                .getEmployee(22)
+  function testBootstrapWithTypeDef() {
 
-   assertEquals( "Joe", emp.FirstName )
-   assertEquals( "Blow", emp.LastName )
-   assertEquals( 21L, emp.Age )
+    var emp = Sample2
+        .with( :handler = \ method, url, args -> '{ "first_name" : "Joe", "last_name" : "Blow", "age" : 21, "id" : 42 }' )
+        .getEmployee(22)
 
-   var result = Sample2
-                .with( :handler = \ method, url, args -> 'true' )
-                .updateEmployee(emp)
+    assertEquals( "Joe", emp.FirstName )
+    assertEquals( "Blow", emp.LastName )
+    assertEquals( 21L, emp.Age )
 
-   assertTrue( result )
- }
+    var result = Sample2
+        .with( :handler = \ method, url, args -> 'true' )
+        .updateEmployee(emp)
 
- function testException() {
+    assertTrue( result )
+  }
+
+  function testException() {
     var server = new RPCServer()
     server.addEndPoint( new RPCEndPoint( ThrowsExceptions, new ThrowsImpl(), "/throws" ) )
     using( server ) {
@@ -232,9 +219,9 @@ class JSchemaRPCTypesTest extends GosonTest {
         //pass
       }
     }
- }
+  }
 
- function testNestedException() {
+  function testNestedException() {
     var server = new RPCServer()
     server.addEndPoint( new RPCEndPoint( ThrowsExceptions, new ThrowsImpl(), "/throws" ) )
     using( server ) {
@@ -245,9 +232,9 @@ class JSchemaRPCTypesTest extends GosonTest {
         //pass
       }
     }
- }
+  }
 
- function testNpeException() {
+  function testNpeException() {
     var server = new RPCServer()
     server.addEndPoint( new RPCEndPoint( ThrowsExceptions, new ThrowsImpl(), "/throws" ) )
     using( server ) {
@@ -256,32 +243,32 @@ class JSchemaRPCTypesTest extends GosonTest {
         fail("Should have thrown an NPE")
       } catch (npe : java.lang.NullPointerException) {
         var stackTrace = npe.StackTraceAsString
-        assertTrue( stackTrace.contains("at goson.typeloader.JSchemaRPCTypesTest$ThrowsImpl.npeException") )
-        assertTrue( stackTrace.contains("at goson.examples.rpc.ThrowsExceptions.npeException()") )
+        assertTrue( stackTrace.contains("at org.jschema.typeloader.JSchemaRPCTypesTest$ThrowsImpl.npeException") )
+        assertTrue( stackTrace.contains("at org.jschema.examples.rpc.ThrowsExceptions.npeException()") )
       }
     }
- }
+  }
 
 
 
- class ThrowsImpl {
-   function exception() {
-     throw "Good times, good times"
-   }
+  class ThrowsImpl {
+    function exception() {
+      throw "Good times, good times"
+    }
 
-   function deepException( depth : Long ) {
-     if(depth.intValue() <= 0) {
-       throw "Good times, good times"
-     } else {
-       deepException( new Long(depth.intValue() - 1) )
-     }
-   }
+    function deepException( depth : Long ) {
+      if(depth.intValue() <= 0) {
+        throw "Good times, good times"
+      } else {
+        deepException( new Long(depth.intValue() - 1) )
+      }
+    }
 
-   function npeException() {
-     var x : String = null
-     print( x.length() )
-   }
- }
+    function npeException() {
+      var x : String = null
+      print( x.length() )
+    }
+  }
 
   function testDefaultsImplementation() {
     var server = new RPCServer()
@@ -371,68 +358,68 @@ class JSchemaRPCTypesTest extends GosonTest {
     }
   }
 
- function testSchemaPublishesCorrectly() {
+  function testSchemaPublishesCorrectly() {
     var server = new RPCServer()
     server.addEndPoint( new RPCEndPoint( ThrowsExceptions, new ThrowsImpl(), "/throws" ) )
     using( server ) {
       assertEquals(ThrowsExceptions.Schema, SimpleRPCCallHandler.doGet("http://localhost:12321/throws?JSchema-RPC"))
     }
- }
+  }
 
- function testLogger() {
+  function testLogger() {
     var server = new RPCServer()
     server.addEndPoint( new RPCEndPoint( Adder, new AdderImpl(), "/adder" ) )
     using( server ) {
       try {
         var logMessages = {}
         var theAnswer = Adder
-                          .with( :logger = \ s -> {
-                            print( s )
-                            logMessages.add( s )
-                          })
-                          .add(40, 2)
+            .with( :logger = \ s -> {
+              print( s )
+              logMessages.add( s )
+            })
+            .add(40, 2)
         assertEquals( 42L, theAnswer )
         assertFalse( logMessages.Empty )
       } catch( e ) {
         //pass
       }
     }
- }
+  }
 
- function testWrapper() {
+  function testWrapper() {
     var server = new RPCServer()
     server.addEndPoint( new RPCEndPoint( Adder, new AdderImpl(), "/adder" ) )
     using( server ) {
       try {
         var logMessages = {}
         var theAnswer = Adder
-                          .with( :wrapper = \ url, callback -> {
-                            logMessages.add("Before")
-                            print("Before ${url}")
-                            print(statictypeof callback)
-                            var val = callback.call()
-                            logMessages.add("After ${url}")
-                            print("After ${url}")
-                            return val as String
-                          })
-                          .add(40, 2)
+            .with( :wrapper = \ url, callback -> {
+              logMessages.add("Before")
+              print("Before ${url}")
+              print(statictypeof callback)
+              var val = callback.call()
+              logMessages.add("After ${url}")
+              print("After ${url}")
+              return val as String
+            })
+            .add(40, 2)
         assertEquals( 42L, theAnswer )
         assertEquals( 2, logMessages.Count )
       } catch( e ) {
         //pass
       }
     }
- }
+  }
 
- function testGlobalLogger() {
+  function testGlobalLogger() {
     var server = new RPCServer()
     server.addEndPoint( new RPCEndPoint( Adder, new AdderImpl(), "/adder" ) )
 
     var logMessages = {}
     RPCDefaults.setLogger( \ s -> {
-                            print( s )
-                            logMessages.add( s )
-                          })
+      print( s )
+      logMessages.add( s )
+    })
     try {
       using( server ) {
         try {
@@ -446,31 +433,31 @@ class JSchemaRPCTypesTest extends GosonTest {
     } finally {
       RPCDefaults.setLogger(null)
     }
- }
+  }
 
- function testGlobalWrapper() {
+  function testGlobalWrapper() {
     var server = new RPCServer()
     server.addEndPoint( new RPCEndPoint( Adder, new AdderImpl(), "/adder" ) )
 
     var logMessages = {}
     RPCDefaults.setCallWrapper( \ url, callback -> {
-                              logMessages.add("Before")
-                              print("Before ${url}")
-                              print(statictypeof callback)
-                              var val = callback.call()
-                              logMessages.add("After ${url}")
-                              print("After ${url}")
-                              return val as String
-                          } )
+      logMessages.add("Before")
+      print("Before ${url}")
+      print(statictypeof callback)
+      var val = callback.call()
+      logMessages.add("After ${url}")
+      print("After ${url}")
+      return val as String
+    } )
     RPCDefaults.setHandlerWrapper( \ url, callback -> {
-                              logMessages.add("Before")
-                              print("Before ${url}")
-                              print(statictypeof callback)
-                              var val = callback.call()
-                              logMessages.add("After ${url}")
-                              print("After ${url}")
-                              return val as String
-                          } )
+      logMessages.add("Before")
+      print("Before ${url}")
+      print(statictypeof callback)
+      var val = callback.call()
+      logMessages.add("After ${url}")
+      print("After ${url}")
+      return val as String
+    } )
     try {
       using( server ) {
         try {
@@ -485,13 +472,13 @@ class JSchemaRPCTypesTest extends GosonTest {
       RPCDefaults.setCallWrapper(null)
       RPCDefaults.setHandlerWrapper(null)
     }
- }
+  }
 
- class AdderImpl {
-   function add(i : Long, j : Long) : Long {
-     return i + j
-   }
- }
+  class AdderImpl {
+    function add(i : Long, j : Long) : Long {
+      return i + j
+    }
+  }
 
   function testArrays() {
     var server = new RPCServer()
@@ -499,17 +486,17 @@ class JSchemaRPCTypesTest extends GosonTest {
     using( server ) {
       assertEquals( {1L, 2L}, ReturnsArrays.intArray() )
       assertEquals( { new ReturnsArrays.Example(){ :Foo = "blah" } }, ReturnsArrays.refArray() )
-    }
+  }
   }
 
   class ReturnsArraysImpl {
-    function intArray() : List<Long> {
-      return {1L, 2L}
-    }
+  function intArray() : List<Long> {
+  return {1L, 2L}
+  }
 
-    function refArray() : List<ReturnsArrays.Example> {
-      return { new ReturnsArrays.Example(){ :Foo = "blah" } }
-    }
+  function refArray() : List<ReturnsArrays.Example> {
+  return { new ReturnsArrays.Example(){ :Foo = "blah" } }
+  }
   }
 
 

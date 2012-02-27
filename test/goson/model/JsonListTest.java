@@ -1,7 +1,6 @@
 package goson.model;
 
 import junit.framework.TestCase;
-import org.junit.Ignore;
 
 import java.util.*;
 
